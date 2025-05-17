@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><title>Animais</title></head>
+<body>
+  <h1>Lista de Animais</h1>
+
+  <table border="1">
+    <tr>
+      <th>ID</th><th>Nome</th><th>Idade</th><th>Porte</th><th>Tipo</th>
+      <th>Sexo</th><th>Status</th><th>Ações</th>
+    </tr>
+
+    {% for a in animais %}
+      <tr>
+        <td>{{ a[0] }}</td>
+        <td>{{ a[1] }}</td>
+        <td>{{ a[2] }}</td>
+        <td>{{ a[3] }}</td>
+        <td>{{ a[4] }}</td>
+        <td>{{ a[5] }}</td>
+        <td>{{ a[6] }}</td>
+
+        <!-- Ações -->
+        <td>
+          <!-- UPDATE -->
+          <a href="/admin/animais/editar/{{ a[0] }}">Editar</a>
+
+          <!-- DELETE (usa POST pra segurança) -->
+          <form action="/admin/animais/excluir/{{ a[0] }}" method="post" style="display:inline;">
+            <button type="submit" onclick="return confirm('Excluir {{ a[1] }}?')">Excluir</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+
+  <p><a href="/admin/animais/adicionar">Adicionar novo</a></p>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><title>{{ 'Editar' if animal else 'Adicionar' }} Animal</title></head>
+<body>
+  <h1>{{ 'Editar' if animal else 'Adicionar' }} Animal</h1>
+
+  <form method="post" enctype="multipart/form-data">
+    <label>Nome:
+      <input type="text" name="nome" required
+             value="{{ animal[1] if animal else '' }}">
+    </label><br>
+
+    <label>Idade:
+      <input type="number" name="idade"
+             value="{{ animal[2] if animal else '' }}">
+    </label><br>
+
+    <label>Porte:
+      <select name="porte">
+        {% for p in ['pequeno','medio','grande'] %}
+          <option value="{{ p }}"
+           {% if animal and animal[3]==p %}selected{% endif %}>{{ p|capitalize }}</option>
+        {% endfor %}
+      </select>
+    </label><br>
+
+    <label>Tipo:
+      <select name="tipo">
+        {% for t in ['cachorro','gato','outro'] %}
+          <option value="{{ t }}"
+           {% if animal and animal[4]==t %}selected{% endif %}>{{ t|capitalize }}</option>
+        {% endfor %}
+      </select>
+    </label><br>
+
+    <label>Sexo:
+      <select name="sexo">
+        {% for s in ['macho','femea'] %}
+          <option value="{{ s }}"
+           {% if animal and animal[5]==s %}selected{% endif %}>{{ s|capitalize }}</option>
+        {% endfor %}
+      </select>
+    </label><br>
+
+    <label>Descrição:<br>
+      <textarea name="descricao">{{ animal[6] if animal else '' }}</textarea>
+    </label><br>
+
+    <label>Status:
+      <select name="status">
+        {% for st in ['disponivel','adotado','em_tratamento'] %}
+          <option value="{{ st }}"
+           {% if animal and animal[7]==st %}selected{% endif %}>{{ st.replace('_',' ').capitalize() }}</option>
+        {% endfor %}
+      </select>
+    </label><br>
+
+    <label>Imagem:
+      <input type="file" name="imagem">
+      {% if animal and animal[8] %}
+        <br>Atual: <img src="{{ url_for('static', filename=animal[8]) }}" height="80">
+      {% endif %}
+    </label><br><br>
+
+    <button type="submit">Salvar</button>
+    <a href="/admin/animais">Cancelar</a>
+  </form>
+</body>
+</html>
