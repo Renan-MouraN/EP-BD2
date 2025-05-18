@@ -114,7 +114,7 @@ def produtos():
     return render_template('produtos.html', produtos=produtos)
 
 # Login de administrador (simplificado)
-@app.route('/admin', methods=['GET', 'POST']) #antes era /admin_login, mas eu deixei só admin para testar o CRUD 
+@app.route('/admin', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'POST':
         username = request.form['username']
@@ -128,7 +128,7 @@ def admin_login():
         else:
             flash('Credenciais inválidas', 'error')
     
-    return render_template('admin.html')   #antes era admin_login.html, mas eu deixei só admin para testar o CRUD 
+    return render_template('admin.html')
 
 # Verificar se o administrador está logado
 def admin_required(f):
@@ -145,7 +145,6 @@ def admin_required(f):
 #@admin_required
 def admin_dashboard():
     return render_template('admin_dashboard.html')
-
 
 # CRUD para animais
 @app.route('/admin/animais')
