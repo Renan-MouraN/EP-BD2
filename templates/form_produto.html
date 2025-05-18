@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PataCerta - {{ 'Editar' if animal else 'Adicionar' }} Animal</title>
+    <title>PataCerta - {{ titulo }}</title>
     <style>
         * {
             margin: 0;
@@ -20,8 +20,8 @@
             --light: #F4F6FC;         /* fundo geral */
             --accent: #FF6B6B;        /* acento coral (badges, botões de destaque) */
             --accent-light: #FCEEEE;  /* coral clarinho (seções suaves) */
-            --warning: #E7CA4A;       /* continua para “Urgente” */
-}
+            --warning: #E7CA4A;       /* continua para "Urgente" */
+        }
         
         body {
             background-color: var(--light);
@@ -113,27 +113,32 @@
             margin-bottom: 30px;
         }
         
-        /* Form Styles */
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .admin-header h2 {
+            color: var(--primary);
+            font-size: 24px;
+        }
+        
+        /* Form */
         .form-container {
             max-width: 800px;
             margin: 0 auto;
         }
         
-        .form-title {
-            color: var(--primary);
-            font-size: 24px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 25px;
         }
         
         .form-label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 500;
+            font-weight: 600;
             color: var(--dark);
         }
         
@@ -149,16 +154,7 @@
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.2);
-        }
-        
-        select.form-control {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23333' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
-            padding-right: 40px;
+            box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
         }
         
         textarea.form-control {
@@ -166,41 +162,26 @@
             resize: vertical;
         }
         
-        .file-input-container {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
+        .form-select {
             width: 100%;
-        }
-        
-        .file-input {
-            font-size: 16px;
-        }
-        
-        .current-image {
-            margin-top: 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .current-image img {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
             border-radius: 5px;
-            border: 1px solid var(--border);
-            object-fit: cover;
+            font-size: 16px;
+            background-color: white;
+            transition: border-color 0.3s;
         }
         
-        .current-image-label {
-            font-weight: 500;
-            color: var(--dark);
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
         }
         
-        .form-actions {
+        .form-buttons {
             display: flex;
-            gap: 15px;
+            justify-content: space-between;
             margin-top: 30px;
-            align-items: center;
-            justify-content: center;
         }
         
         .btn {
@@ -212,7 +193,6 @@
             cursor: pointer;
             transition: all 0.3s;
             display: inline-block;
-            text-align: center;
         }
         
         .btn-primary {
@@ -222,30 +202,21 @@
         }
         
         .btn-primary:hover {
-            background-color: var(--primary-hover);
-        }
-        
-        .btn-secondary {
-            background-color: var(--secondary);
-            color: white;
-            border: none;
-        }
-        
-        .btn-secondary:hover {
-            background-color: var(--secondary-hover);
+            background-color: #5850D8;
         }
         
         .btn-outline {
             background-color: transparent;
-            border: 2px solid var(--border);
-            color: var(--dark);
+            border: 2px solid var(--primary);
+            color: var(--primary);
         }
         
         .btn-outline:hover {
-            background-color: var(--light);
+            background-color: var(--primary);
+            color: white;
         }
         
-        /* Media Queries */
+        /* Responsive */
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
@@ -255,13 +226,14 @@
                 display: block;
             }
             
-            .form-actions {
+            .form-buttons {
                 flex-direction: column;
-                width: 100%;
+                gap: 15px;
             }
             
-            .form-actions .btn {
+            .form-buttons .btn {
                 width: 100%;
+                text-align: center;
             }
         }
     </style>
@@ -290,81 +262,71 @@
 
     <main>
         <div class="container">
-            <h1 class="page-title">{{ 'Editar' if animal else 'Adicionar' }} Animal</h1>
+            <h1 class="page-title">{{ titulo }}</h1>
             
             <section class="admin-section">
                 <div class="form-container">
-                    <h2 class="form-title">Formulário de {{ 'Edição' if animal else 'Cadastro' }}</h2>
-                    
-                    <form method="post" enctype="multipart/form-data">
+                        <form action="{{ url_for(action, prod_id=prod_id) }}" method="post" enctype="multipart/form-data">                        {% if produto %}
+                        <input type="hidden" name="id" value="{{ produto[0] }}">
+                        {% endif %}
+                        
                         <div class="form-group">
-                            <label class="form-label" for="nome">Nome:</label>
-                            <input type="text" id="nome" name="nome" class="form-control" required value="{{ animal[1] if animal else '' }}">
+                            <label for="nome" class="form-label">Nome do Produto</label>
+                            <input type="text" id="nome" name="nome" class="form-control" value="{{ produto[1] if produto else '' }}" required>
                         </div>
                         
                         <div class="form-group">
-                            <label class="form-label" for="idade">Idade:</label>
-                            <input type="number" id="idade" name="idade" class="form-control" value="{{ animal[2] if animal else '' }}">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="porte">Porte:</label>
-                            <select id="porte" name="porte" class="form-control">
-                                {% for p in ['pequeno','medio','grande'] %}
-                                <option value="{{ p }}" {% if animal and animal[3]==p %}selected{% endif %}>{{ p|capitalize }}</option>
-                                {% endfor %}
+                            <label for="categoria" class="form-label">Categoria</label>
+                            <select id="categoria" name="categoria" class="form-select" required>
+                                <option value="">Selecione uma categoria</option>
+                                <option value="Ração" {% if produto and produto[2] == 'Ração' %}selected{% endif %}>Ração</option>
+                                <option value="Brinquedos" {% if produto and produto[2] == 'Brinquedos' %}selected{% endif %}>Brinquedos</option>
+                                <option value="Camas e Casinhas" {% if produto and produto[2] == 'Camas e Casinhas' %}selected{% endif %}>Camas e Casinhas</option>
+                                <option value="Coleiras e Guias" {% if produto and produto[2] == 'Coleiras e Guias' %}selected{% endif %}>Coleiras e Guias</option>
+                                <option value="Higiene" {% if produto and produto[2] == 'Higiene' %}selected{% endif %}>Higiene</option>
+                                <option value="Saúde" {% if produto and produto[2] == 'Saúde' %}selected{% endif %}>Saúde</option>
+                                <option value="Acessórios" {% if produto and produto[2] == 'Acessórios' %}selected{% endif %}>Acessórios</option>
                             </select>
                         </div>
                         
                         <div class="form-group">
-                            <label class="form-label" for="tipo">Tipo:</label>
-                            <select id="tipo" name="tipo" class="form-control">
-                                {% for t in ['cachorro','gato','outro'] %}
-                                <option value="{{ t }}" {% if animal and animal[4]==t %}selected{% endif %}>{{ t|capitalize }}</option>
-                                {% endfor %}
+                            <label for="descricao" class="form-label">Descrição</label>
+                            <textarea id="descricao" name="descricao" class="form-control" required>{{ produto[6] if produto else '' }}</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="preco" class="form-label">Preço (R$)</label>
+                            <input type="number" id="preco" name="preco" class="form-control" step="0.01" min="0" value="{{ produto[3] if produto else '' }}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="estoque" class="form-label">Estoque</label>
+                            <input type="number" id="estoque" name="estoque" class="form-control" min="0" value="{{ produto[4] if produto else '0' }}" required>
+                        </div>
+                        
+                        <!--<div class="form-group">
+                            <label for="status" class="form-label">Status</label>
+                            <select id="status" name="status" class="form-select" required>
+                                <option value="Disponível" {% if produto and produto[5] == 'Disponível' %}selected{% endif %}>Disponível</option>
+                                <option value="Esgotado" {% if produto and produto[5] == 'Esgotado' %}selected{% endif %}>Esgotado</option>
+                                <option value="Promoção" {% if produto and produto[5] == 'Promoção' %}selected{% endif %}>Promoção</option>
                             </select>
-                        </div>
+                        </div> -->
                         
                         <div class="form-group">
-                            <label class="form-label" for="sexo">Sexo:</label>
-                            <select id="sexo" name="sexo" class="form-control">
-                                {% for s in ['macho','femea'] %}
-                                <option value="{{ s }}" {% if animal and animal[5]==s %}selected{% endif %}>{{ s|capitalize }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="descricao">Descrição:</label>
-                            <textarea id="descricao" name="descricao" class="form-control">{{ animal[6] if animal else '' }}</textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="status">Status:</label>
-                            <select id="status" name="status" class="form-control">
-                                {% for st in ['disponivel','adotado','em_tratamento','urgente'] %}
-                                <option value="{{ st }}" {% if animal and animal[7]==st %}selected{% endif %}>{{ st.replace('_',' ').capitalize() }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="imagem">Imagem:</label>
-                            <div class="file-input-container">
-                                <input type="file" id="imagem" name="imagem" class="file-input form-control">
-                            </div>
-                            
-                            {% if animal and animal[8] %}
-                            <div class="current-image">
-                                <span class="current-image-label">Imagem atual:</span>
-                                <img src="{{ url_for('static', filename=animal[8]) }}" height="100" alt="{{ animal[1] }}">
+                            <label for="imagem" class="form-label">Imagem do Produto</label>
+                            <input type="file" id="imagem" name="imagem" class="form-control">
+                            {% if produto and produto[7] %}
+                            <div style="margin-top: 10px;">
+                                <img src="{{ url_for('static', filename='imagens/produtos/' + produto[7]) }}" alt="{{ produto[1] }}" style="max-width: 200px; border-radius: 5px;">
+                                <p style="font-size: 14px; margin-top: 5px;">Imagem atual. Envie uma nova para substituir.</p>
                             </div>
                             {% endif %}
                         </div>
                         
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Salvar</button>
-                            <a href="/admin" class="btn btn-outline">Cancelar</a>
+                        <div class="form-buttons">
+                            <a href="/admin/produtos" class="btn btn-outline">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">{{ 'Salvar Alterações' if produto else 'Adicionar Produto' }}</button>
                         </div>
                     </form>
                 </div>

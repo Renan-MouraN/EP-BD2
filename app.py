@@ -276,6 +276,121 @@ def excluir_animal(animal_id):
     conn.close()
     return redirect(url_for('admin_animais'))
 
+# -------------------- CRUD de PRODUTOS --------------------
+# LISTAR
+@app.route('/admin/produtos')
+# @admin_required
+def lista_produtos():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""SELECT id_produto, nome, categoria,
+                          preco, estoque, descricao, imagem
+                   FROM produtos
+                   ORDER BY id_produto""")
+    produtos = cur.fetchall()
+    cur.close(); conn.close()
+    return render_template('lista_produtos.html', produtos=produtos)
+
+# ADICIONAR
+@app.route('/admin/produtos/adicionar', methods=['GET', 'POST'])
+# @admin_required
+def adicionar_produto():
+    if request.method == 'POST':
+        nome = request.form['nome']
+        categoria = request.form['categoria']
+        descricao = request.form['descricao']
+        preco = request.form['preco']
+        estoque = request.form['estoque']
+        #destaque = request.form['destaque']
+
+        # Processar upload de imagem
+        imagem_path = None
+        if 'imagem' in request.files:
+            file = request.files['imagem']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+                imagem_path = 'uploads/' + filename
+
+        conn = get_db_connection(); cur = conn.cursor()
+        cur.execute("""INSERT INTO produtos
+                       (nome, categoria, descricao, preco, estoque, imagem)
+                       VALUES (%s, %s, %s, %s, %s, %s)""",
+                    (nome, categoria, descricao, preco, estoque, imagem_path))
+        conn.commit(); cur.close(); conn.close()
+        flash(f'Produto {nome} adicionado com sucesso!', 'success')
+        return redirect(url_for('lista_produtos'))
+
+    return render_template('form_produto.html', titulo="Adicionar Produto", produto=None, action="adicionar_produto")
+
+# EDITAR
+@app.route('/admin/produtos/editar/<int:prod_id>', methods=['GET', 'POST'])
+# @admin_required
+def editar_produto(prod_id):
+    conn = get_db_connection(); cur = conn.cursor()
+    if request.method == 'POST':
+        nome = request.form['nome']
+        categoria = request.form['categoria']
+        descricao = request.form['descricao']
+        preco = request.form['preco']
+        estoque = request.form['estoque']
+        #destaque = request.form['destaque']
+
+        # Obter imagem atual
+        cur.execute("SELECT imagem FROM produtos WHERE id_produto=%s", (prod_id,))
+        current_image = cur.fetchone()[0]
+
+        # Processar nova imagem, se fornecida
+        imagem_path = current_image
+        if 'imagem' in request.files:
+            file = request.files['imagem']
+            if file and file.filename != '':
+                if allowed_file(file.filename):
+                    filename = secure_filename(file.filename)
+                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    file.save(filepath)
+                    imagem_path = 'uploads/' + filename
+
+        cur.execute("""UPDATE produtos
+                       SET nome=%s, categoria=%s, descricao=%s, preco=%s, 
+                           estoque=%s, imagem=%s
+                       WHERE id_produto=%s""",
+                    (nome, categoria, descricao, preco, estoque, 
+                     imagem_path, prod_id))
+        conn.commit(); flash('Produto atualizado com sucesso!', 'success')
+        return redirect(url_for('lista_produtos'))
+
+    # GET: Carrega informações do produto para o formulário
+    cur.execute("""SELECT id_produto, nome, preco, descricao, categoria, estoque,
+                          imagem
+                   FROM produtos WHERE id_produto=%s""", (prod_id,))
+    produto = cur.fetchone(); cur.close(); conn.close()
+    if not produto:
+        flash('Produto não encontrado', 'error')
+        return redirect(url_for('lista_produtos'))
+
+    return render_template('form_produto.html', titulo="Editar Produto", produto=produto, action="editar_produto", prod_id=prod_id)
+
+# EXCLUIR
+@app.route('/admin/produtos/excluir/<int:prod_id>', methods=['POST'])
+# @admin_required
+def excluir_produto(prod_id):
+    conn = get_db_connection(); cur = conn.cursor()
+    cur.execute("SELECT nome FROM produtos WHERE id_produto=%s", (prod_id,))
+    produto = cur.fetchone()
+    if not produto:
+        flash('Produto não encontrado', 'error')
+    else:
+        try:
+            cur.execute("DELETE FROM produtos WHERE id_produto=%s", (prod_id,))
+            conn.commit(); flash(f'Produto {produto[0]} excluído com sucesso!', 'success')
+        except Exception as e:
+            conn.rollback(); flash(f'Erro ao excluir produto: {str(e)}', 'error')
+    cur.close(); conn.close()
+    return redirect(url_for('lista_produtos'))
+
+
 # Página de busca
 @app.route('/busca')
 def busca():

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PataCerta - Lista de Animais</title>
+    <title>PataCerta - Lista de Produtos</title>
     <style>
         * {
             margin: 0;
@@ -20,8 +20,8 @@
             --light: #F4F6FC;         /* fundo geral */
             --accent: #FF6B6B;        /* acento coral (badges, botões de destaque) */
             --accent-light: #FCEEEE;  /* coral clarinho (seções suaves) */
-            --warning: #E7CA4A;       /* continua para “Urgente” */
-}
+            --warning: #E7CA4A;       /* continua para "Urgente" */
+        }
         
         body {
             background-color: var(--light);
@@ -126,7 +126,7 @@
         }
         
         /* Table Styles */
-        .animals-table {
+        .products-table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
@@ -134,13 +134,13 @@
             border-radius: 8px;
         }
         
-        .animals-table th, 
-        .animals-table td {
+        .products-table th, 
+        .products-table td {
             padding: 12px 15px;
             text-align: left;
         }
         
-        .animals-table th {
+        .products-table th {
             background-color: var(--primary);
             color: white;
             font-weight: 600;
@@ -149,19 +149,19 @@
             letter-spacing: 0.5px;
         }
         
-        .animals-table tr {
+        .products-table tr {
             border-bottom: 1px solid #ddd;
         }
         
-        .animals-table tr:last-child {
+        .products-table tr:last-child {
             border-bottom: none;
         }
         
-        .animals-table tr:nth-child(even) {
+        .products-table tr:nth-child(even) {
             background-color: #f8f8f8;
         }
         
-        .animals-table tr:hover {
+        .products-table tr:hover {
             background-color: #f1f1f1;
         }
         
@@ -176,16 +176,16 @@
         }
         
         .status-disponivel {
-            background-color: var(--accent-light);
-            color: var(--accent);
+            background-color: #cceeff;
+            color: #0088cc;
         }
         
-        .status-adotado {
-            background-color: #e0eaff;
-            color: var(--secondary);
+        .status-esgotado {
+            background-color: #ffcccc;
+            color: #cc0000;
         }
         
-        .status-urgente {
+        .status-promocao {
             background-color: #fff1cc;
             color: var(--warning);
         }
@@ -214,7 +214,7 @@
         }
         
         .btn-primary:hover {
-            background-color: #e67e3b;
+            background-color: #5850D8;
         }
         
         .btn-secondary {
@@ -224,7 +224,7 @@
         }
         
         .btn-secondary:hover {
-            background-color: #3a7bd5;
+            background-color: #4740b3;
         }
         
         .btn-danger {
@@ -263,7 +263,7 @@
                 display: block;
             }
             
-            .animals-table {
+            .products-table {
                 display: block;
                 overflow-x: auto;
             }
@@ -303,57 +303,54 @@
 
     <main>
         <div class="container">
-            <h1 class="page-title">Gerenciamento de Animais</h1>
+            <h1 class="page-title">Gerenciamento de Produtos</h1>
             
             <section class="admin-section">
                 <div class="admin-header">
-                    <h2>Lista de Animais Disponíveis</h2>
+                    <h2>Lista de Produtos</h2>
                     <div>
                       <a href="/admin" class="btn btn-outline" style="margin-right: 10px;">← Voltar para Admin</a>
-                      <a href="/admin/animais/adicionar" class="btn btn-primary">+ Adicionar Animal</a>
+                      <a href="/admin/produtos/adicionar" class="btn btn-primary">+ Adicionar Produto</a>
                     </div>
-                    <a href="/admin/animais/adicionar" class="btn btn-primary">+ Adicionar Animal</a>
                 </div>
                 
                 <div class="table-responsive">
-                    <table class="animals-table">
+                    <table class="products-table">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Nome</th>
-                                <th>Idade</th>
-                                <th>Porte</th>
-                                <th>Tipo</th>
-                                <th>Sexo</th>
+                                <th>Categoria</th>
+                                <th>Preço</th>
+                                <th>Estoque</th>
                                 <th>Status</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for a in animais %}
+                            {% for p in produtos %}
                             <tr>
-                                <td>{{ a[0] }}</td>
-                                <td>{{ a[1] }}</td>
-                                <td>{{ a[2] }}</td>
-                                <td>{{ a[3] }}</td>
-                                <td>{{ a[4] }}</td>
-                                <td>{{ a[5] }}</td>
+                                <td>{{ p[0] }}</td>
+                                <td>{{ p[1] }}</td>
+                                <td>{{ p[2] }}</td>
+                                <td>R$ {{ "%.2f"|format(p[3]|float) }}</td>
+                                <td>{{ p[4] }}</td>
                                 <td>
-                                    {% if a[6] == 'Disponível' %}
-                                    <span class="status-badge status-disponivel">{{ a[6] }}</span>
-                                    {% elif a[6] == 'Adotado' %}
-                                    <span class="status-badge status-adotado">{{ a[6] }}</span>
-                                    {% elif a[6] == 'Urgente' %}
-                                    <span class="status-badge status-urgente">{{ a[6] }}</span>
+                                    {% if p[5] == 'Disponível' %}
+                                    <span class="status-badge status-disponivel">{{ p[5] }}</span>
+                                    {% elif p[5] == 'Esgotado' %}
+                                    <span class="status-badge status-esgotado">{{ p[5] }}</span>
+                                    {% elif p[5] == 'Promoção' %}
+                                    <span class="status-badge status-promocao">{{ p[5] }}</span>
                                     {% else %}
-                                    <span class="status-badge">{{ a[6] }}</span>
+                                    <span class="status-badge">{{ p[5] }}</span>
                                     {% endif %}
                                 </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <a href="/admin/animais/editar/{{ a[0] }}" class="btn btn-secondary">Editar</a>
-                                        <form action="/admin/animais/excluir/{{ a[0] }}" method="post" style="display:inline;">
-                                            <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja excluir {{ a[1] }}?')">Excluir</button>
+                                        <a href="/admin/produtos/editar/{{ p[0] }}" class="btn btn-secondary">Editar</a>
+                                        <form action="/admin/produtos/excluir/{{ p[0] }}" method="post" style="display:inline;">
+                                            <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja excluir {{ p[1] }}?')">Excluir</button>
                                         </form>
                                     </div>
                                 </td>
