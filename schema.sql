@@ -82,22 +82,55 @@ CREATE TABLE depoimentos (
     data_depoimento TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Inserindo dados iniciais para teste
 
--- Administrador padrão
-INSERT INTO usuarios (nome, email, senha, is_admin) 
-VALUES ('Administrador', 'admin@patacerta.com', 'admin123', TRUE);
+/* ---------- 1. Catálogo de serviços ---------- */
+CREATE TABLE servicos (
+    id_servico        SERIAL PRIMARY KEY,
+    nome              TEXT        NOT NULL,
+    descricao         TEXT,
+    preco_base        NUMERIC(10,2),
+    duracao_minutos   INTEGER,
+    ativo             BOOLEAN     DEFAULT TRUE,
+    criado_em         TIMESTAMP   DEFAULT NOW()
+);
 
--- Alguns animais para teste
-INSERT INTO animal (nome, idade, porte, tipo, sexo, descricao, status, imagem) VALUES
-('Tobby', 2, 'medio', 'cachorro', 'macho', 'Tobby é brincalhão, adora crianças e é muito obediente. Ótimo para famílias!', 'disponivel', 'uploads/tobby.jpg'),
-('Luna', 1, 'pequeno', 'gato', 'femea', 'Luna é dócil, calma e adora carinho. Perfeita para apartamentos!', 'disponivel', 'uploads/luna.jpg'),
-('Max', 5, 'grande', 'cachorro', 'macho', 'Max é um cão-guia aposentado que precisa de um lar tranquilo e amoroso urgentemente.', 'disponivel', 'uploads/max.jpg'),
-('Nina', 3, 'pequeno', 'gato', 'femea', 'Nina é independente, mas muito carinhosa quando quer. Perfeita para quem trabalha fora.', 'disponivel', 'uploads/nina.jpg');
+/* ---------- 2. Prestadores de serviço ---------- */
+CREATE TABLE prestadores (
+    id_prestador      SERIAL PRIMARY KEY,
+    id_usuario        INTEGER     REFERENCES usuarios(id_usuario),
+    nome_completo     TEXT        NOT NULL,
+    bio               TEXT,
+    telefone          TEXT,
+    cidade            TEXT,
+    estado            CHAR(2),
+    avaliacao_media   NUMERIC(2,1),
+    verificado        BOOLEAN     DEFAULT FALSE,
+    criado_em         TIMESTAMP   DEFAULT NOW()
+);
 
--- Alguns produtos para teste
-INSERT INTO produtos (nome, preco, descricao, categoria, estoque, imagem, destaque) VALUES
-('Ração Premium para Gatos', 89.90, 'Ração de alta qualidade para gatos adultos. Embalagem de 3kg.', 'Alimentos', 50, 'uploads/racao-gato.jpg', TRUE),
-('Coleira Ajustável', 34.50, 'Coleira ajustável para cães de pequeno e médio porte. Material resistente e confortável.', 'Acessórios', 30, 'uploads/coleira.jpg', TRUE),
-('Cama para Pets', 120.00, 'Cama confortável para cães e gatos. Tamanho médio, lavável e anti-ácaros.', 'Camas', 15, 'uploads/cama-pet.jpg', TRUE),
-('Brinquedo Interativo', 45.90, 'Brinquedo interativo para estimular a mente do seu pet. Ideal para cães de todas as idades.', 'Brinquedos', 25, 'uploads/brinquedo.jpg', TRUE);
+/* ---------- 3. Relação Prestador × Serviço (N:N) ---------- */
+CREATE TABLE prestador_servicos (
+    id_prestador_serv SERIAL PRIMARY KEY,
+    id_prestador      INTEGER REFERENCES prestadores(id_prestador)   ON DELETE CASCADE,
+    id_servico        INTEGER REFERENCES servicos(id_servico)        ON DELETE CASCADE,
+    preco             NUMERIC(10,2),
+    raio_atendimento_km INTEGER,
+    tempo_estimado_min INTEGER,
+    ativo             BOOLEAN     DEFAULT TRUE,
+    UNIQUE (id_prestador, id_servico)
+);
+
+/* ---------- 4. Pedidos / agendamentos de serviço ---------- */
+CREATE TYPE status_pedido AS ENUM ('pendente','confirmado','concluido','cancelado');
+
+CREATE TABLE pedidos_servico (
+    id_pedido_servico SERIAL PRIMARY KEY,
+    id_animal         INTEGER REFERENCES animal(id_animal)                     ON DELETE CASCADE,
+    id_prestador_serv INTEGER REFERENCES prestador_servicos(id_prestador_serv),
+    id_tutor          INTEGER REFERENCES usuarios(id_usuario),
+    inicio            TIMESTAMP NOT NULL,
+    fim               TIMESTAMP,
+    status            status_pedido DEFAULT 'pendente',
+    observacoes       TEXT,
+    criado_em         TIMESTAMP DEFAULT NOW()
+);
