@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PataCerta - Gerenciar Serviços</title>
+    <title>Nossos Serviços - PataCerta</title>
     <style>
         * {
             margin: 0;
@@ -24,7 +24,6 @@
             background-color: var(--light);
             color: var(--dark);
             line-height: 1.6;
-            padding-bottom: 40px;
         }
         
         .container {
@@ -33,13 +32,13 @@
             padding: 0 20px;
         }
         
+        /* Cabeçalho */
         header {
             background-color: white;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             position: sticky;
             top: 0;
             z-index: 100;
-            margin-bottom: 30px;
         }
         
         .navbar {
@@ -57,142 +56,258 @@
             color: var(--primary);
             text-decoration: none;
         }
-
-        .page-title {
-            text-align: center;
-            margin: 30px 0;
-            color: var(--dark);
-            font-size: 36px;
+        
+        .logo-icon {
+            font-size: 28px;
+            margin-right: 8px;
         }
         
-        .admin-section {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-        }
-        
-        .admin-header {
+        .nav-links {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .admin-header h2 {
-            color: var(--primary);
-            font-size: 24px;
-        }
-        
-        .services-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        
-        .services-table th, 
-        .services-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .services-table th {
-            background-color: var(--primary);
-            color: white;
-            font-weight: 600;
-        }
-        
-        .services-table tr:nth-child(even) {
-            background-color: #f8f8f8;
-        }
-        
-        .action-buttons {
-            display: flex;
+            list-style: none;
             gap: 10px;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-links a:hover:not(.btn) {
+            color: var(--primary);
+        }
+
+        .hidden {
+            display: none !important;
         }
         
         .btn {
-            padding: 8px 16px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 14px;
-            cursor: pointer;
+            padding: 10px 20px;
+            background-color: var(--primary);
+            color: white;
             border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
         }
         
-        .btn-primary { background-color: var(--primary); color: white; }
-        .btn-secondary { background-color: var(--secondary); color: white; }
-        .btn-danger { background-color: var(--accent); color: white; }
+        .btn:hover {
+            background-color: #5850D8;
+        }
+        
+        .btn-secondary { background-color: var(--secondary); }
+        .btn-danger { background-color: var(--accent); }
         .btn-outline { background-color: transparent; border: 2px solid #ccc; color: var(--dark); }
+        .btn-outline:hover { background-color: var(--light); }
+
+        .page-header {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .page-header h1 {
+            font-size: 42px;
+            color: var(--dark);
+        }
+        
+        .page-header p {
+            font-size: 18px;
+            color: #555;
+            max-width: 600px;
+            margin: 10px auto 0;
+        }
+
+        .admin-controls {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Vista de Tabela do Admin */
+        .admin-view table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .admin-view th, .admin-view td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .admin-view th {
+            background-color: var(--primary);
+            color: white;
+        }
+        .admin-view tr:nth-child(even) { background-color: #f8f9fa; }
+        .admin-view .action-buttons { display: flex; gap: 10px; }
+
+        /* Vista de Grelha Pública */
+        .public-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .service-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            padding: 25px;
+            text-align: center;
+        }
+        .service-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .service-icon { font-size: 48px; color: var(--primary); margin-bottom: 15px; }
+        .service-card h3 { font-size: 22px; color: var(--dark); margin-bottom: 10px; }
+        .service-desc { color: #777; flex-grow: 1; margin-bottom: 20px; }
+        .service-price { font-size: 24px; font-weight: 700; color: var(--primary); margin-bottom: 20px; }
+        
     </style>
 </head>
 <body>
     <header>
         <div class="container">
             <nav class="navbar">
-                <a href="index.html" class="logo">🐾 PataCerta <small>Admin</small></a>
-                <a href="admin.html" class="btn btn-outline">Voltar ao Painel</a>
+                <a href="index.html" class="logo"><i class="logo-icon">🐾</i> Pata<span>Certa</span></a>
+                <ul class="nav-links">
+                    <li><a href="index.html">Início</a></li>
+                    <li><a href="lista_animais.html">Animais</a></li>
+                    <li><a href="produtos.html">Produtos</a></li>
+                    <li><a href="lista_servicos.html">Serviços</a></li>
+                    <li id="nav-admin" class="hidden"><a href="admin.html" class="btn">Painel Admin</a></li>
+                    <li id="nav-logged-out"><a href="login.html" class="btn btn-outline">Login</a></li>
+                    <li id="nav-logged-out-2"><a href="login.html" class="btn">Cadastre-se</a></li>
+                    <li id="nav-logged-in" class="hidden"><a href="#">O Meu Perfil</a></li>
+                    <li id="nav-logged-in-2" class="hidden"><a href="#" id="logout-btn" class="btn btn-secondary">Sair</a></li>
+                </ul>
             </nav>
         </div>
     </header>
 
     <main class="container">
-        <h1 class="page-title">Gerenciamento de Serviços</h1>
-        
-        <section class="admin-section">
-            <div class="admin-header">
-                <h2>Lista de Serviços</h2>
-                <a href="form_servico.html" class="btn btn-primary">+ Adicionar Serviço</a>
-            </div>
-            
-            <div class="table-responsive">
-                <table class="services-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>Preço Base</th>
-                            <th>Duração (min)</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="services-table-body">
-                        <!-- Linhas serão inseridas aqui pelo JavaScript -->
-                    </tbody>
-                </table>
-            </div>
-        </section>
+        <div class="page-header">
+            <h1 id="page-title">Nossos Serviços</h1>
+            <p id="page-subtitle">Cuidado profissional e carinho para o seu melhor amigo.</p>
+        </div>
+
+        <!-- Controlos do Admin -->
+        <div id="admin-controls" class="admin-controls hidden">
+            <h2>Gestão de Serviços</h2>
+            <a href="form_servico.html" class="btn btn-primary">+ Adicionar Novo Serviço</a>
+        </div>
+
+        <!-- Vista de Tabela do Admin -->
+        <div id="admin-view" class="admin-view hidden">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Preço Base</th>
+                        <th>Duração (min)</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-table-body"></tbody>
+            </table>
+        </div>
+
+        <!-- Vista de Grelha Pública -->
+        <div id="public-view" class="public-view">
+            <!-- Cards de serviços serão inseridos aqui -->
+        </div>
     </main>
 
     <script>
         const API_BASE_URL = 'http://127.0.0.1:8000';
-        const ADMIN_USER_ID = 1;
+        let currentUser = null;
 
-        async function fetchServices() {
-            const tableBody = document.getElementById('services-table-body');
-            tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Carregando...</td></tr>';
+        const serviceIcons = {
+            'Banho': '🛁', 'Tosa': '✂️', 'Consulta': '🩺', 'Vacinação': '💉',
+            'Passeio': '🐕', 'Adestramento': '🎓', 'Hospedagem': '🏨', 'Creche': '🧸',
+            'Padrão': '⭐'
+        };
+
+        function getIconForService(serviceName) {
+            for (const key in serviceIcons) {
+                if (serviceName.toLowerCase().includes(key.toLowerCase())) {
+                    return serviceIcons[key];
+                }
+            }
+            return serviceIcons['Padrão'];
+        }
+
+        function updateUIForLoginState() {
+            const navAdmin = document.getElementById('nav-admin');
+            const navProfile = document.getElementById('nav-logged-in');
+            const navLogout = document.getElementById('nav-logged-in-2');
+            const navLoggedOut = document.querySelectorAll('#nav-logged-out, #nav-logged-out-2');
             
-            try {
-                const response = await fetch(`${API_BASE_URL}/servicos/`);
-                if (!response.ok) throw new Error('Falha ao buscar dados da API.');
-                const services = await response.json();
-                populateTable(services);
-            } catch (error) {
-                tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">${error.message}</td></tr>`;
+            const userData = JSON.parse(localStorage.getItem('patacerta_user'));
+            currentUser = userData;
+
+            navAdmin.classList.add('hidden');
+            navProfile.classList.add('hidden');
+            navLogout.classList.add('hidden');
+            navLoggedOut.forEach(el => el.classList.add('hidden'));
+
+            if (userData && userData.nome) {
+                navLogout.classList.remove('hidden');
+                if (userData.is_admin) {
+                    navAdmin.classList.remove('hidden');
+                } else {
+                    navProfile.classList.remove('hidden');
+                }
+            } else {
+                navLoggedOut.forEach(el => el.classList.remove('hidden'));
             }
         }
 
-        function populateTable(services) {
-            const tableBody = document.getElementById('services-table-body');
+        function handleLogout() {
+            localStorage.removeItem('patacerta_user');
+            alert("Você saiu da sua conta.");
+            window.location.reload();
+        }
+
+        function renderPublicView(services) {
+            const grid = document.getElementById('public-view');
+            grid.innerHTML = '';
+            services.forEach(service => {
+                const card = document.createElement('div');
+                card.className = 'service-card';
+                const icon = getIconForService(service.nome);
+
+                card.innerHTML = `
+                    <div class="service-icon">${icon}</div>
+                    <h3>${service.nome}</h3>
+                    <p class="service-desc">${service.descricao || 'Serviço especializado para o bem-estar do seu pet.'}</p>
+                    <div class="service-price">R$ ${parseFloat(service.preco_base || 0).toFixed(2)}</div>
+                    <a href="#" class="btn">Agendar Agora</a>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderAdminView(services) {
+            const tableBody = document.getElementById('admin-table-body');
             tableBody.innerHTML = '';
-
-            if (services.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Nenhum serviço cadastrado.</td></tr>';
-                return;
-            }
-
             services.forEach(service => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -200,11 +315,9 @@
                     <td>${service.nome}</td>
                     <td>R$ ${parseFloat(service.preco_base || 0).toFixed(2)}</td>
                     <td>${service.duracao_minutos || 'N/A'}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <a href="form_servico.html?id=${service.id_servico}" class="btn btn-secondary">Editar</a>
-                            <button onclick="deleteService(${service.id_servico})" class="btn btn-danger">Excluir</button>
-                        </div>
+                    <td class="action-buttons">
+                        <a href="form_servico.html?id=${service.id_servico}" class="btn btn-secondary">Editar</a>
+                        <button onclick="deleteService(${service.id_servico})" class="btn btn-danger">Excluir</button>
                     </td>
                 `;
                 tableBody.appendChild(row);
@@ -212,24 +325,52 @@
         }
 
         async function deleteService(serviceId) {
-            if (!confirm(`Tem certeza que deseja excluir o serviço com ID ${serviceId}?`)) return;
+            if (!currentUser || !currentUser.is_admin) return alert("Apenas administradores podem excluir serviços.");
+            if (!confirm(`Tem a certeza que deseja excluir o serviço com ID ${serviceId}?`)) return;
 
             try {
-                const response = await fetch(`${API_BASE_URL}/servicos/${serviceId}?userId=${ADMIN_USER_ID}`, {
-                    method: 'DELETE',
-                });
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.detail || 'Erro ao excluir serviço.');
-                }
-                alert('Serviço excluído com sucesso!');
-                fetchServices(); // Recarrega a lista
+                const response = await fetch(`${API_BASE_URL}/servicos/${serviceId}?userId=${currentUser.id_usuario}`, { method: 'DELETE' });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.detail);
+                alert("Serviço excluído com sucesso!");
+                initializeApp();
             } catch (error) {
-                alert(`Erro: ${error.message}`);
+                alert(`Erro ao excluir: ${error.message}`);
             }
         }
 
-        window.onload = fetchServices;
+        async function initializeApp() {
+            updateUIForLoginState();
+            
+            const isAdmin = currentUser && currentUser.is_admin;
+            document.getElementById('admin-controls').classList.toggle('hidden', !isAdmin);
+            document.getElementById('admin-view').classList.toggle('hidden', !isAdmin);
+            document.getElementById('public-view').classList.toggle('hidden', isAdmin);
+            
+            const targetView = isAdmin ? document.getElementById('admin-table-body') : document.getElementById('public-view');
+            targetView.innerHTML = isAdmin ? '<tr><td colspan="5" style="text-align:center;">A carregar...</td></tr>' : '<p>A carregar...</p>';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/servicos/?limit=100`);
+                if (!response.ok) throw new Error("Não foi possível carregar os dados dos serviços.");
+                const services = await response.json();
+
+                if (isAdmin) {
+                    renderAdminView(services);
+                } else {
+                    renderPublicView(services);
+                }
+            } catch (error) {
+                targetView.innerHTML = `<p style="color:red; text-align:center;">${error.message}</p>`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeApp);
+        
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', handleLogout);
+        }
     </script>
 </body>
 </html>
