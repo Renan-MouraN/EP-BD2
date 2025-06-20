@@ -1,3 +1,17 @@
+# Ignorar o diretório do ambiente virtual
 venv/
+
+# Ignorar o diretório de arquivos de ambiente (se for um diretório)
+# Se for um arquivo .env, use .env
 .env/
+.env
+
+# Ignorar o diretório de cache do Python
 __pycache__/
+
+# Adicionais comuns para projetos Python (sugestões)
+*.pyc
+*.sqlite3
+.DS_Store # Para usuários de macOS
+.idea/ # Para usuários de IntelliJ/PyCharm
+*.log
