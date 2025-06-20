@@ -475,10 +475,10 @@
                 <a href="index.html" class="logo"><i class="logo-icon">🐾</i> Pata<span>Certa</span></a>
                 <ul class="nav-links">
                     <li><a href="index.html">Início</a></li>
-                    <li><a href="admin_animais.html">Animais</a></li>
+                    <li><a href="lista_animais.html">Animais</a></li>
                     <li><a href="produtos.html">Produtos</a></li>
                     <li><a href="lista_servicos.html">Serviços</a></li>
-                    <li id="nav-admin" class="hidden"><a href="admin.html" class="btn btn-accent">Painel Admin</a></li>
+                    <li id="nav-admin" class="hidden"><a href="admin.html" class="btn">Painel Admin</a></li>
                     <li id="nav-logged-out"><a href="login.html" class="btn btn-outline">Login</a></li>
                     <li id="nav-logged-out-2"><a href="login.html" class="btn">Cadastre-se</a></li>
                     <li id="nav-logged-in" class="hidden"><a href="#">Meu Perfil</a></li>
@@ -494,7 +494,7 @@
                 <h1 id="hero-title">Encontre seu melhor amigo</h1>
                 <p id="hero-subtitle">Adote um pet e transforme duas vidas: a dele e a sua.</p>
                 <div class="hero-btns">
-                    <a href="admin_animais.html" class="btn">Ver Todos os Pets</a>
+                    <a href="lista_animais.html" class="btn">Ver Todos os Pets</a>
                     <a href="#" class="btn btn-outline">Como Funciona</a>
                 </div>
             </div>
@@ -503,7 +503,7 @@
         <div class="container">
             <section class="main-actions-section">
                 <div class="action-cards">
-                    <a id="card-link-1" href="admin_animais.html" class="action-card">
+                    <a id="card-link-1" href="lista_animais.html" class="action-card">
                         <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1000&auto=format&fit=crop" alt="Cachorro feliz para adoção">
                         <div class="action-card-content"><h3 id="card-title-1">Adote um Amigo</h3><p id="card-text-1">Veja os pets que estão esperando por um lar.</p></div>
                     </a>
@@ -535,9 +535,9 @@
             <div class="container">
                 <h2 class="section-title">Por que adotar com a PataCerta?</h2>
                 <div class="features-grid">
-                    <div class="feature-card"><div class="feature-icon">💉</div><h3>Saúde Garantida</h3><p>Todos os nossos animais são vacinados, vermifugados e castrados antes da adoção.</p></div>
+                    <div class="feature-card"><div class="feature-icon">💉</div><h3>Saúde Garantida</h3><p>Todos os nossos animais são vacinados, vermifugados e castrados.</p></div>
                     <div class="feature-card"><div class="feature-icon">🏠</div><h3>Acompanhamento Pós-Adoção</h3><p>Oferecemos suporte e orientação para garantir a adaptação do pet ao novo lar.</p></div>
-                    <div class="feature-card"><div class="feature-icon">❤️</div><h3>Matchmaking Personalizado</h3><p>Nossa equipe ajuda a encontrar o pet que melhor se adapta ao seu estilo de vida.</p></div>
+                    <div class="feature-card"><div class="feature-icon">❤️</div><h3>Matchmaking Personalizado</h3><p>Ajudamos a encontrar o pet que melhor se adapta ao seu estilo de vida.</p></div>
                     <div class="feature-card"><div class="feature-icon">📝</div><h3>Processo Transparente</h3><p>Adoção responsável com processo claro e suporte em todas as etapas.</p></div>
                 </div>
             </div>
@@ -589,20 +589,23 @@
 
         function updateUIForLoginState() {
             const navAdmin = document.getElementById('nav-admin');
-            const navLoggedIn = document.querySelectorAll('#nav-logged-in, #nav-logged-in-2');
+            const navProfile = document.getElementById('nav-logged-in');
+            const navLogout = document.getElementById('nav-logged-in-2');
             const navLoggedOut = document.querySelectorAll('#nav-logged-out, #nav-logged-out-2');
             
             const userData = JSON.parse(localStorage.getItem('patacerta_user'));
 
             navAdmin.classList.add('hidden');
-            navLoggedIn.forEach(el => el.classList.add('hidden'));
+            navProfile.classList.add('hidden');
+            navLogout.classList.add('hidden');
             navLoggedOut.forEach(el => el.classList.add('hidden'));
 
             if (userData && userData.nome) {
+                navLogout.classList.remove('hidden');
                 if (userData.is_admin) {
                     navAdmin.classList.remove('hidden');
                 } else {
-                    navLoggedIn.forEach(el => el.classList.remove('hidden'));
+                    navProfile.classList.remove('hidden');
                 }
             } else {
                 navLoggedOut.forEach(el => el.classList.remove('hidden'));
