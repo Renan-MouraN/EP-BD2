@@ -3,335 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PataCerta - {{ titulo }}</title>
+    <title>PataCerta - Gerenciar Produto</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        :root {
-            /* Paleta harmônica */
-            --primary: #6C63FF;       /* roxo‑azulado (principal) */
-            --secondary: #5850D8;     /* roxo escuro (botões secundários, fundo testimonials…) */
-            --dark: #2E3056;          /* texto principal / footer */
-            --light: #F4F6FC;         /* fundo geral */
-            --accent: #FF6B6B;        /* acento coral (badges, botões de destaque) */
-            --accent-light: #FCEEEE;  /* coral clarinho (seções suaves) */
-            --warning: #E7CA4A;       /* continua para "Urgente" */
-        }
-        
-        body {
-            background-color: var(--light);
-            color: var(--dark);
-            line-height: 1.6;
-            padding-bottom: 40px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        /* Header */
-        header {
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            margin-bottom: 30px;
-        }
-        
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--primary);
-            text-decoration: none;
-        }
-        
-        .logo span {
-            color: var(--secondary);
-        }
-        
-        .logo-icon {
-            font-size: 28px;
-            margin-right: 8px;
-        }
-        
-        .nav-links {
-            display: flex;
-            list-style: none;
-        }
-        
-        .nav-links li {
-            margin-left: 30px;
-        }
-        
-        .nav-links a {
-            text-decoration: none;
-            color: var(--dark);
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-        
-        .nav-links a:hover {
-            color: var(--primary);
-        }
-        
-        .mobile-menu {
-            display: none;
-            font-size: 24px;
-            cursor: pointer;
-        }
-        
-        /* Content */
-        .page-title {
-            text-align: center;
-            margin: 30px 0;
-            color: var(--dark);
-            font-size: 36px;
-        }
-        
-        .admin-section {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            margin-bottom: 30px;
-        }
-        
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .admin-header h2 {
-            color: var(--primary);
-            font-size: 24px;
-        }
-        
-        /* Form */
-        .form-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .form-group {
-            margin-bottom: 25px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--dark);
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
-        }
-        
-        textarea.form-control {
-            min-height: 120px;
-            resize: vertical;
-        }
-        
-        .form-select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            background-color: white;
-            transition: border-color 0.3s;
-        }
-        
-        .form-select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
-        }
-        
-        .form-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-        }
-        
-        .btn {
-            padding: 12px 24px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: inline-block;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-        }
-        
-        .btn-primary:hover {
-            background-color: #5850D8;
-        }
-        
-        .btn-outline {
-            background-color: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-        }
-        
-        .btn-outline:hover {
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-            
-            .mobile-menu {
-                display: block;
-            }
-            
-            .form-buttons {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .form-buttons .btn {
-                width: 100%;
-                text-align: center;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        :root { --primary: #6C63FF; --secondary: #5850D8; --dark: #2E3056; --light: #F4F6FC; --accent: #FF6B6B; }
+        body { background-color: var(--light); color: var(--dark); line-height: 1.6; padding-bottom: 40px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        header { background-color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; margin-bottom: 30px; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; }
+        .logo { display: flex; align-items: center; font-size: 24px; font-weight: bold; color: var(--primary); text-decoration: none; }
+        .logo span { color: var(--secondary); }
+        .logo-icon { font-size: 28px; margin-right: 8px; }
+        .nav-links { display: flex; list-style: none; }
+        .nav-links li { margin-left: 30px; }
+        .nav-links a { text-decoration: none; color: var(--dark); font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--primary); }
+        .page-title { text-align: center; margin: 30px 0; color: var(--dark); font-size: 36px; }
+        .admin-section { background-color: white; border-radius: 10px; box-shadow: 0 3px 15px rgba(0,0,0,0.1); padding: 30px; margin-bottom: 30px; }
+        .form-container { max-width: 800px; margin: 0 auto; }
+        .form-title { color: var(--primary); font-size: 24px; margin-bottom: 30px; text-align: center; }
+        .form-group { margin-bottom: 24px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-control { width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; transition: border-color 0.3s; }
+        .form-control:focus { outline: none; border-color: var(--primary); }
+        textarea.form-control { min-height: 120px; resize: vertical; }
+        .form-actions { display: flex; gap: 15px; margin-top: 30px; justify-content: center; }
+        .btn { padding: 12px 24px; border-radius: 5px; text-decoration: none; font-weight: 500; font-size: 16px; cursor: pointer; transition: all 0.3s; border: none; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-outline { background-color: transparent; border: 2px solid #ccc; color: var(--dark); }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header>
         <div class="container">
             <nav class="navbar">
-                <a href="/" class="logo">
-                    <i class="logo-icon">🐾</i> Pata<span>Certa</span> <small>Admin</small>
-                </a>
+                <a href="/" class="logo"><i class="logo-icon">🐾</i> Pata<span>Certa</span> <small>Admin</small></a>
                 <ul class="nav-links">
-                    <li><a href="/">Início</a></li>
-                    <li><a href="#animais">Adotar</a></li>
-                    <li><a href="#sobre">Sobre Nós</a></li>
-                    <li><a href="#processo">Processo</a></li>
-                    <li><a href="/produtos">Produtos</a></li>
-                    <li><a href="#blog">Blog</a></li>
-                    <li><a href="#contato">Contato</a></li>
+                    <li><a href="/lista_produtos.html">Gerenciar Produtos</a></li>
                 </ul>
-                <div class="mobile-menu">☰</div>
             </nav>
         </div>
     </header>
 
-    <main>
-        <div class="container">
-            <h1 class="page-title">{{ titulo }}</h1>
-            
-            <section class="admin-section">
-                <div class="form-container">
-                        <form action="{{ url_for(action, prod_id=prod_id) }}" method="post" enctype="multipart/form-data">                        {% if produto %}
-                        <input type="hidden" name="id" value="{{ produto[0] }}">
-                        {% endif %}
-                        
-                        <div class="form-group">
-                            <label for="nome" class="form-label">Nome do Produto</label>
-                            <input type="text" id="nome" name="nome" class="form-control" value="{{ produto[1] if produto else '' }}" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="categoria" class="form-label">Categoria</label>
-                            <select id="categoria" name="categoria" class="form-select" required>
-                                <option value="">Selecione uma categoria</option>
-                                <option value="Ração" {% if produto and produto[2] == 'Ração' %}selected{% endif %}>Ração</option>
-                                <option value="Brinquedos" {% if produto and produto[2] == 'Brinquedos' %}selected{% endif %}>Brinquedos</option>
-                                <option value="Camas e Casinhas" {% if produto and produto[2] == 'Camas e Casinhas' %}selected{% endif %}>Camas e Casinhas</option>
-                                <option value="Coleiras e Guias" {% if produto and produto[2] == 'Coleiras e Guias' %}selected{% endif %}>Coleiras e Guias</option>
-                                <option value="Higiene" {% if produto and produto[2] == 'Higiene' %}selected{% endif %}>Higiene</option>
-                                <option value="Saúde" {% if produto and produto[2] == 'Saúde' %}selected{% endif %}>Saúde</option>
-                                <option value="Acessórios" {% if produto and produto[2] == 'Acessórios' %}selected{% endif %}>Acessórios</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="descricao" class="form-label">Descrição</label>
-                            <textarea id="descricao" name="descricao" class="form-control" required>{{ produto[6] if produto else '' }}</textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="preco" class="form-label">Preço (R$)</label>
-                            <input type="number" id="preco" name="preco" class="form-control" step="0.01" min="0" value="{{ produto[3] if produto else '' }}" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="estoque" class="form-label">Estoque</label>
-                            <input type="number" id="estoque" name="estoque" class="form-control" min="0" value="{{ produto[4] if produto else '0' }}" required>
-                        </div>
-                        
-                        <!--<div class="form-group">
-                            <label for="status" class="form-label">Status</label>
-                            <select id="status" name="status" class="form-select" required>
-                                <option value="Disponível" {% if produto and produto[5] == 'Disponível' %}selected{% endif %}>Disponível</option>
-                                <option value="Esgotado" {% if produto and produto[5] == 'Esgotado' %}selected{% endif %}>Esgotado</option>
-                                <option value="Promoção" {% if produto and produto[5] == 'Promoção' %}selected{% endif %}>Promoção</option>
-                            </select>
-                        </div> -->
-                        
-                        <div class="form-group">
-                            <label for="imagem" class="form-label">Imagem do Produto</label>
-                            <input type="file" id="imagem" name="imagem" class="form-control">
-                            {% if produto and produto[7] %}
-                            <div style="margin-top: 10px;">
-                                <img src="{{ url_for('static', filename='imagens/produtos/' + produto[7]) }}" alt="{{ produto[1] }}" style="max-width: 200px; border-radius: 5px;">
-                                <p style="font-size: 14px; margin-top: 5px;">Imagem atual. Envie uma nova para substituir.</p>
-                            </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="form-buttons">
-                            <a href="/admin/produtos" class="btn btn-outline">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">{{ 'Salvar Alterações' if produto else 'Adicionar Produto' }}</button>
-                        </div>
-                    </form>
-                </div>
-            </section>
-        </div>
+    <main class="container">
+        <h1 id="page-title" class="page-title">Carregando...</h1>
+        
+        <section class="admin-section">
+            <div class="form-container">
+                <h2 id="form-title" class="form-title">Formulário</h2>
+                
+                <form id="product-form">
+                    <div class="form-group">
+                        <label for="nome" class="form-label">Nome do Produto</label>
+                        <input type="text" id="nome" name="nome" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoria" class="form-label">Categoria</label>
+                        <select id="categoria" name="categoria" class="form-control" required>
+                            <option value="">Selecione...</option>
+                            <option value="Ração">Ração</option>
+                            <option value="Brinquedos">Brinquedos</option>
+                            <option value="Camas e Casinhas">Camas e Casinhas</option>
+                            <option value="Higiene">Higiene</option>
+                            <option value="Saúde">Saúde</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="descricao" class="form-label">Descrição</label>
+                        <textarea id="descricao" name="descricao" class="form-control"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="preco" class="form-label">Preço (R$)</label>
+                        <input type="number" id="preco" name="preco" class="form-control" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="estoque" class="form-label">Estoque</label>
+                        <input type="number" id="estoque" name="estoque" class="form-control" min="0" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" id="submit-button" class="btn btn-primary">Salvar</button>
+                        <a href="/lista_produtos.html" class="btn btn-outline">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </section>
     </main>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+        const currentUserId = 1; // ID do usuário admin para testes
+        const form = document.getElementById('product-form');
+        let editMode = false;
+        let productId = null;
+
+        const apiClient = {
+            async request(method, path, data = null) {
+                const url = new URL(`${API_BASE_URL}${path}`);
+                url.searchParams.append('userId', currentUserId);
+                
+                const options = {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                };
+                if (data) options.body = JSON.stringify(data);
+
+                try {
+                    const response = await fetch(url.toString(), options);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || 'Erro na API');
+                    }
+                    return response.json();
+                } catch (error) {
+                    alert(`Erro: ${error.message}`);
+                    throw error;
+                }
+            },
+            get(path) { return this.request('GET', path); },
+            post(path, data) { return this.request('POST', path, data); },
+            put(path, data) { return this.request('PUT', path, data); },
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            productId = params.get('id');
+
+            const pageTitle = document.getElementById('page-title');
+            const formTitle = document.getElementById('form-title');
+            const submitButton = document.getElementById('submit-button');
+
+            if (productId) {
+                editMode = true;
+                pageTitle.textContent = 'Editar Produto';
+                formTitle.textContent = 'Formulário de Edição';
+                submitButton.textContent = 'Salvar Alterações';
+                
+                try {
+                    const product = await apiClient.get(`/produtos/${productId}`);
+                    // Preenche o formulário com os dados do produto
+                    document.getElementById('nome').value = product.nome;
+                    document.getElementById('categoria').value = product.categoria;
+                    document.getElementById('descricao').value = product.descricao;
+                    document.getElementById('preco').value = parseFloat(product.preco).toFixed(2);
+                    document.getElementById('estoque').value = product.estoque;
+                } catch (error) {
+                    form.innerHTML = '<p style="color:red; text-align:center;">Não foi possível carregar os dados do produto.</p>';
+                }
+            } else {
+                pageTitle.textContent = 'Adicionar Produto';
+                formTitle.textContent = 'Formulário de Cadastro';
+                submitButton.textContent = 'Adicionar Produto';
+            }
+        });
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            // Converte campos numéricos
+            data.preco = parseFloat(data.preco);
+            data.estoque = parseInt(data.estoque, 10);
+
+            try {
+                if (editMode) {
+                    await apiClient.put(`/produtos/${productId}`, data);
+                    alert('Produto atualizado com sucesso!');
+                } else {
+                    await apiClient.post('/produtos/', data);
+                    alert('Produto adicionado com sucesso!');
+                }
+                window.location.href = '/lista_produtos.html'; // Redireciona para a lista
+            } catch (error) {
+                // O erro já é tratado pelo apiClient
+            }
+        });
+    </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PataCerta - Lista de Animais</title>
+    <title>PataCerta - Gerenciar Animais (API)</title>
     <style>
         * {
             margin: 0;
@@ -13,15 +13,13 @@
         }
         
         :root {
-            /* Paleta harmônica */
-            --primary: #6C63FF;       /* roxo‑azulado (principal) */
-            --secondary: #5850D8;     /* roxo escuro (botões secundários, fundo testimonials…) */
-            --dark: #2E3056;          /* texto principal / footer */
-            --light: #F4F6FC;         /* fundo geral */
-            --accent: #FF6B6B;        /* acento coral (badges, botões de destaque) */
-            --accent-light: #FCEEEE;  /* coral clarinho (seções suaves) */
-            --warning: #E7CA4A;       /* continua para “Urgente” */
-}
+            --primary: #6C63FF;
+            --secondary: #5850D8;
+            --dark: #2E3056;
+            --light: #F4F6FC;
+            --accent: #FF6B6B;
+            --warning: #E7CA4A;
+        }
         
         body {
             background-color: var(--light);
@@ -36,7 +34,6 @@
             padding: 0 20px;
         }
         
-        /* Header */
         header {
             background-color: white;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -91,13 +88,6 @@
             color: var(--primary);
         }
         
-        .mobile-menu {
-            display: none;
-            font-size: 24px;
-            cursor: pointer;
-        }
-        
-        /* Content */
         .page-title {
             text-align: center;
             margin: 30px 0;
@@ -125,7 +115,6 @@
             font-size: 24px;
         }
         
-        /* Table Styles */
         .animals-table {
             width: 100%;
             border-collapse: collapse;
@@ -146,15 +135,6 @@
             font-weight: 600;
             text-transform: uppercase;
             font-size: 14px;
-            letter-spacing: 0.5px;
-        }
-        
-        .animals-table tr {
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .animals-table tr:last-child {
-            border-bottom: none;
         }
         
         .animals-table tr:nth-child(even) {
@@ -165,32 +145,18 @@
             background-color: #f1f1f1;
         }
         
-        /* Status badge */
         .status-badge {
             padding: 5px 10px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 500;
             display: inline-block;
-            text-align: center;
         }
         
-        .status-disponivel {
-            background-color: var(--accent-light);
-            color: var(--accent);
-        }
+        .status-disponivel { background-color: #d4edda; color: #155724; }
+        .status-adotado { background-color: #d1ecf1; color: #0c5460; }
+        .status-em_tratamento { background-color: #fff3cd; color: #856404; }
         
-        .status-adotado {
-            background-color: #e0eaff;
-            color: var(--secondary);
-        }
-        
-        .status-urgente {
-            background-color: #fff1cc;
-            color: var(--warning);
-        }
-        
-        /* Actions */
         .action-buttons {
             display: flex;
             gap: 10px;
@@ -204,83 +170,16 @@
             font-size: 14px;
             cursor: pointer;
             transition: all 0.3s;
-            display: inline-block;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
             border: none;
         }
         
-        .btn-primary:hover {
-            background-color: #e67e3b;
-        }
-        
-        .btn-secondary {
-            background-color: var(--secondary);
-            color: white;
-            border: none;
-        }
-        
-        .btn-secondary:hover {
-            background-color: #3a7bd5;
-        }
-        
-        .btn-danger {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-        }
-        
-        .btn-danger:hover {
-            background-color: #c0392b;
-        }
-        
-        .btn-outline {
-            background-color: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-        }
-        
-        .btn-outline:hover {
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        .add-button {
-            margin-top: 20px;
-            text-align: center;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-            
-            .mobile-menu {
-                display: block;
-            }
-            
-            .animals-table {
-                display: block;
-                overflow-x: auto;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-                gap: 5px;
-            }
-            
-            .action-buttons .btn {
-                text-align: center;
-            }
-        }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-secondary { background-color: var(--secondary); color: white; }
+        .btn-danger { background-color: var(--accent); color: white; }
+        .btn-outline { background-color: transparent; border: 2px solid var(--primary); color: var(--primary); }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header>
         <div class="container">
             <nav class="navbar">
@@ -288,82 +187,178 @@
                     <i class="logo-icon">🐾</i> Pata<span>Certa</span> <small>Admin</small>
                 </a>
                 <ul class="nav-links">
-                    <li><a href="/">Início</a></li>
-                    <li><a href="#animais">Adotar</a></li>
-                    <li><a href="#sobre">Sobre Nós</a></li>
-                    <li><a href="#processo">Processo</a></li>
-                    <li><a href="/produtos">Produtos</a></li>
-                    <li><a href="#blog">Blog</a></li>
-                    <li><a href="#contato">Contato</a></li>
+                    <li><a href="/admin.html">Dashboard</a></li>
+                    <li><a href="/">Visualizar Site</a></li>
                 </ul>
-                <div class="mobile-menu">☰</div>
             </nav>
         </div>
     </header>
 
-    <main>
-        <div class="container">
-            <h1 class="page-title">Gerenciamento de Animais</h1>
+    <main class="container">
+        <h1 class="page-title">Gerenciamento de Animais</h1>
+        
+        <section class="admin-section">
+            <div class="admin-header">
+                <h2>Lista de Animais</h2>
+                <div>
+                  <a href="/admin.html" class="btn btn-outline" style="margin-right: 10px;">← Voltar para Admin</a>
+                  <a href="/form_animal.html" class="btn btn-primary">+ Adicionar Animal</a>
+                </div>
+            </div>
             
-            <section class="admin-section">
-                <div class="admin-header">
-                    <h2>Lista de Animais Disponíveis</h2>
-                    <div>
-                      <a href="/admin" class="btn btn-outline" style="margin-right: 10px;">← Voltar para Admin</a>
-                      <a href="/admin/animais/adicionar" class="btn btn-primary">+ Adicionar Animal</a>
-                    </div>
-                    <a href="/admin/animais/adicionar" class="btn btn-primary">+ Adicionar Animal</a>
-                </div>
-                
-                <div class="table-responsive">
-                    <table class="animals-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nome</th>
-                                <th>Idade</th>
-                                <th>Porte</th>
-                                <th>Tipo</th>
-                                <th>Sexo</th>
-                                <th>Status</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for a in animais %}
-                            <tr>
-                                <td>{{ a[0] }}</td>
-                                <td>{{ a[1] }}</td>
-                                <td>{{ a[2] }}</td>
-                                <td>{{ a[3] }}</td>
-                                <td>{{ a[4] }}</td>
-                                <td>{{ a[5] }}</td>
-                                <td>
-                                    {% if a[6] == 'Disponível' %}
-                                    <span class="status-badge status-disponivel">{{ a[6] }}</span>
-                                    {% elif a[6] == 'Adotado' %}
-                                    <span class="status-badge status-adotado">{{ a[6] }}</span>
-                                    {% elif a[6] == 'Urgente' %}
-                                    <span class="status-badge status-urgente">{{ a[6] }}</span>
-                                    {% else %}
-                                    <span class="status-badge">{{ a[6] }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <a href="/admin/animais/editar/{{ a[0] }}" class="btn btn-secondary">Editar</a>
-                                        <form action="/admin/animais/excluir/{{ a[0] }}" method="post" style="display:inline;">
-                                            <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja excluir {{ a[1] }}?')">Excluir</button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </div>
+            <div class="table-responsive">
+                <table class="animals-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Idade</th>
+                            <th>Porte</th>
+                            <th>Tipo</th>
+                            <th>Sexo</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="animals-table-body">
+                        <!-- As linhas da tabela serão inseridas aqui pelo JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </main>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+
+        // Em uma aplicação real, o ID do usuário viria de um sistema de login (ex: localStorage)
+        // Para testes, use um ID de um usuário que seja admin.
+        const currentUserId = 1; 
+
+        /**
+         * Objeto para encapsular chamadas à API, adicionando o ID do usuário para autorização.
+         */
+        const apiClient = {
+            async request(method, path, data = null, queryParams = {}) {
+                const url = new URL(`${API_BASE_URL}${path}`);
+                
+                // Adiciona o ID do usuário como parâmetro de consulta para autorização no backend
+                queryParams.userId = currentUserId;
+                Object.keys(queryParams).forEach(key => url.searchParams.append(key, queryParams[key]));
+
+                const options = {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                };
+
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+
+                try {
+                    const response = await fetch(url.toString(), options);
+                    const responseData = await response.json();
+                    if (!response.ok) {
+                        throw new Error(responseData.detail || `Erro HTTP ${response.status}`);
+                    }
+                    return responseData;
+                } catch (error) {
+                    console.error(`Erro na requisição ${method} ${path}:`, error);
+                    alert(`Erro na comunicação com a API: ${error.message}`);
+                    throw error; // Propaga o erro
+                }
+            },
+            get(path, queryParams = {}) {
+                return this.request('GET', path, null, queryParams);
+            },
+            delete(path) {
+                return this.request('DELETE', path);
+            }
+        };
+
+        /**
+         * Busca a lista de animais da API e preenche a tabela.
+         */
+        async function fetchAnimals() {
+            const tableBody = document.getElementById('animals-table-body');
+            tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Carregando...</td></tr>';
+
+            try {
+                const animals = await apiClient.get('/animals/');
+                populateTable(animals);
+            } catch (error) {
+                tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:red;">Falha ao carregar animais. Verifique se a API está rodando.</td></tr>';
+            }
+        }
+
+        /**
+         * Preenche a tabela com os dados dos animais.
+         * @param {Array} animals - A lista de animais recebida da API.
+         */
+        function populateTable(animals) {
+            const tableBody = document.getElementById('animals-table-body');
+            tableBody.innerHTML = ''; // Limpa a tabela
+
+            if (animals.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Nenhum animal cadastrado.</td></tr>';
+                return;
+            }
+
+            animals.forEach(animal => {
+                const row = document.createElement('tr');
+                const statusClass = `status-${(animal.status || '').replace(' ', '_').toLowerCase()}`;
+
+                row.innerHTML = `
+                    <td>${animal.id_animal}</td>
+                    <td>${animal.nome}</td>
+                    <td>${animal.idade || 'N/A'}</td>
+                    <td>${animal.porte || 'N/A'}</td>
+                    <td>${animal.tipo || 'N/A'}</td>
+                    <td>${animal.sexo || 'N/A'}</td>
+                    <td><span class="status-badge ${statusClass}">${animal.status}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button onclick="editAnimal(${animal.id_animal})" class="btn btn-secondary">Editar</button>
+                            <button onclick="deleteAnimal(${animal.id_animal})" class="btn btn-danger">Excluir</button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        /**
+         * Lida com a exclusão de um animal.
+         * @param {number} animalId - O ID do animal a ser excluído.
+         */
+        async function deleteAnimal(animalId) {
+            if (!confirm(`Tem certeza que deseja excluir o animal com ID ${animalId}?`)) {
+                return;
+            }
+
+            try {
+                await apiClient.delete(`/animals/${animalId}`);
+                alert('Animal excluído com sucesso!');
+                fetchAnimals(); // Atualiza a tabela
+            } catch (error) {
+                // O erro já é tratado e exibido pelo apiClient
+            }
+        }
+        
+        /**
+         * Redireciona para o formulário de edição (lógica de exemplo).
+         * @param {number} animalId - O ID do animal a ser editado.
+         */
+        function editAnimal(animalId) {
+            // Em um sistema real, você poderia abrir um modal ou ir para uma página de formulário
+            // pré-preenchida. Para este exemplo, usaremos o form_animal.html.
+            alert(`A edição deve ser implementada em uma página de formulário. Redirecionando (exemplo)...`);
+            window.location.href = `/form_animal.html?id=${animalId}`;
+        }
+
+
+        // Executa a função principal quando a página carrega
+        window.onload = fetchAnimals;
+    </script>
 </body>
 </html>

@@ -1,19 +1,16 @@
-from fastapi import FastAPI, HTTPException, Depends, Query
+from fastapi import FastAPI, HTTPException, Depends, Query, Form
 from fastapi.middleware.cors import CORSMiddleware 
 from Classes.classes import *
 from Database.connect import connect_db
-from sqlalchemy.orm import sessionmaker, Session, Query as SqlAlchemyQuery # Renamed Query to avoid conflict with fastapi.Query
-from pydantic import BaseModel
-from datetime import datetime
+from sqlalchemy.orm import sessionmaker, Session
+from pydantic import EmailStr
 from typing import Optional, List
 
-# Documentação da API em http://127.0.0.1:8000/docs
-
 # SQLAlchemy setup
-Engine = connect_db()  # This function should return a SQLAlchemy engine
+Engine = connect_db()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=Engine)
 
-# Dependency to get the database session
+# Dependency
 def get_db():
     db = SessionLocal()
     try:
@@ -21,37 +18,28 @@ def get_db():
     finally:
         db.close()
 
-# --- FastAPI App ---
 app = FastAPI()
-origins = [
-    "http://localhost",
-    "http://localhost:5000",
-    "http://localhost:5001",
-    'http://127.0.0.1:5501',
-    "http://localhost:8000", # If your JavaScript is served from here
-    "http://localhost:3000", # Common for React, Vue, Angular development servers
-    # Add the actual origin(s) of your JavaScript frontend
-]
+
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"], # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
-    allow_headers=["*"], # Allow all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# Função auxiliar para verificar o status de administrador
 def is_user_admin(user_id: int, db: Session) -> bool:
     user = db.query(Usuario).filter(Usuario.id_usuario == user_id).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
     return user.is_admin
 
 # --- Root ---
 @app.get("/")
 async def read_root():
-    return {"message": "Hello from FastAPI!"}
+    return {"message": "Bem-vindo à API PataCerta!"}
 
 # --- CRUD Endpoints for Usuarios ---
 @app.get("/usuarios/", response_model=List[UsuarioInDB])
@@ -63,7 +51,6 @@ def read_usuarios(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
 
 @app.get("/usuarios/{usuario_id}", response_model=UsuarioInDB)
 def read_usuario(usuario_id: int, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Permite ao próprio usuário ver seus dados, ou admin ver qualquer um
     if not is_user_admin(current_user_id, db) and current_user_id != usuario_id:
         raise HTTPException(status_code=403, detail="Not authorized to view this user's data")
     
@@ -74,7 +61,6 @@ def read_usuario(usuario_id: int, db: Session = Depends(get_db), current_user_id
 
 @app.put("/usuarios/{usuario_id}", response_model=UsuarioInDB)
 def update_usuario(usuario_id: int, usuario: UsuarioUpdate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Permite ao próprio usuário editar seus dados, ou admin editar qualquer um
     if not is_user_admin(current_user_id, db) and current_user_id != usuario_id:
         raise HTTPException(status_code=403, detail="Not authorized to update this user")
         
@@ -89,7 +75,6 @@ def update_usuario(usuario_id: int, usuario: UsuarioUpdate, db: Session = Depend
 
 @app.delete("/usuarios/{usuario_id}")
 def delete_usuario(usuario_id: int, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem deletar usuários
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to delete users")
     
@@ -103,7 +88,6 @@ def delete_usuario(usuario_id: int, db: Session = Depends(get_db), current_user_
 # --- CRUD Endpoints for Animal ---
 @app.post("/animals/", response_model=AnimalInDB)
 def create_animal(animal: AnimalCreate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Verifica se o userId existe no sistema (não precisa ser admin)
     user_exists = db.query(Usuario).filter(Usuario.id_usuario == current_user_id).first()
     if not user_exists:
         raise HTTPException(status_code=404, detail="User not found with the provided userId")
@@ -129,7 +113,6 @@ def read_animal(animal_id: int, db: Session = Depends(get_db)):
 
 @app.put("/animals/{animal_id}", response_model=AnimalInDB)
 def update_animal(animal_id: int, animal: AnimalUpdate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem atualizar animais
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to update animals")
 
@@ -144,7 +127,6 @@ def update_animal(animal_id: int, animal: AnimalUpdate, db: Session = Depends(ge
 
 @app.delete("/animals/{animal_id}")
 def delete_animal(animal_id: int, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem deletar animais
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to delete animals")
 
@@ -158,22 +140,15 @@ def delete_animal(animal_id: int, db: Session = Depends(get_db), current_user_id
 # --- CRUD Endpoints for Adocao ---
 @app.post("/adocoes/", response_model=AdocaoInDB)
 def create_adocao(adocao: AdocaoCreate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Verifica se o id_usuario fornecido no corpo da requisição corresponde ao usuário logado OU se é admin
-    # E se o current_user_id realmente existe.
-    if not is_user_admin(current_user_id, db): # Se não for admin...
-        if adocao.id_usuario != current_user_id: # ... e está tentando criar adoção para outro usuário
+    if not is_user_admin(current_user_id, db): 
+        if adocao.id_usuario != current_user_id:
             raise HTTPException(status_code=403, detail="Not authorized to create adocao for another user")
-        adocao.status = 'pendente' # Force o status para 'pendente'
+        adocao.status = 'pendente'
     
-    # Se o current_user_id é admin, ele pode criar para qualquer id_usuario e com qualquer status
-    # Aqui adocao.id_usuario já deve ser o id do usuário que está solicitando a adoção (do body)
-
-    # Verifica se o id_usuario no corpo da requisição é válido
     user_in_body_exists = db.query(Usuario).filter(Usuario.id_usuario == adocao.id_usuario).first()
     if not user_in_body_exists:
         raise HTTPException(status_code=400, detail=f"User with id {adocao.id_usuario} not found.")
 
-    # Verifica se o id_animal no corpo da requisição é válido
     animal_in_body_exists = db.query(Animal).filter(Animal.id_animal == adocao.id_animal).first()
     if not animal_in_body_exists:
         raise HTTPException(status_code=400, detail=f"Animal with id {adocao.id_animal} not found.")
@@ -198,7 +173,6 @@ def read_adocao(adocao_id: int, db: Session = Depends(get_db)):
 
 @app.put("/adocoes/{adocao_id}", response_model=AdocaoInDB)
 def update_adocao(adocao_id: int, adocao: AdocaoUpdate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem atualizar adoções
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to update adocoes")
 
@@ -213,7 +187,6 @@ def update_adocao(adocao_id: int, adocao: AdocaoUpdate, db: Session = Depends(ge
 
 @app.delete("/adocoes/{adocao_id}")
 def delete_adocao(adocao_id: int, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem deletar adoções
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to delete adocoes")
 
@@ -249,7 +222,6 @@ def read_produto(produto_id: int, db: Session = Depends(get_db)):
 
 @app.put("/produtos/{produto_id}", response_model=ProdutoInDB)
 def update_produto(produto_id: int, produto: ProdutoUpdate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem atualizar produtos
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to update products")
 
@@ -264,7 +236,6 @@ def update_produto(produto_id: int, produto: ProdutoUpdate, db: Session = Depend
 
 @app.delete("/produtos/{produto_id}")
 def delete_produto(produto_id: int, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem deletar produtos
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to delete products")
 
@@ -708,11 +679,40 @@ def delete_pedido_servico(pedido_servico_id: int, db: Session = Depends(get_db),
     db.commit()
     return {"message": "PedidoServico deleted successfully"}
 
+# --- Endpoints de Autenticação ---
+
+@app.post("/register", response_model=UsuarioInDB)
+def register_user(usuario: UsuarioCreate, db: Session = Depends(get_db)):
+    """
+    Registra um novo usuário no banco de dados.
+    """
+    db_user = db.query(Usuario).filter(Usuario.email == usuario.email).first()
+    if db_user:
+        raise HTTPException(status_code=400, detail="Este e-mail já está cadastrado")
+    
+    # ATENÇÃO: Em um projeto real, a senha deveria ser "hasheada" aqui.
+    db_usuario = Usuario(**usuario.model_dump())
+    db.add(db_usuario)
+    db.commit()
+    db.refresh(db_usuario)
+    return db_usuario
+
+@app.post("/login", response_model=UsuarioInDB)
+def login_for_access(db: Session = Depends(get_db), email: EmailStr = Form(...), password: str = Form(...)):
+    """
+    Verifica o email e a senha do usuário.
+    """
+    user = db.query(Usuario).filter(Usuario.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    
+    # ATENÇÃO: Verificação de senha em texto plano. Em um projeto real, use hashing.
+    if user.senha != password:
+        raise HTTPException(status_code=401, detail="Senha incorreta")
+    
+    return user
+
+
 if __name__ == "__main__":
     import uvicorn
-    # Inicia o servidor Uvicorn.
-    # O host '0.0.0.0' permite acesso de outras máquinas na rede,
-    # enquanto '127.0.0.1' (padrão) restringe ao localhost.
-    # A porta 8000 é a padrão, mas pode ser alterada.
-    # 'reload=True' é útil para desenvolvimento, pois reinicia o servidor ao detectar mudanças.
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

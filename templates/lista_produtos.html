@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PataCerta - Lista de Produtos</title>
+    <title>PataCerta - Lista de Produtos (API)</title>
     <style>
         * {
             margin: 0;
@@ -13,14 +13,12 @@
         }
         
         :root {
-            /* Paleta harmônica */
-            --primary: #6C63FF;       /* roxo‑azulado (principal) */
-            --secondary: #5850D8;     /* roxo escuro (botões secundários, fundo testimonials…) */
-            --dark: #2E3056;          /* texto principal / footer */
-            --light: #F4F6FC;         /* fundo geral */
-            --accent: #FF6B6B;        /* acento coral (badges, botões de destaque) */
-            --accent-light: #FCEEEE;  /* coral clarinho (seções suaves) */
-            --warning: #E7CA4A;       /* continua para "Urgente" */
+            --primary: #6C63FF;
+            --secondary: #5850D8;
+            --dark: #2E3056;
+            --light: #F4F6FC;
+            --accent: #FF6B6B;
+            --warning: #E7CA4A;
         }
         
         body {
@@ -36,7 +34,6 @@
             padding: 0 20px;
         }
         
-        /* Header */
         header {
             background-color: white;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -91,13 +88,6 @@
             color: var(--primary);
         }
         
-        .mobile-menu {
-            display: none;
-            font-size: 24px;
-            cursor: pointer;
-        }
-        
-        /* Content */
         .page-title {
             text-align: center;
             margin: 30px 0;
@@ -125,7 +115,6 @@
             font-size: 24px;
         }
         
-        /* Table Styles */
         .products-table {
             width: 100%;
             border-collapse: collapse;
@@ -146,15 +135,6 @@
             font-weight: 600;
             text-transform: uppercase;
             font-size: 14px;
-            letter-spacing: 0.5px;
-        }
-        
-        .products-table tr {
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .products-table tr:last-child {
-            border-bottom: none;
         }
         
         .products-table tr:nth-child(even) {
@@ -164,33 +144,7 @@
         .products-table tr:hover {
             background-color: #f1f1f1;
         }
-        
-        /* Status badge */
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            display: inline-block;
-            text-align: center;
-        }
-        
-        .status-disponivel {
-            background-color: #cceeff;
-            color: #0088cc;
-        }
-        
-        .status-esgotado {
-            background-color: #ffcccc;
-            color: #cc0000;
-        }
-        
-        .status-promocao {
-            background-color: #fff1cc;
-            color: var(--warning);
-        }
-        
-        /* Actions */
+
         .action-buttons {
             display: flex;
             gap: 10px;
@@ -204,83 +158,16 @@
             font-size: 14px;
             cursor: pointer;
             transition: all 0.3s;
-            display: inline-block;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
             border: none;
         }
-        
-        .btn-primary:hover {
-            background-color: #5850D8;
-        }
-        
-        .btn-secondary {
-            background-color: var(--secondary);
-            color: white;
-            border: none;
-        }
-        
-        .btn-secondary:hover {
-            background-color: #4740b3;
-        }
-        
-        .btn-danger {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-        }
-        
-        .btn-danger:hover {
-            background-color: #c0392b;
-        }
-        
-        .btn-outline {
-            background-color: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-        }
-        
-        .btn-outline:hover {
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        .add-button {
-            margin-top: 20px;
-            text-align: center;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-            
-            .mobile-menu {
-                display: block;
-            }
-            
-            .products-table {
-                display: block;
-                overflow-x: auto;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-                gap: 5px;
-            }
-            
-            .action-buttons .btn {
-                text-align: center;
-            }
-        }
+
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-secondary { background-color: var(--secondary); color: white; }
+        .btn-danger { background-color: var(--accent); color: white; }
+        .btn-outline { background-color: transparent; border: 2px solid var(--primary); color: var(--primary); }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header>
         <div class="container">
             <nav class="navbar">
@@ -288,79 +175,138 @@
                     <i class="logo-icon">🐾</i> Pata<span>Certa</span> <small>Admin</small>
                 </a>
                 <ul class="nav-links">
-                    <li><a href="/">Início</a></li>
-                    <li><a href="#animais">Adotar</a></li>
-                    <li><a href="#sobre">Sobre Nós</a></li>
-                    <li><a href="#processo">Processo</a></li>
-                    <li><a href="/produtos">Produtos</a></li>
-                    <li><a href="#blog">Blog</a></li>
-                    <li><a href="#contato">Contato</a></li>
+                    <li><a href="/admin.html">Dashboard</a></li>
+                    <li><a href="/">Visualizar Site</a></li>
                 </ul>
-                <div class="mobile-menu">☰</div>
             </nav>
         </div>
     </header>
 
-    <main>
-        <div class="container">
-            <h1 class="page-title">Gerenciamento de Produtos</h1>
+    <main class="container">
+        <h1 class="page-title">Gerenciamento de Produtos</h1>
+        
+        <section class="admin-section">
+            <div class="admin-header">
+                <h2>Lista de Produtos</h2>
+                <div>
+                  <a href="/admin.html" class="btn btn-outline" style="margin-right: 10px;">← Voltar para Admin</a>
+                  <a href="/form_produto.html" class="btn btn-primary">+ Adicionar Produto</a>
+                </div>
+            </div>
             
-            <section class="admin-section">
-                <div class="admin-header">
-                    <h2>Lista de Produtos</h2>
-                    <div>
-                      <a href="/admin" class="btn btn-outline" style="margin-right: 10px;">← Voltar para Admin</a>
-                      <a href="/admin/produtos/adicionar" class="btn btn-primary">+ Adicionar Produto</a>
-                    </div>
-                </div>
-                
-                <div class="table-responsive">
-                    <table class="products-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nome</th>
-                                <th>Categoria</th>
-                                <th>Preço</th>
-                                <th>Estoque</th>
-                                <th>Status</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for p in produtos %}
-                            <tr>
-                                <td>{{ p[0] }}</td>
-                                <td>{{ p[1] }}</td>
-                                <td>{{ p[2] }}</td>
-                                <td>R$ {{ "%.2f"|format(p[3]|float) }}</td>
-                                <td>{{ p[4] }}</td>
-                                <td>
-                                    {% if p[5] == 'Disponível' %}
-                                    <span class="status-badge status-disponivel">{{ p[5] }}</span>
-                                    {% elif p[5] == 'Esgotado' %}
-                                    <span class="status-badge status-esgotado">{{ p[5] }}</span>
-                                    {% elif p[5] == 'Promoção' %}
-                                    <span class="status-badge status-promocao">{{ p[5] }}</span>
-                                    {% else %}
-                                    <span class="status-badge">{{ p[5] }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <a href="/admin/produtos/editar/{{ p[0] }}" class="btn btn-secondary">Editar</a>
-                                        <form action="/admin/produtos/excluir/{{ p[0] }}" method="post" style="display:inline;">
-                                            <button type="submit" class="btn btn-danger" onclick="return confirm('Tem certeza que deseja excluir {{ p[1] }}?')">Excluir</button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </div>
+            <div class="table-responsive">
+                <table class="products-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Categoria</th>
+                            <th>Preço</th>
+                            <th>Estoque</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="products-table-body">
+                        <!-- Linhas da tabela serão inseridas aqui via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
     </main>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+        const currentUserId = 1; // ID do usuário admin para testes de autorização
+
+        const apiClient = {
+            async request(method, path, data = null, queryParams = {}) {
+                const url = new URL(`${API_BASE_URL}${path}`);
+                queryParams.userId = currentUserId;
+                Object.keys(queryParams).forEach(key => url.searchParams.append(key, queryParams[key]));
+
+                const options = {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                };
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+                
+                try {
+                    const response = await fetch(url.toString(), options);
+                    const responseData = await response.json();
+                    if (!response.ok) throw new Error(responseData.detail || `Erro HTTP ${response.status}`);
+                    return responseData;
+                } catch (error) {
+                    console.error(`Erro na requisição ${method} ${path}:`, error);
+                    alert(`Erro na API: ${error.message}`);
+                    throw error;
+                }
+            },
+            get(path, queryParams = {}) { return this.request('GET', path, null, queryParams); },
+            delete(path) { return this.request('DELETE', path); }
+        };
+
+        async function fetchProducts() {
+            const tableBody = document.getElementById('products-table-body');
+            tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Carregando...</td></tr>';
+
+            try {
+                const products = await apiClient.get('/produtos/');
+                populateTable(products);
+            } catch (error) {
+                tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">Falha ao carregar produtos.</td></tr>';
+            }
+        }
+
+        function populateTable(products) {
+            const tableBody = document.getElementById('products-table-body');
+            tableBody.innerHTML = '';
+
+            if (products.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Nenhum produto cadastrado.</td></tr>';
+                return;
+            }
+
+            products.forEach(product => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.id_produto}</td>
+                    <td>${product.nome}</td>
+                    <td>${product.categoria || 'N/A'}</td>
+                    <td>R$ ${parseFloat(product.preco).toFixed(2)}</td>
+                    <td>${product.quantidade_estoque}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button onclick="editProduct(${product.id_produto})" class="btn btn-secondary">Editar</button>
+                            <button onclick="deleteProduct(${product.id_produto})" class="btn btn-danger">Excluir</button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        async function deleteProduct(productId) {
+            if (!confirm(`Tem certeza que deseja excluir o produto com ID ${productId}?`)) {
+                return;
+            }
+
+            try {
+                await apiClient.delete(`/produtos/${productId}`);
+                alert('Produto excluído com sucesso!');
+                fetchProducts(); // Atualiza a tabela
+            } catch (error) {
+                // Erro já tratado pelo apiClient
+            }
+        }
+
+        function editProduct(productId) {
+            alert(`A edição deve ser implementada em uma página de formulário. Redirecionando (exemplo)...`);
+            window.location.href = `/form_produto.html?id=${productId}`;
+        }
+
+        window.onload = fetchProducts;
+    </script>
 </body>
 </html>

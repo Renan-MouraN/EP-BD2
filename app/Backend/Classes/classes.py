@@ -54,17 +54,20 @@ class Adocao(Base):
     )
 
 class Produto(Base):
-    __tablename__ = "produto"
+    # CORREÇÃO 1: O nome da tabela foi alterado para 'produtos' (plural) para corresponder ao schema.sql.
+    __tablename__ = "produtos"
     id_produto = Column(Integer, primary_key=True, index=True)
     nome = Column(String(100), nullable=False)
     descricao = Column(Text)
     preco = Column(Numeric(10, 2), nullable=False)
-    quantidade_estoque = Column(Integer, default=0)
+    # CORREÇÃO 2: O nome da coluna foi alterado para 'estoque' para corresponder ao schema.sql.
+    estoque = Column(Integer, default=0)
     categoria = Column(String(50))
     imagem = Column(String(255))
 
 class Pedido(Base):
-    __tablename__ = "pedido"
+    # CORREÇÃO: O nome da tabela foi alterado para 'pedidos' (plural) para corresponder ao schema.sql.
+    __tablename__ = "pedidos"
     id_pedido = Column(Integer, primary_key=True, index=True)
     id_usuario = Column(Integer, index=True)
     data_pedido = Column(TIMESTAMP, default=datetime.now)
@@ -76,7 +79,8 @@ class Pedido(Base):
     )
 
 class ItemPedido(Base):
-    __tablename__ = "item_pedido"
+    # CORREÇÃO: O nome da tabela foi alterado para 'itens_pedido' (plural) para corresponder ao schema.sql.
+    __tablename__ = "itens_pedido"
     id_item = Column(Integer, primary_key=True, index=True)
     id_pedido = Column(Integer, index=True)
     id_produto = Column(Integer, index=True)
@@ -84,7 +88,8 @@ class ItemPedido(Base):
     preco_unitario = Column(Numeric(10, 2), nullable=False)
 
 class Depoimento(Base):
-    __tablename__ = "depoimento"
+    # CORREÇÃO: O nome da tabela foi alterado para 'depoimentos' (plural) para corresponder ao schema.sql.
+    __tablename__ = "depoimentos"
     id_depoimento = Column(Integer, primary_key=True, index=True)
     id_usuario = Column(Integer, index=True)
     id_animal = Column(Integer, index=True)
@@ -93,37 +98,42 @@ class Depoimento(Base):
     aprovado = Column(Boolean, default=False)
 
 class Servico(Base):
-    __tablename__ = "servico"
+    # CORREÇÃO: O nome da tabela foi alterado para 'servicos' (plural) para corresponder ao schema.sql.
+    __tablename__ = "servicos"
     id_servico = Column(Integer, primary_key=True, index=True)
     nome = Column(String(100), nullable=False)
     descricao = Column(Text)
-    preco = Column(Numeric(10, 2))
-    duracao_estimada_min = Column(Integer)
+    preco_base = Column("preco_base", Numeric(10, 2))
+    duracao_minutos = Column("duracao_minutos", Integer)
+
 
 class Prestador(Base):
-    __tablename__ = "prestador"
+    # CORREÇÃO: O nome da tabela foi alterado para 'prestadores' (plural) para corresponder ao schema.sql.
+    __tablename__ = "prestadores"
     id_prestador = Column(Integer, primary_key=True, index=True)
-    nome = Column(String(100), nullable=False)
+    nome_completo = Column(String(100), nullable=False)
     especialidade = Column(String(100))
     telefone = Column(String(20))
     email = Column(String(100))
-    id_usuario = Column(Integer, index=True, nullable=True) # Pode ser associado a um usuário existente
+    id_usuario = Column(Integer, index=True, nullable=True) 
 
 class PrestadorServico(Base):
-    __tablename__ = "prestador_servico"
+    # CORREÇÃO: O nome da tabela foi alterado para 'prestador_servicos' (plural) para corresponder ao schema.sql.
+    __tablename__ = "prestador_servicos"
     id_prestador_serv = Column(Integer, primary_key=True, index=True)
     id_prestador = Column(Integer, index=True)
     id_servico = Column(Integer, index=True)
-    preco_customizado = Column(Numeric(10, 2)) # Preço específico se diferente do padrão do serviço
+    preco = Column("preco", Numeric(10, 2))
 
 class PedidoServico(Base):
-    __tablename__ = "pedido_servico"
+    # CORREÇÃO: O nome da tabela foi alterado para 'pedidos_servico' (plural) para corresponder ao schema.sql.
+    __tablename__ = "pedidos_servico"
     id_pedido_servico = Column(Integer, primary_key=True, index=True)
     id_animal = Column(Integer, index=True)
     id_prestador_serv = Column(Integer, index=True)
-    id_tutor = Column(Integer, index=True) # O usuário que solicitou o serviço (dono do animal)
-    data_agendamento = Column(TIMESTAMP, nullable=False)
-    status = Column(String(20), default='pendente') # 'pendente', 'confirmado', 'concluido', 'cancelado'
+    id_tutor = Column(Integer, index=True)
+    inicio = Column("inicio", TIMESTAMP, nullable=False)
+    status = Column(String(20), default='pendente')
     observacoes = Column(Text)
 
     __table_args__ = (
@@ -219,7 +229,8 @@ class ProdutoBase(BaseModel):
     nome: str
     descricao: Optional[str] = None
     preco: float
-    quantidade_estoque: Optional[int] = 0
+    # CORREÇÃO: O nome do campo foi alterado para 'estoque' para consistência.
+    estoque: Optional[int] = 0
     categoria: Optional[str] = None
     imagem: Optional[str] = None
 
@@ -230,7 +241,7 @@ class ProdutoUpdate(ProdutoBase):
     nome: Optional[str] = None
     descricao: Optional[str] = None
     preco: Optional[float] = None
-    quantidade_estoque: Optional[int] = None
+    estoque: Optional[int] = None
     categoria: Optional[str] = None
     imagem: Optional[str] = None
 
@@ -242,7 +253,7 @@ class ProdutoInDB(ProdutoBase):
 
 class PedidoBase(BaseModel):
     id_usuario: int
-    status: Optional[str] = 'pendente' # 'pendente', 'pago', 'cancelado', 'enviado', 'entregue'
+    status: Optional[str] = 'pendente'
     valor_total: Optional[float] = None
 
 class PedidoCreate(PedidoBase):
@@ -308,8 +319,8 @@ class DepoimentoInDB(DepoimentoBase):
 class ServicoBase(BaseModel):
     nome: str
     descricao: Optional[str] = None
-    preco: Optional[float] = None
-    duracao_estimada_min: Optional[int] = None
+    preco_base: Optional[float] = None
+    duracao_minutos: Optional[int] = None
 
 class ServicoCreate(ServicoBase):
     pass
@@ -317,8 +328,8 @@ class ServicoCreate(ServicoBase):
 class ServicoUpdate(ServicoBase):
     nome: Optional[str] = None
     descricao: Optional[str] = None
-    preco: Optional[float] = None
-    duracao_estimada_min: Optional[int] = None
+    preco_base: Optional[float] = None
+    duracao_minutos: Optional[int] = None
 
 class ServicoInDB(ServicoBase):
     id_servico: int
@@ -327,7 +338,7 @@ class ServicoInDB(ServicoBase):
         from_attributes = True
 
 class PrestadorBase(BaseModel):
-    nome: str
+    nome_completo: str
     especialidade: Optional[str] = None
     telefone: Optional[str] = None
     email: Optional[str] = None
@@ -337,7 +348,7 @@ class PrestadorCreate(PrestadorBase):
     pass
 
 class PrestadorUpdate(PrestadorBase):
-    nome: Optional[str] = None
+    nome_completo: Optional[str] = None
     especialidade: Optional[str] = None
     telefone: Optional[str] = None
     email: Optional[str] = None
@@ -352,7 +363,7 @@ class PrestadorInDB(PrestadorBase):
 class PrestadorServicoBase(BaseModel):
     id_prestador: int
     id_servico: int
-    preco_customizado: Optional[float] = None
+    preco: Optional[float] = None
 
 class PrestadorServicoCreate(PrestadorServicoBase):
     pass
@@ -360,7 +371,7 @@ class PrestadorServicoCreate(PrestadorServicoBase):
 class PrestadorServicoUpdate(PrestadorServicoBase):
     id_prestador: Optional[int] = None
     id_servico: Optional[int] = None
-    preco_customizado: Optional[float] = None
+    preco: Optional[float] = None
 
 class PrestadorServicoInDB(PrestadorServicoBase):
     id_prestador_serv: int
@@ -372,7 +383,7 @@ class PedidoServicoBase(BaseModel):
     id_animal: int
     id_prestador_serv: int
     id_tutor: int
-    data_agendamento: datetime
+    inicio: datetime
     observacoes: Optional[str] = None
 
 class PedidoServicoCreate(PedidoServicoBase):
@@ -382,7 +393,7 @@ class PedidoServicoUpdate(PedidoServicoBase):
     id_animal: Optional[int] = None
     id_prestador_serv: Optional[int] = None
     id_tutor: Optional[int] = None
-    data_agendamento: Optional[datetime] = None
+    inicio: Optional[datetime] = None
     status: Optional[str] = None
     observacoes: Optional[str] = None
 

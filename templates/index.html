@@ -13,15 +13,14 @@
         }
         
         :root {
-            /* Paleta harmônica */
-            --primary: #6C63FF;       /* roxo‑azulado (principal) */
-            --secondary: #5850D8;     /* roxo escuro (botões secundários, fundo testimonials…) */
-            --dark: #2E3056;          /* texto principal / footer */
-            --light: #F4F6FC;         /* fundo geral */
-            --accent: #FF6B6B;        /* acento coral (badges, botões de destaque) */
-            --accent-light: #FCEEEE;  /* coral clarinho (seções suaves) */
-            --warning: #E7CA4A;       /* continua para “Urgente” */
-}
+            --primary: #6C63FF;
+            --secondary: #5850D8;
+            --dark: #2E3056;
+            --light: #F4F6FC;
+            --accent: #FF6B6B;
+            --accent-light: #FCEEEE;
+            --warning: #E7CA4A;
+        }
         
         body {
             background-color: var(--light);
@@ -72,10 +71,8 @@
         .nav-links {
             display: flex;
             list-style: none;
-        }
-        
-        .nav-links li {
-            margin-left: 30px;
+            gap: 10px;
+            align-items: center;
         }
         
         .nav-links a {
@@ -83,16 +80,17 @@
             color: var(--dark);
             font-weight: 500;
             transition: color 0.3s;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
         }
         
-        .nav-links a:hover {
+        .nav-links a:hover:not(.btn) {
             color: var(--primary);
         }
-        
-        .mobile-menu {
-            display: none;
-            font-size: 24px;
-            cursor: pointer;
+
+        .hidden {
+            display: none !important;
         }
         
         .btn {
@@ -103,41 +101,36 @@
             border-radius: 5px;
             cursor: pointer;
             font-weight: 500;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
             text-decoration: none;
             display: inline-block;
         }
         
         .btn:hover {
-            background-color: #e67e3b;
+            background-color: #5850D8;
         }
         
         .btn-secondary {
             background-color: var(--secondary);
         }
         
-        .btn-secondary:hover {
-            background-color: #3a7bd5;
-        }
-        
         .btn-outline {
             background-color: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
+            border: 2px solid #ccc;
+            color: var(--dark);
         }
         
         .btn-outline:hover {
-            background-color: var(--primary);
-            color: white;
+            background-color: var(--light);
+            border-color: #aaa;
         }
         
         /* Hero Section */
         .hero {
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/api/placeholder/1200/600') center/cover no-repeat;
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://placehold.co/1200x600/6C63FF/6C63FF') center/cover no-repeat;
             color: white;
             text-align: center;
             padding: 120px 20px;
-            margin-bottom: 60px;
         }
         
         .hero h1 {
@@ -157,107 +150,107 @@
             gap: 15px;
             justify-content: center;
         }
-        
-        /* Filter Section */
-        .filter-section {
+
+        .hero .btn-outline {
+            border-color: white;
+            color: white;
+        }
+
+        .hero .btn-outline:hover {
             background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-            margin-bottom: 50px;
+            color: var(--dark);
+        }
+
+        /* Generic Section */
+        .section {
+            padding: 60px 0;
         }
         
-        .filter-section h2 {
-            margin-bottom: 20px;
+        .section-title {
+            font-size: 36px;
+            margin-bottom: 50px;
             color: var(--dark);
             text-align: center;
         }
         
-        .filter-options {
+        /* Action & Filter Section */
+        .main-actions-section {
+            background-color: white;
+            padding: 40px 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            margin-top: -100px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .action-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 30px;
-            margin-bottom: 30px;
         }
         
-        .filter-card {
+        .action-card {
             background-color: #fff;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
             transition: transform 0.3s, box-shadow 0.3s;
-            position: relative;
+            text-decoration: none;
+            color: inherit;
             display: flex;
             flex-direction: column;
+            border: 1px solid #eee;
         }
         
-        .filter-card:hover {
+        .action-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 8px 20px rgba(108, 99, 255, 0.15);
         }
         
-        .filter-card img {
+        .action-card img {
             width: 100%;
-            height: 180px;
+            height: 200px;
             object-fit: cover;
         }
         
-        .filter-card-content {
-            padding: 20px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+        .action-card-content {
+            padding: 25px;
+            flex-grow: 1;
+            text-align: center;
         }
         
-        .filter-card h3 {
+        .action-card h3 {
             margin-bottom: 10px;
+            font-size: 22px;
             color: var(--primary);
-        }
-        
-        .filter-card p {
-            margin-bottom: 20px;
-            flex: 1;
-        }
-        
-        .filter-card .btn {
-            align-self: center;
         }
 
         .filter-form {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
-            margin-top: 30px;
+            margin-top: 40px;
+            border-top: 1px solid #eee;
+            padding-top: 40px;
         }
         
-        .filter-form select, .filter-form input {
+        .filter-form select {
             padding: 12px;
             border: 1px solid #ddd;
             border-radius: 5px;
+            background-color: white;
         }
-        
-        .filter-form .btn {
+
+        .filter-buttons {
             grid-column: 1 / -1;
-            width: fit-content;
-            justify-self: center;
-            padding: 12px 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
         }
         
         /* Features Section */
-        .features {
-            padding: 60px 0;
-            text-align: center;
-            background-color: var(--accent-light);
-            margin-bottom: 60px;
-        }
-        
-        .features h2 {
-            font-size: 36px;
-            margin-bottom: 50px;
-            color: var(--dark);
-        }
-        
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -270,6 +263,7 @@
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s;
+            text-align: center;
         }
         
         .feature-card:hover {
@@ -281,27 +275,11 @@
             margin-bottom: 20px;
             color: var(--primary);
         }
-        
-        .feature-card h3 {
-            margin-bottom: 15px;
-            color: var(--dark);
-        }
-        
+
         /* Animal Cards */
-        .pets-section {
-            padding: 60px 0;
-            text-align: center;
-        }
-        
-        .pets-section h2 {
-            font-size: 36px;
-            margin-bottom: 50px;
-            color: var(--dark);
-        }
-        
         .animals-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 25px;
             margin-bottom: 40px;
         }
@@ -312,6 +290,7 @@
             overflow: hidden;
             box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s;
+            text-align: center;
         }
         
         .animal-card:hover {
@@ -322,6 +301,7 @@
             height: 220px;
             position: relative;
             overflow: hidden;
+            background-color: #eee;
         }
         
         .animal-img img {
@@ -347,10 +327,6 @@
             font-weight: 500;
         }
         
-        .animal-urgente {
-            background-color: var(--warning);
-        }
-        
         .animal-info {
             padding: 25px;
         }
@@ -370,199 +346,80 @@
             justify-content: center;
         }
         
-        .animal-meta span {
-            display: flex;
-            align-items: center;
-        }
-        
-        .animal-meta i {
-            margin-right: 5px;
-        }
-        
         .animal-desc {
             margin-bottom: 20px;
             color: var(--dark);
+            min-height: 40px;
         }
         
         .view-all {
             margin-top: 20px;
             text-align: center;
         }
-        
-        /* Testimonials */
+
+        /* Testimonials Section */
         .testimonials {
             background-color: var(--secondary);
             color: white;
-            padding: 80px 0;
-            text-align: center;
-            margin-bottom: 60px;
         }
-        
-        .testimonials h2 {
-            font-size: 36px;
-            margin-bottom: 50px;
-        }
-        
+
         .testimonials-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 30px;
         }
-        
+
         .testimonial-card {
-            background-color: white;
-            color: var(--dark);
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             position: relative;
         }
-        
+
         .testimonial-text {
             font-style: italic;
             margin-bottom: 20px;
             position: relative;
         }
-        
+
         .testimonial-text::before {
             content: '"';
             font-size: 60px;
-            color: #e5e5e5;
+            color: rgba(255, 255, 255, 0.2);
             position: absolute;
             top: -20px;
             left: -15px;
             z-index: 0;
         }
-        
+
         .testimonial-author {
             display: flex;
             align-items: center;
             justify-content: center;
+            text-align: left;
         }
-        
+
         .author-img {
             width: 60px;
             height: 60px;
             border-radius: 50%;
             margin-right: 15px;
             background-color: #ddd;
-            background-image: url('/api/placeholder/60/60');
             background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
         }
-        
+
         .author-info h4 {
-            margin-bottom: 5px;
-            color: var(--primary);
-        }
-        
-        /* Adoption Process */
-        .adoption-process {
-            padding: 60px 0;
-            text-align: center;
-            margin-bottom: 60px;
-        }
-        
-        .adoption-process h2 {
-            font-size: 36px;
-            margin-bottom: 50px;
-            color: var(--dark);
-        }
-        
-        .steps {
-            display: flex;
-            justify-content: space-between;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        
-        .step {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            padding: 0 20px;
-        }
-        
-        .step:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            height: 2px;
-            background-color: #ddd;
-            top: 40px;
-            right: -50%;
-            width: 100%;
-            z-index: -1;
-        }
-        
-        .step-number {
-            width: 80px;
-            height: 80px;
-            background-color: var(--primary);
+            margin: 0;
             color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            font-weight: bold;
-            margin-bottom: 20px;
         }
-        
-        .step-content h3 {
-            margin-bottom: 10px;
-            color: var(--primary);
-        }
-        
-        /* Newsletter */
-        .newsletter {
-            background-color: var(--accent);
-            padding: 60px 0;
-            text-align: center;
-            margin-bottom: 60px;
-        }
-        
-        .newsletter h2 {
-            color: white;
-            font-size: 36px;
-            margin-bottom: 20px;
-        }
-        
-        .newsletter p {
-            color: white;
-            max-width: 600px;
-            margin: 0 auto 30px;
-            font-size: 18px;
-        }
-        
-        .newsletter-form {
-            display: flex;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-        
-        .newsletter-form input {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 5px 0 0 5px;
-            font-size: 16px;
-            outline: none;
-        }
-        
-        .newsletter-form button {
-            padding: 15px 25px;
-            background-color: var(--dark);
-            color: white;
-            border: none;
-            border-radius: 0 5px 5px 0;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        
-        .newsletter-form button:hover {
-            background-color: #222;
+
+        .author-info p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
         }
         
         /* Footer */
@@ -585,11 +442,6 @@
             color: var(--primary);
         }
         
-        .footer-section p {
-            margin-bottom: 20px;
-            color: #bbb;
-        }
-        
         .footer-section ul {
             list-style: none;
         }
@@ -608,315 +460,257 @@
             color: var(--primary);
         }
         
-        .social-links {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-        }
-        
-        .social-links a {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            transition: background-color 0.3s;
-        }
-        
-        .social-links a:hover {
-            background-color: var(--primary);
-        }
-        
-        .social-icon {
-            font-size: 20px;
-        }
-        
         .footer-bottom {
             text-align: center;
             padding-top: 20px;
             border-top: 1px solid #555;
             color: #bbb;
         }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-            
-            .mobile-menu {
-                display: block;
-            }
-            
-            .hero h1 {
-                font-size: 40px;
-            }
-            
-            .hero p {
-                font-size: 18px;
-            }
-            
-            .hero-btns {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .steps {
-                flex-direction: column;
-                gap: 30px;
-            }
-            
-            .step:not(:last-child)::after {
-                display: none;
-            }
-            
-            .newsletter-form {
-                flex-direction: column;
-            }
-            
-            .newsletter-form input {
-                border-radius: 5px;
-                margin-bottom: 10px;
-            }
-            
-            .newsletter-form button {
-                border-radius: 5px;
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header>
         <div class="container">
             <nav class="navbar">
-                <a href="/" class="logo">
-                    <i class="logo-icon">🐾</i> Pata<span>Certa</span>
-                </a>
+                <a href="index.html" class="logo"><i class="logo-icon">🐾</i> Pata<span>Certa</span></a>
                 <ul class="nav-links">
-                    <li><a href="/">Início</a></li>
-                    <li><a href="#animais">Adotar</a></li>
-                    <li><a href="#sobre">Sobre Nós</a></li>
-                    <li><a href="#processo">Processo</a></li>
-                    <li><a href="/produtos">Produtos</a></li>
-                    <li><a href="#blog">Blog</a></li>
-                    <li><a href="#contato">Contato</a></li>
+                    <li><a href="index.html">Início</a></li>
+                    <li><a href="admin_animais.html">Animais</a></li>
+                    <li><a href="produtos.html">Produtos</a></li>
+                    <li><a href="lista_servicos.html">Serviços</a></li>
+                    <li id="nav-admin" class="hidden"><a href="admin.html" class="btn btn-accent">Painel Admin</a></li>
+                    <li id="nav-logged-out"><a href="login.html" class="btn btn-outline">Login</a></li>
+                    <li id="nav-logged-out-2"><a href="login.html" class="btn">Cadastre-se</a></li>
+                    <li id="nav-logged-in" class="hidden"><a href="#">Meu Perfil</a></li>
+                    <li id="nav-logged-in-2" class="hidden"><a href="#" id="logout-btn" class="btn btn-secondary">Sair</a></li>
                 </ul>
-                <div class="mobile-menu">☰</div>
             </nav>
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <h1>Encontre seu melhor amigo</h1>
-            <p>Adote um pet e transforme duas vidas: a dele e a sua. Todos os nossos animais estão esperando por um lar amoroso.</p>
-            <div class="hero-btns">
-                <a href="#animais" class="btn">Ver Pets Disponíveis</a>
-                <a href="#processo" class="btn btn-outline">Como Funciona</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Main Content -->
     <main>
-        <!-- Filter Section -->
-        <section class="container filter-section" id="animais">
-            <h2>Encontre o pet ideal para você</h2>
-            <div class="filter-options">
-                <a href="/pets-pequeno.html" class="filter-card">
-                    <img src="{{ url_for('static', filename='imagens/cachorro_pequeno.jpeg')}}" alt="Ração Premium para Gatos">
-                    <div class="filter-card-content">
-                        <h3>Porte Pequeno</h3>
-                        <p>Ideal para apartamentos e casas menores. Animais compactos e cheios de energia!</p>
-                        <span class="btn btn-outline">Ver Pets</span>
-                    </div>
-                </a>
-                <a href="/pets-medio.html" class="filter-card">
-                    <img src="{{ url_for('static', filename='imagens/cachorro_medio.jpg')}}" alt="Ração Premium para Gatos">
-                    <div class="filter-card-content">
-                        <h3>Porte Médio</h3>
-                        <p>Equilíbrio perfeito entre tamanho e adaptabilidade. Ótimos companheiros!</p>
-                        <span class="btn btn-outline">Ver Pets</span>
-                    </div>
-                </a>
-                <a href="/pets-grande.html" class="filter-card">
-                    <img src="{{ url_for('static', filename='imagens/cachorro_grande.jpeg')}}" alt="Ração Premium para Gatos">
-                    <div class="filter-card-content">
-                        <h3>Porte Grande</h3>
-                        <p>Perfeitos para espaços amplos. Animais leais e protetores para toda a família!</p>
-                        <span class="btn btn-outline">Ver Pets</span>
-                    </div>
-                </a>
+        <section class="hero">
+            <div class="container">
+                <h1 id="hero-title">Encontre seu melhor amigo</h1>
+                <p id="hero-subtitle">Adote um pet e transforme duas vidas: a dele e a sua.</p>
+                <div class="hero-btns">
+                    <a href="admin_animais.html" class="btn">Ver Todos os Pets</a>
+                    <a href="#" class="btn btn-outline">Como Funciona</a>
+                </div>
             </div>
-            
-            <h2>Busca avançada</h2>
-            <form class="filter-form" action="/busca" method="get">
-                <select name="tipo">
-                    <option value="">Tipo de animal</option>
-                    <option value="cachorro">Cachorro</option>
-                    <option value="gato">Gato</option>
-                    <option value="outro">Outros</option>
-                </select>
-                <select name="porte">
-                    <option value="">Porte</option>
-                    <option value="pequeno">Pequeno</option>
-                    <option value="medio">Médio</option>
-                    <option value="grande">Grande</option>
-                </select>
-                <select name="idade">
-                    <option value="">Idade</option>
-                    <option value="filhote">Filhote (até 1 ano)</option>
-                    <option value="adulto">Adulto (1 a 7 anos)</option>
-                    <option value="idoso">Idoso (mais de 7 anos)</option>
-                </select>
-                <select name="sexo">
-                    <option value="">Sexo</option>
-                    <option value="macho">Macho</option>
-                    <option value="femea">Fêmea</option>
-                </select>
-                <button type="submit" class="btn">Buscar</button>
-            </form>
         </section>
 
-        <!-- Features Section -->
-        <section class="features">
+        <div class="container">
+            <section class="main-actions-section">
+                <div class="action-cards">
+                    <a id="card-link-1" href="admin_animais.html" class="action-card">
+                        <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1000&auto=format&fit=crop" alt="Cachorro feliz para adoção">
+                        <div class="action-card-content"><h3 id="card-title-1">Adote um Amigo</h3><p id="card-text-1">Veja os pets que estão esperando por um lar.</p></div>
+                    </a>
+                    <a id="card-link-2" href="produtos.html" class="action-card">
+                        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?q=80&w=1000&auto=format&fit=crop" alt="Variedade de produtos para pets">
+                        <div class="action-card-content"><h3 id="card-title-2">Compre para seu Pet</h3><p id="card-text-2">Encontre rações, brinquedos e tudo para seu amigo.</p></div>
+                    </a>
+                    <a id="card-link-3" href="lista_servicos.html" class="action-card">
+                        <img src="https://images.unsplash.com/photo-1599448124584-152e7b1a0e71?q=80&w=1000&auto=format&fit=crop" alt="Passeador com cachorros">
+                        <div class="action-card-content"><h3 id="card-title-3">Agende um Serviço</h3><p id="card-text-3">Conecte-se com prestadores de serviço confiáveis.</p></div>
+                    </a>
+                </div>
+                
+                <form class="filter-form" id="filter-form">
+                    <h2 class="section-title" style="grid-column: 1 / -1; margin-bottom: 20px;">Busca avançada</h2>
+                    <select name="tipo"><option value="">Todos os Tipos</option><option value="cachorro">Cachorro</option><option value="gato">Gato</option><option value="outro">Outro</option></select>
+                    <select name="porte"><option value="">Todos os Portes</option><option value="pequeno">Pequeno</option><option value="medio">Médio</option><option value="grande">Grande</option></select>
+                    <select name="idade"><option value="">Todas as Idades</option><option value="filhote">Filhote (até 1 ano)</option><option value="adulto">Adulto (1 a 7)</option><option value="idoso">Idoso (8+)</option></select>
+                    <select name="sexo"><option value="">Todos os Sexos</option><option value="macho">Macho</option><option value="femea">Fêmea</option></select>
+                    <div class="filter-buttons">
+                        <button type="submit" class="btn">Buscar</button>
+                        <button type="button" id="clear-filters-btn" class="btn btn-outline">Limpar Filtros</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <section class="section" style="background-color: var(--accent-light);">
             <div class="container">
-                <h2>Por que adotar com a PataCerta?</h2>
+                <h2 class="section-title">Por que adotar com a PataCerta?</h2>
                 <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">💉</div>
-                        <h3>Saúde Garantida</h3>
-                        <p>Todos os nossos animais são vacinados, vermifugados e castrados antes da adoção.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🏠</div>
-                        <h3>Acompanhamento Pós-Adoção</h3>
-                        <p>Oferecemos suporte e orientação para garantir a adaptação do pet ao novo lar.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">❤️</div>
-                        <h3>Matchmaking Personalizado</h3>
-                        <p>Nossa equipe ajuda a encontrar o pet que melhor se adapta ao seu estilo de vida.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">📝</div>
-                        <h3>Processo Transparente</h3>
-                        <p>Adoção responsável com processo claro e suporte em todas as etapas.</p>
-                    </div>
+                    <div class="feature-card"><div class="feature-icon">💉</div><h3>Saúde Garantida</h3><p>Todos os nossos animais são vacinados, vermifugados e castrados antes da adoção.</p></div>
+                    <div class="feature-card"><div class="feature-icon">🏠</div><h3>Acompanhamento Pós-Adoção</h3><p>Oferecemos suporte e orientação para garantir a adaptação do pet ao novo lar.</p></div>
+                    <div class="feature-card"><div class="feature-icon">❤️</div><h3>Matchmaking Personalizado</h3><p>Nossa equipe ajuda a encontrar o pet que melhor se adapta ao seu estilo de vida.</p></div>
+                    <div class="feature-card"><div class="feature-icon">📝</div><h3>Processo Transparente</h3><p>Adoção responsável com processo claro e suporte em todas as etapas.</p></div>
                 </div>
             </div>
         </section>
 
-        <!-- Animals Section -->
-        <section class="pets-section">
+        <section class="section" id="animais">
             <div class="container">
-                <h2>Pets em Destaque</h2>
-                <div class="animals-grid">
-                    <div class="animal-card">
-                        <div class="animal-img">
-                            <img src="{{ url_for('static', filename='imagens/tobby.jpg') }}"
-                                alt="Tobby"
-                                style="width: 100%; height: 200px; object-fit: cover; border-top-left-radius: 10px; border-top-right-radius: 10px;">
-                            <div class="animal-badge">Cachorro</div>
-                        </div>
-                        <div class="animal-info">
-                            <h3>Tobby</h3>
-                            <div class="animal-meta">
-                                <span><i>🕒</i> 2 anos</span>
-                                <span><i>📏</i> Porte médio</span>
-                            </div>
-                            <p class="animal-desc">Tobby é brincalhão, adora crianças e é muito obediente. Ótimo para famílias!</p>
-                            <a href="/pet/1" class="btn">Quero Adotar</a>
-                        </div>
-                    </div>
-                    <div class="animal-card">
-                        <div class="animal-img">
-                            <img src="/api/placeholder/300/220" alt="Luna">
-                            <div class="animal-badge">Gato</div>
-                        </div>
-                        <div class="animal-info">
-                            <h3>Luna</h3>
-                            <div class="animal-meta">
-                                <span><i>🕒</i> 1 ano</span>
-                                <span><i>📏</i> Porte pequeno</span>
-                            </div>
-                            <p class="animal-desc">Luna é dócil, calma e adora carinho. Perfeita para apartamentos!</p>
-                            <a href="/pet/2" class="btn">Quero Adotar</a>
-                        </div>
-                    </div>
-                    <div class="animal-card">
-                        <div class="animal-img">
-                            <img src="/api/placeholder/300/220" alt="Max">
-                            <div class="animal-badge animal-urgente">Urgente</div>
-                        </div>
-                        <div class="animal-info">
-                            <h3>Max</h3>
-                            <div class="animal-meta">
-                                <span><i>🕒</i> 5 anos</span>
-                                <span><i>📏</i> Porte grande</span>
-                            </div>
-                            <p class="animal-desc">Max é um cão-guia aposentado que precisa de um lar tranquilo e amoroso urgentemente.</p>
-                            <a href="/pet/3" class="btn">Quero Adotar</a>
-                        </div>
-                    </div>
-                    <div class="animal-card">
-                        <div class="animal-img">
-                            <img src="/api/placeholder/300/220" alt="Nina">
-                            <div class="animal-badge">Gato</div>
-                        </div>
-                        <div class="animal-info">
-                            <h3>Nina</h3>
-                            <div class="animal-meta">
-                                <span><i>🕒</i> 3 anos</span>
-                                <span><i>📏</i> Porte pequeno</span>
-                            </div>
-                            <p class="animal-desc">Nina é independente, mas muito carinhosa quando quer. Perfeita para quem trabalha fora.</p>
-                            <a href="/pet/4" class="btn">Quero Adotar</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="view-all">
-                    <a href="/todos-pets" class="btn btn-secondary">Ver Todos os Pets</a>
+                <h2 class="section-title" id="pets-section-title">Pets em Destaque</h2>
+                <div class="animals-grid" id="pets-grid">
+                    <!-- Cards de animais serão inseridos aqui -->
                 </div>
             </div>
         </section>
 
-        <!-- Testimonials -->
-        <section class="testimonials">
+        <section class="section testimonials">
             <div class="container">
-                <h2>Histórias de Sucesso</h2>
-                <div class="testimonials-grid">
+                <h2 class="section-title">Histórias de Sucesso</h2>
+                <div class="testimonials-grid" id="testimonials-grid">
                     <div class="testimonial-card">
-                        <div class="testimonial-text">
-                            Adotar o Rex foi a melhor decisão da minha vida. O processo com a PataCerta foi simples e transparente. Hoje somos inseparáveis!
-                        </div>
-                        <div class="testimonial-author">
-                            <div class="author-img"></div>
-                            <div class="author-info">
-                                <h4>Marcela Silva</h4>
-                                <p>São Paulo, SP</p>
-                            </div>
-                        </div>
+                        <p class="testimonial-text">Adotar o Rex foi a melhor decisão da minha vida. O processo foi simples e transparente.</p>
+                        <div class="testimonial-author"><div class="author-img" style="background-image: url('https://placehold.co/60x60/eee/ccc?text=MS')"></div><div class="author-info"><h4>Marcela Silva</h4><p>São Paulo, SP</p></div></div>
                     </div>
                     <div class="testimonial-card">
-                        <div class="testimonial-text">
-                            A PataCerta nos ajudou a encontrar a Mel, que era exatamente o que nossa família precisava. O acompanhamento pós-adoção foi fundamental para a adaptação.
-                        </div>
-                        <div class="testimonial-author">
-                            <div class="author-img"></div>
-                            <div class="author-info">
-                                <h4>Família Rodrigues</h4>
-                                <p>Rio de Janeiro, RJ</p>
-                            </div>
-                        </div>
+                        <p class="testimonial-text">A PataCerta nos ajudou a encontrar a Mel, que era exatamente o que nossa família precisava.</p>
+                        <div class="testimonial-author"><div class="author-img" style="background-image: url('https://placehold.co/60x60/eee/ccc?text=FR')"></div><div class="author-info"><h4>Família Rodrigues</h4><p>Rio de Janeiro, RJ</p></div></div>
                     </div>
                     <div class="testimonial-card">
-                        <div class="testimonial-text">
-                            Tenho um apartamento pequeno e estava preocupado se conseguiria um pet adequado. A PataCerta me apresentou a Lola, que se adaptou perfeitamente ao meu espaço e rotina.
+                        <p class="testimonial-text">A equipe me apresentou a Lola, que se adaptou perfeitamente ao meu apartamento. Recomendo!</p>
+                        <div class="testimonial-author"><div class="author-img" style="background-image: url('https://placehold.co/60x60/eee/ccc?text=JP')"></div><div class="author-info"><h4>João Pereira</h4><p>Belo Horizonte, MG</p></div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-section"><h3>PataCerta</h3><p>Conectando pets a novos lares amorosos.</p></div>
+                <div class="footer-section"><h3>Links Úteis</h3><ul><li><a href="index.html">Início</a></li><li><a href="#">Sobre Nós</a></li></ul></div>
+                <div class="footer-section"><h3>Contato</h3><ul><li>📧 contato@patacerta.com</li><li>📞 (11) 99999-9999</li></ul></div>
+            </div>
+            <div class="footer-bottom"><p>&copy; 2025 PataCerta - Todos os direitos reservados</p></div>
+        </footer>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+        let allPets = []; 
+
+        function updateUIForLoginState() {
+            const navAdmin = document.getElementById('nav-admin');
+            const navLoggedIn = document.querySelectorAll('#nav-logged-in, #nav-logged-in-2');
+            const navLoggedOut = document.querySelectorAll('#nav-logged-out, #nav-logged-out-2');
+            
+            const userData = JSON.parse(localStorage.getItem('patacerta_user'));
+
+            navAdmin.classList.add('hidden');
+            navLoggedIn.forEach(el => el.classList.add('hidden'));
+            navLoggedOut.forEach(el => el.classList.add('hidden'));
+
+            if (userData && userData.nome) {
+                if (userData.is_admin) {
+                    navAdmin.classList.remove('hidden');
+                } else {
+                    navLoggedIn.forEach(el => el.classList.remove('hidden'));
+                }
+            } else {
+                navLoggedOut.forEach(el => el.classList.remove('hidden'));
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('patacerta_user');
+            alert("Você saiu da sua conta.");
+            window.location.reload();
+        }
+        
+        function displayPets(petsToDisplay) {
+            const grid = document.getElementById('pets-grid');
+            grid.innerHTML = '';
+            
+            if (petsToDisplay.length === 0) {
+                grid.innerHTML = '<p>Nenhum pet encontrado com os filtros selecionados.</p>';
+                return;
+            }
+
+            petsToDisplay.forEach(animal => {
+                const card = document.createElement('div');
+                card.className = 'animal-card';
+                const tipoAnimal = animal.tipo || 'Pet';
+                
+                const placeholderText = encodeURIComponent(animal.nome || 'Pet Sem Nome');
+                const fallbackImageUrl = `https://placehold.co/400x250/9e96f2/FFFFFF?text=${placeholderText}`;
+                const primaryImageUrl = animal.imagem || fallbackImageUrl;
+
+                card.innerHTML = `
+                    <div class="animal-img">
+                        <img src="${primaryImageUrl}" alt="${animal.nome}" onerror="this.onerror=null;this.src='${fallbackImageUrl}';">
+                        <div class="animal-badge">${tipoAnimal.charAt(0).toUpperCase() + tipoAnimal.slice(1)}</div>
+                    </div>
+                    <div class="animal-info">
+                        <h3>${animal.nome}</h3>
+                        <div class="animal-meta">
+                            <span>${animal.idade || '?'} anos</span>
+                            <span>Porte ${animal.porte || 'desconhecido'}</span>
                         </div>
-                        <div class="testimonial-author">
-                            <div class="author-img">
+                        <p class="animal-desc">${animal.descricao || 'Um amigo em busca de um lar.'}</p>
+                        <a href="#" class="btn">Quero Adotar</a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function handleFilterSubmit(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const filters = Object.fromEntries(formData.entries());
+
+            let filteredPets = allPets.filter(pet => {
+                const typeMatch = !filters.tipo || pet.tipo === filters.tipo;
+                const porteMatch = !filters.porte || pet.porte === filters.porte;
+                const sexoMatch = !filters.sexo || pet.sexo === filters.sexo;
+
+                let ageMatch = true;
+                if (filters.idade) {
+                    const age = pet.idade || 0;
+                    if (filters.idade === 'filhote' && age > 1) ageMatch = false;
+                    if (filters.idade === 'adulto' && (age <= 1 || age > 7)) ageMatch = false;
+                    if (filters.idade === 'idoso' && age <= 7) ageMatch = false;
+                }
+                
+                return typeMatch && porteMatch && sexoMatch && ageMatch;
+            });
+
+            document.getElementById('pets-section-title').textContent = 'Resultados da Busca';
+            displayPets(filteredPets);
+        }
+
+        function clearFilters() {
+            const form = document.getElementById('filter-form');
+            form.reset(); 
+            document.getElementById('pets-section-title').textContent = 'Pets em Destaque';
+            displayPets(allPets.slice(0, 4)); 
+        }
+
+        async function initializePage() {
+            updateUIForLoginState();
+            const grid = document.getElementById('pets-grid');
+            grid.innerHTML = '<p>Carregando pets...</p>';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/animals/?limit=200`);
+                if (!response.ok) throw new Error(`Erro na API: ${response.statusText}`);
+                allPets = await response.json();
+                
+                displayPets(allPets.slice(0, 4));
+
+            } catch (error) {
+                console.error("Falha ao buscar pets:", error);
+                grid.innerHTML = `<p style="color:red;">Não foi possível carregar os pets. Tente novamente mais tarde.</p>`;
+            }
+        }
+
+        document.getElementById('filter-form').addEventListener('submit', handleFilterSubmit);
+        document.getElementById('clear-filters-btn').addEventListener('click', clearFilters);
+        const logoutBtn = document.getElementById('logout-btn');
+        if(logoutBtn) {
+            logoutBtn.addEventListener('click', handleLogout);
+        }
+
+        window.onload = initializePage;
+    </script>
+</body>
+</html>
