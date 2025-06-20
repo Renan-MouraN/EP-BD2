@@ -1,0 +1,105 @@
+# Índices Criados e Seus Motivos
+
+1. idx_usuarios_cidade_estado na tabela usuarios
+     - Definição: CREATE INDEX idx_usuarios_cidade_estado ON usuarios (cidade, estado);
+     - Motivo: Índice composto para acelerar consultas por localização (cidade e estado).
+
+2. idx_usuarios_is_admin na tabela usuarios
+     - Definição: CREATE INDEX idx_usuarios_is_admin ON usuarios (is_admin);
+     - Motivo: Otimiza buscas por status de administrador.
+
+3. idx_animal_status na tabela animal
+     - Definição: CREATE INDEX idx_animal_status ON animal (status);
+     - Motivo: Filtra rapidamente animais por status de adoção.
+
+4. idx_animal_tipo na tabela animal
+     - Definição: CREATE INDEX idx_animal_tipo ON animal (tipo);
+     - Motivo: Otimiza buscas por tipo de animal.
+
+5. idx_animal_porte na tabela animal
+     - Definição: CREATE INDEX idx_animal_porte ON animal (porte);
+     - Motivo: Facilita filtragem por porte do animal.
+
+6. idx_animal_data_entrada na tabela animal
+     - Definição: CREATE INDEX idx_animal_data_entrada ON animal (data_entrada);
+     - Motivo: Consultas eficientes por data de entrada.
+
+7. idx_adocao_status na tabela adocao
+     - Definição: CREATE INDEX idx_adocao_status ON adocao (status);
+     - Motivo: Otimiza filtragem de adoções por status.
+
+8. idx_adocao_data_adocao na tabela adocao
+     - Definição: CREATE INDEX idx_adocao_data_adocao ON adocao (data_adocao);
+     - Motivo: Busca e ordenação por data de adoção.
+
+9. idx_adocao_id_usuario na tabela adocao
+     - Definição: CREATE INDEX idx_adocao_id_usuario ON adocao (id_usuario);
+     - Motivo: Busca de adoções por usuário.
+
+10. idx_adocao_id_animal na tabela adocao
+     - Definição: CREATE INDEX idx_adocao_id_animal ON adocao (id_animal);
+     - Motivo: Busca de adoções por animal.
+
+11. idx_pedidos_id_usuario na tabela pedidos
+     - Definição: CREATE INDEX idx_pedidos_id_usuario ON pedidos (id_usuario);
+     - Motivo: Busca de pedidos por usuário.
+
+12. idx_pedidos_status na tabela pedidos
+     - Definição: CREATE INDEX idx_pedidos_status ON pedidos (status);
+     - Motivo: Filtragem de pedidos por status.
+
+13. idx_pedidos_data_pedido na tabela pedidos
+     - Definição: CREATE INDEX idx_pedidos_data_pedido ON pedidos (data_pedido);
+     - Motivo: Busca e ordenação por data do pedido.
+
+14. idx_depoimentos_id_usuario na tabela depoimentos
+     - Definição: CREATE INDEX idx_depoimentos_id_usuario ON depoimentos (id_usuario);
+     - Motivo: Busca de depoimentos por usuário.
+
+15. idx_depoimentos_id_animal na tabela depoimentos
+     - Definição: CREATE INDEX idx_depoimentos_id_animal ON depoimentos (id_animal);
+     - Motivo: Busca de depoimentos por animal.
+
+16. idx_depoimentos_aprovado na tabela depoimentos
+     - Definição: CREATE INDEX idx_depoimentos_aprovado ON depoimentos (aprovado);
+     - Motivo: Filtragem de depoimentos aprovados ou pendentes.
+
+17. idx_depoimentos_data_depoimento na tabela depoimentos
+     - Definição: CREATE INDEX idx_depoimentos_data_depoimento ON depoimentos (data_depoimento);
+     - Motivo: Ordenação/filtragem por data do depoimento.
+
+18. idx_prestadores_cidade_estado na tabela prestadores
+     - Definição: CREATE INDEX idx_prestadores_cidade_estado ON prestadores (cidade, estado);
+     - Motivo: Busca por prestadores em determinada localização.
+
+19. idx_prestadores_verificado na tabela prestadores
+     - Definição: CREATE INDEX idx_prestadores_verificado ON prestadores (verificado);
+     - Motivo: Busca por prestadores verificados.
+
+20. idx_prestadores_id_usuario na tabela prestadores
+     - Definição: CREATE INDEX idx_prestadores_id_usuario ON prestadores (id_usuario);
+     - Motivo: Busca de prestador associado a um usuário.
+
+21. idx_prestador_servicos_ativo na tabela prestador_servicos
+     - Definição: CREATE INDEX idx_prestador_servicos_ativo ON prestador_servicos (ativo);
+     - Motivo: Filtragem de associações ativas.
+
+22. idx_pedidos_servico_id_tutor na tabela pedidos_servico
+     - Definição: CREATE INDEX idx_pedidos_servico_id_tutor ON pedidos_servico (id_tutor);
+     - Motivo: Busca de pedidos de serviço por tutor.
+
+23. idx_pedidos_servico_id_prestador_serv na tabela pedidos_servico
+     - Definição: CREATE INDEX idx_pedidos_servico_id_prestador_serv ON pedidos_servico (id_prestador_serv);
+     - Motivo: Busca de pedidos por oferta de serviço.
+
+24. idx_pedidos_servico_status na tabela pedidos_servico
+     - Definição: CREATE INDEX idx_pedidos_servico_status ON pedidos_servico (status);
+     - Motivo: Filtragem de pedidos de serviço por status.
+
+25. idx_pedidos_servico_inicio na tabela pedidos_servico
+     - Definição: CREATE INDEX idx_pedidos_servico_inicio ON pedidos_servico (inicio);
+     - Motivo: Consultas por data de início do serviço.
+
+Obs: Indices podem tornar querries mais ineficazes caso a querry não filtre muitos dados(ex: caso seja um booleano e os dados estejam metade falso e metade verdadeiro).
+Isso ocorre porque o custo de consultar o índice e depois realizar "saltos" aleatórios para buscar os dados reais na tabela pode superar o benefício. No entanto, para filtros que retornam um pequeno subconjunto dos dados, os índices são extremamente eficazes.
+Também tabelas pequenas como produtos e serviços não se beneficiam com a criação de indices

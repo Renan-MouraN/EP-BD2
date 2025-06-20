@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos para Pets - PataCerta</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            /* Paleta harmônica */
+            --primary: #6C63FF;       /* roxo‑azulado (principal) */
+            --secondary: #5850D8;     /* roxo escuro (botões secundários, fundo testimonials…) */
+            --dark: #2E3056;          /* texto principal / footer */
+            --light: #F4F6FC;         /* fundo geral */
+            --accent: #FF6B6B;        /* acento coral (badges, botões de destaque) */
+            --accent-light: #FCEEEE;  /* coral clarinho (seções suaves) */
+            --warning: #E7CA4A;       /* continua para “Urgente” */
+}
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .logo span {
+            color: var(--secondary);
+        }
+        
+        .logo-icon {
+            font-size: 28px;
+            margin-right: 8px;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 30px;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .cart-icon {
+            position: relative;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .cart-count {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: var(--primary);
+            color: white;
+            font-size: 12px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/api/placeholder/1200/300') center/cover no-repeat;
+            color: white;
+            text-align: center;
+            padding: 60px 20px;
+            margin-bottom: 40px;
+        }
+        
+        .page-header h1 {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+        
+        .page-header p {
+            font-size: 18px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        /* Category Navigation */
+        .category-nav {
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .category-list {
+            display: flex;
+            list-style: none;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+        
+        .category-list li {
+            margin-right: 15px;
+            white-space: nowrap;
+        }
+        
+        .category-list a {
+            text-decoration: none;
+            color: var(--dark);
+            padding: 8px 15px;
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+        
+        .category-list a:hover, .category-list a.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        /* Products Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+        
+        .product-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .product-img {
+            height: 200px;
+            background-color: #f5f5f5;
+            background-image: url('/api/placeholder/300/200');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .product-info {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-category {
+            color: var(--secondary);
+            font-size: 14px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        
+        .product-info h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .product-desc {
+            margin-bottom: 15px;
+            color: #666;
+            font-size: 14px;
+            flex-grow: 1;
+        }
+        
+        .product-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .product-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .add-to-cart {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .add-to-cart:hover {
+            background-color: #e67e3b;
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin: 40px 0;
+        }
+        
+        .pagination-list {
+            display: flex;
+            list-style: none;
+        }
+        
+        .pagination-list li {
+            margin: 0 5px;
+        }
+        
+        .pagination-list a {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            color: var(--dark);
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .pagination-list a:hover, .pagination-list a.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 50px 0 20px;
+        }
+        
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-section h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .footer-section ul {
+            list-style: none;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 8px;
+        }
+        
+        .footer-section a {
+            text-decoration: none;
+            color: #ddd;
+            transition: color 0.3s;
+        }
+        
+        .footer-section a:hover {
+            color: var(--primary);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #555;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #777;
+        }
+        
+        .cart-items {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+        
+        .cart-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .cart-item-img {
+            width: 60px;
+            height: 60px;
+            background-color: #f5f5f5;
+            background-image: url('/api/placeholder/60/60');
+            background-size: cover;
+            border-radius: 5px;
+            margin-right: 15px;
+        }
+        
+        .cart-item-info {
+            flex-grow: 1;
+        }
+        
+        .cart-item-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .cart-item-price {
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .cart-item-quantity {
+            display: flex;
+            align-items: center;
+            margin-left: 15px;
+        }
+        
+        .quantity-btn {
+            width: 25px;
+            height: 25px;
+            background-color: #f5f5f5;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .quantity-input {
+            width: 30px;
+            text-align: center;
+            border: none;
+            margin: 0 5px;
+        }
+        
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0;
+            padding-top: 15px;
+            border-top: 2px solid #eee;
+        }
+        
+        .checkout-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .checkout-btn:hover {
+            background-color: #55c26c;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="/" class="logo">
+                    <i class="logo-icon">🐾</i> Pata<span>Certa</span>
+                </a>
+                <ul class="nav-links">
+                    <li><a href="/">Início</a></li>
+                    <li><a href="#sobre">Sobre</a></li>
+                    <li><a href="/produtos" class="active">Produtos</a></li>
+                    <li><a href="/servicos">Serviços</a></li>
+                    <li><a href="#contato">Contato</a></li>
+                </ul>
+                <div class="cart-icon" id="cartIcon">
+                    🛒
+                    <span class="cart-count">0</span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Produtos para Pets</h1>
+            <p>Tudo o que seu amigo de quatro patas precisa para ser feliz e saudável</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Category Navigation -->
+        <section class="category-nav">
+            <ul class="category-list">
+                <li><a href="#" class="active">Todos</a></li>
+                <li><a href="#">Ração</a></li>
+                <li><a href="#">Brinquedos</a></li>
+                <li><a href="#">Camas e Casinhas</a></li>
+                <li><a href="#">Coleiras e Guias</a></li>
+                <li><a href="#">Higiene</a></li>
+                <li><a href="#">Saúde</a></li>
+                <li><a href="#">Acessórios</a></li>
+            </ul>
+        </section>
+
+        <!-- Products Grid -->
+        <section class="products-grid">
+            <!-- Product 1 -->
+            <div class="product-card">
+                <img src="{{ url_for('static', filename='imagens/racao_premium.jpg')}}" alt="Ração Premium">
+                <div class="product-info">
+                    <span class="product-category">Ração</span>
+                    <h3>Ração Premium para Cães Adultos</h3>
+                    <p class="product-desc">Ração premium para cães adultos de todas as raças. Rica em nutrientes e sabor.</p>
+                    <div class="product-bottom">
+                        <span class="product-price">R$ 89,90</span>
+                        <button class="add-to-cart" data-id="1" data-name="Ração Premium" data-price="89.90">Adicionar</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product 2 -->
+            <div class="product-card">
+                <img src="{{ url_for('static', filename='imagens/bola_interativa.jpg')}}" alt="Bola Interativa">
+                <div class="product-info">
+                    <span class="product-category">Brinquedos</span>
+                    <h3>Bola Interativa para Cães</h3>
+                    <p class="product-desc">Brinquedo interativo que estimula a inteligência e atividade física do seu pet.</p>
+                    <div class="product-bottom">
+                        <span class="product-price">R$ 35,50</span>
+                        <button class="add-to-cart" data-id="2" data-name="Bola Interativa" data-price="35.50">Adicionar</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product 3 -->
+            <div class="product-card">
+                <img src="{{ url_for('static', filename='imagens/cama_ortopedica.jpg')}}" alt="Cama Ortopédica">
+                <div class="product-info">
+                    <span class="product-category">Camas</span>
+                    <h3>Cama Ortopédica para Cães</h3>
+                    <p class="product-desc">Cama ortopédica de espuma viscoelástica para máximo conforto e saúde articular.</p>
+                    <div class="product-bottom">
+                        <span class="product-price">R$ 149,00</span>
+                        <button class="add-to-cart" data-id="3" data-name="Cama Ortopédica" data-price="149.00">Adicionar</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product 4 -->
+            <div class="product-card">
+                <img src="{{ url_for('static', filename='imagens/coleira_ajustavel.jpg')}}" alt="Coleira Ajustável">
+                <div class="product-info">
+                    <span class="product-category">Coleiras</span>
+                    <h3>Coleira Ajustável para Cães</h3>
+                    <p class="product-desc">Coleira ajustável de nylon resistente e confortável para passeios seguros.</p>
+                    <div class="product-bottom">
+                        <span class="product-price">R$ 42,90</span>
+                        <button class="add-to-cart" data-id="4" data-name="Coleira Ajustável" data-price="42.90">Adicionar</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product 5 -->
+            <div class="product-card">
+                <img src="{{ url_for('static', filename='imagens/shampoo_neutro.png')}}" alt="Shampoo Neutro">
+                <div class="product-info">
+                    <span class="product-category">Higiene</span>
+                    <h3>Shampoo Neutro para Pets</h3>
+                    <p class="product-desc">Shampoo com pH neutro para higiene suave e sem irritações para seu pet.</p>
+                    <div class="product-bottom">
+                        <span class="product-price">R$ 28,90</span>
+                        <button class="add-to-cart" data-id="5" data-name="Shampoo Neutro" data-price="28.90">Adicionar</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product 6 -->
+            <div class="product-card">
+                <img src="{{ url_for('static', filename='imagens/suplemento_vitaminico.jpg')}}" alt="Suplemento Vitamínico para cães">
+                <div class="product-info">
+                    <span class="product-category">Saúde</span>
+                    <h3>Suplemento Vitamínico para Cães</h3>
+                    <p class="product-desc">Suplemento completo com vitaminas e minerais essenciais para a saúde do seu pet.</p>
+                    <div class="product-bottom">
+                        <span class="product-price">R$ 65,00</span>
+                        <button class="add-to-cart" data-id="6" data-name="Suplemento Vitamínico" data-price="65.00">Adicionar</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product 7 -->
+            <div class="product-card">
+                <img src="{{ url_for('static', filename='imagens/bebedouro_automatico.jpg')}}" alt="Bebedouro Automático">
+                <div class="product-info">
+                    <span class="product-category">Acessórios</span>
+                    <h3>Bebedouro Automático para Pets</h3>
+                    <p class="product-desc">Bebedouro automático com filtro que mantém a água limpa e fresca por mais tempo.</p>
+                    <div class="product-bottom">
+                        <span class="product-price">R$ 79,90</span>
+                        <button class="add-to-cart" data-id="7" data-name="Bebedouro Automático" data-price="79.90">Adicionar</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product 8 -->
+            <div class="product-card">
+                <img src="{{ url_for('static', filename='imagens/racao_premium_gatos.jpg')}}" alt="Ração Premium para Gatos">
+                <div class="product-info">
+                    <span class="product-category">Ração</span>
+                    <h3>Ração Premium para Gatos</h3>
+                    <p class="product-desc">Ração premium para gatos adultos com fórmula especial para saúde urinária.</p>
+                    <div class="product-bottom">
+                        <span class="product-price">R$ 75,90</span>
+                        <button class="add-to-cart" data-id="8" data-name="Ração Premium Gatos" data-price="75.90">Adicionar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Pagination -->
+        <div class="pagination">
+            <ul class="pagination-list">
+                <li><a href="#" class="active">1</a></li>
+                <li><a href="#">2</a></li>
+                <li><a href="#">3</a></li>
+                <li><a href="#">&raquo;</a></li>
+            </ul>
+        </div>
+    </main>
+
+    <!-- Cart Modal -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModal">&times;</span>
+            <h2>Seu Carrinho</h2>
+            <div class="cart-items" id="cartItems">
+                <!-- Cart items will be added here via JavaScript -->
+            </div>
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotal">R$ 0,00</span>
+            </div>
+            <button class="checkout-btn">Finalizar Compra</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-section">
+                    <h3>PetMatch</h3>
+                    <p>Conectando pets a novos lares amorosos desde 2023.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Links Úteis</h3>
+                    <ul>
+                        <li><a href="/">Início</a></li>
+                        <li><a href="#sobre">Sobre Nós</a></li>
+                        <li><a href="#politica">Política de Adoção</a></li>
+                        <li><a href="#contato">Contato</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contato</h3>
+                    <ul>
+                        <li>📧 contato@petmatch.com</li>
+                        <li>📞 (11) 99999-9999</li>
+                        <li>📍 Av. Pet, 123 - São Paulo</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 PetMatch - Todos os direitos reservados</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Cart functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const cartIcon = document.getElementById('cartIcon');
+            const cartModal = document.getElementById('cartModal');
+            const closeModal = document.getElementById('closeModal');
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            const cartCount = document.querySelector('.cart-count');
+            const addToCartButtons = document.querySelectorAll('.add-to-cart');
+            
+            let cart = [];
+            
+            // Open cart modal
+            cartIcon.addEventListener('click', function() {
+                cartModal.style.display = 'flex';
+                updateCartDisplay();
+            });
+            
+            // Close cart modal
+            closeModal.addEventListener('click', function() {
+                cartModal.style.display = 'none';
+            });
+            
+            // Close modal when clicking outside
+            window.addEventListener('click', function(event) {
+                if (event.target === cartModal) {
+                    cartModal.style.display = 'none';
+                }
+            });
+            
+            // Add to cart functionality
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const name = this.getAttribute('data-name');
+                    const price = parseFloat(this.getAttribute('data-price'));
+                    
+                    // Check if item already in cart
+                    const existingItem = cart.find(item => item.id === id);
+                    
+                    if (existingItem) {
+                        existingItem.quantity += 1;
+                    } else {
+                        cart.push({
+                            id: id,
+                            name: name,
+                            price: price,
+                            quantity: 1
+                        });
+                    }
+                    
+                    updateCartCount();
+                    
+                    // Show confirmation
+                    const confirmAdd = document.createElement('div');
+                    confirmAdd.textContent = 'Adicionado ao carrinho!';
+                    confirmAdd.style.position = 'fixed';
+                    confirmAdd.style.top = '20px';
+                    confirmAdd.style.left = '50%';
+                    confirmAdd.style.transform = 'translateX(-50%)';
+                    confirmAdd.style.backgroundColor = 'var(--accent)';
+                    confirmAdd.style.color = 'white';
+                    confirmAdd.style.padding = '10px 20px';
+                    confirmAdd.style.borderRadius = '5px';
+                    confirmAdd.style.zIndex = '1000';
+                    
+                    document.body.appendChild(confirmAdd);
+                    
+                    setTimeout(() => {
+                        confirmAdd.remove();
+                    }, 2000);
+                });
+            });
+            
+            // Update cart count
+            function updateCartCount() {
+                const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+                cartCount.textContent = totalItems;
+            }
+            
+            // Update cart display
+            function updateCartDisplay() {
+                cartItems.innerHTML = '';
+                
+                if (cart.length === 0) {
+                    cartItems.innerHTML = '<p>Seu carrinho está vazio</p>';
+                    cartTotal.textContent = 'R$ 0,00';
+                    return;
+                }
+                
+                let total = 0;
+                
+                cart.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    total += itemTotal;
+                    
+                    const cartItem = document.createElement('div');
+                    cartItem.className = 'cart-item';
+                    cartItem.innerHTML = `
+                        <div class="cart-item-img"></div>
+                        <div class="cart-item-info">
+                            <div class="cart-item-title">${item.name}</div>
+                            <div class="cart-item-price">R$ ${item.price.toFixed(2)}</div>
+                        </div>
+                        <div class="cart-item-quantity">
+                            <button class="quantity-btn minus" data-id="${item.id}">-</button>
+                            <span class="quantity-input">${item.quantity}</span>
+                            <button class="quantity-btn plus" data-id="${item.id}">+</button>
+                        </div>
+                    `;
+                    
+                    cartItems.appendChild(cartItem);
+                });
+                
+                cartTotal.textContent = `R$ ${total.toFixed(2)}`;
+                
+                // Add event listeners to quantity buttons
+                const minusButtons = document.querySelectorAll('.minus');
+                const plusButtons = document.querySelectorAll('.plus');
+                
+                minusButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        const item = cart.find(item => item.id === id);
+                        
+                        if (item.quantity > 1) {
+                            item.quantity -= 1;
+                        } else {
+                            cart = cart.filter(item => item.id !== id);
+                        }
+                        
+                        updateCartCount();
+                        updateCartDisplay();
+                    });
+                });
+                
+                plusButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const id = this.getAttribute('data-id');
+                        const item = cart.find(item => item.id === id);
+                        
+                        item.quantity += 1;
+                        
+                        updateCartCount();
+                        updateCartDisplay();
+                    });
+                });
+            }
+            
+            // Category filter functionality (for demo)
+            const categories = document.querySelectorAll('.category-list a');
+            
+            categories.forEach(category => {
+                category.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all categories
+                    categories.forEach(cat => cat.classList.remove('active'));
+                    
+                    // Add active class to clicked category
+                    this.classList.add('active');
+                    
+                    // In a real application, you would filter products based on category
+                    // For this demo, we're just changing the active state
+                });
+            });
+        });
+    </script>
+</body>
+</html>

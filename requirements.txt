@@ -1,0 +1,15 @@
+fastapi>=0.111.0 
+uvicorn[standard]>=0.29.0 
+SQLAlchemy>=2.0.30 
+psycopg2-binary>=2.9.9 
+pydantic>=2.7.1 
+dotenv>=0.0.5
+Faker>=37.4.0
+typing>=3.7.4.3
+numpy>=2.1.2
+matplotlib>=3.10.3
+
+# Caso não vá rodar o analyze não precisa baixar as ultimas 2 bibliotecas
+
+# Para baixar as dependências do projeto (python), execute o seguinte comando: 
+#pip install -r requirements.txt

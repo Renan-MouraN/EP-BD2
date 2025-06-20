@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<!-- Código para teste da api (possui funções funcionais para usar o CRUD) -->
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consumidor Completo da API FastAPI</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 1.5rem; /* Espaçamento entre containers */
+        }
+        .btn {
+            @apply px-6 py-3 rounded-full font-semibold text-white transition-all duration-300;
+            background-image: linear-gradient(to right, #6366f1, #8b5cf6);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn:hover {
+            background-image: linear-gradient(to right, #4f46e5, #7c3aed);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .btn-delete {
+            background-image: linear-gradient(to right, #ef4444, #dc2626);
+        }
+        .btn-delete:hover {
+            background-image: linear-gradient(to right, #dc2626, #b91c1c);
+        }
+        .input-field {
+            @apply w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500;
+        }
+        pre {
+            background-color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            min-height: 50px; /* Altura mínima para visualização */
+        }
+        .section-title {
+            @apply text-2xl font-bold text-gray-800 mb-4;
+        }
+        .subsection-title {
+            @apply text-xl font-semibold text-gray-700 mb-3;
+        }
+        .grid-cols-2 {
+            grid-template-columns: 1fr 1fr;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col items-center min-h-screen p-4">
+
+    <div class="container">
+        <h1 class="section-title text-center">Consumidor de API PetMatch</h1>
+    </div>
+
+    <!-- Container Geral para Resultados -->
+    <div class="container space-y-6">
+        <h2 class="subsection-title">Resultados da API</h2>
+        <div id="apiResult" class="bg-gray-50 rounded-lg shadow-inner overflow-auto max-h-96">
+            <pre class="text-sm text-gray-700">Aguardando requisição...</pre>
+        </div>
+    </div>
+
+    <!-- Seção de Usuários -->
+    <div class="container space-y-6">
+        <h2 class="subsection-title">Operações de Usuários (/usuarios/)</h2>
+        <input type="number" id="userIdInput" placeholder="Seu ID de Usuário (para Auth)" class="input-field mb-4">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- GET ALL /usuarios/ -->
+            <div>
+                <label for="userSkip" class="block text-sm font-medium text-gray-700">Skip:</label>
+                <input type="number" id="userSkip" value="0" class="input-field mb-2">
+                <label for="userLimit" class="block text-sm font-medium text-gray-700">Limit:</label>
+                <input type="number" id="userLimit" value="10" class="input-field mb-2">
+                <button id="getUsersBtn" class="btn w-full">GET /usuarios/</button>
+            </div>
+            <!-- GET by ID /usuarios/{id} -->
+            <div>
+                <label for="getUserId" class="block text-sm font-medium text-gray-700">ID do Usuário:</label>
+                <input type="number" id="getUserId" placeholder="ID do Usuário" class="input-field mb-2">
+                <button id="getSpecificUserBtn" class="btn w-full">GET /usuarios/{id}</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <!-- PUT /usuarios/{id} -->
+            <div>
+                <label for="putUserId" class="block text-sm font-medium text-gray-700">ID do Usuário a Atualizar:</label>
+                <input type="number" id="putUserId" placeholder="ID do Usuário" class="input-field mb-2">
+                <textarea id="putUserData" placeholder='{"nome": "Novo Nome", "email": "novo@email.com"}' rows="4" class="input-field mb-2"></textarea>
+                <button id="putUserBtn" class="btn w-full">PUT /usuarios/{id}</button>
+            </div>
+            <!-- DELETE /usuarios/{id} -->
+            <div>
+                <label for="deleteUserId" class="block text-sm font-medium text-gray-700">ID do Usuário a Deletar:</label>
+                <input type="number" id="deleteUserId" placeholder="ID do Usuário" class="input-field mb-2">
+                <button id="deleteUserBtn" class="btn btn-delete w-full">DELETE /usuarios/{id}</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seção de Animais -->
+    <div class="container space-y-6">
+        <h2 class="subsection-title">Operações de Animais (/animals/)</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- GET ALL /animals/ -->
+            <div>
+                <label for="animalSkip" class="block text-sm font-medium text-gray-700">Skip:</label>
+                <input type="number" id="animalSkip" value="0" class="input-field mb-2">
+                <label for="animalLimit" class="block text-sm font-medium text-gray-700">Limit:</label>
+                <input type="number" id="animalLimit" value="10" class="input-field mb-2">
+                <button id="getAnimalsBtn" class="btn w-full">GET /animals/</button>
+            </div>
+            <!-- GET by ID /animals/{id} -->
+            <div>
+                <label for="getAnimalId" class="block text-sm font-medium text-gray-700">ID do Animal:</label>
+                <input type="number" id="getAnimalId" placeholder="ID do Animal" class="input-field mb-2">
+                <button id="getSpecificAnimalBtn" class="btn w-full">GET /animals/{id}</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <!-- POST /animals/ -->
+            <div>
+                <textarea id="postAnimalData" placeholder='{"nome": "Bolinha", "idade": 3, "porte": "pequeno", "tipo": "cachorro", "sexo": "femea"}' rows="6" class="input-field mb-2"></textarea>
+                <button id="postAnimalBtn" class="btn w-full">POST /animals/</button>
+            </div>
+            <!-- PUT /animals/{id} -->
+            <div>
+                <label for="putAnimalId" class="block text-sm font-medium text-gray-700">ID do Animal a Atualizar:</label>
+                <input type="number" id="putAnimalId" placeholder="ID do Animal" class="input-field mb-2">
+                <textarea id="putAnimalData" placeholder='{"nome": "Rex", "status": "adotado"}' rows="4" class="input-field mb-2"></textarea>
+                <button id="putAnimalBtn" class="btn w-full">PUT /animals/{id}</button>
+            </div>
+        </div>
+        <div class="mt-4">
+            <!-- DELETE /animals/{id} -->
+            <label for="deleteAnimalId" class="block text-sm font-medium text-gray-700">ID do Animal a Deletar:</label>
+            <input type="number" id="deleteAnimalId" placeholder="ID do Animal" class="input-field mb-2">
+            <button id="deleteAnimalBtn" class="btn btn-delete w-full">DELETE /animals/{id}</button>
+        </div>
+    </div>
+
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+        const apiResultDisplay = document.getElementById('apiResult').querySelector('pre');
+
+        /**
+         * Objeto para interagir com a API FastAPI.
+         * Encapsula a lógica de requisições HTTP, tratamento de erros e parâmetros.
+         */
+        const apiClient = {
+            /**
+             * Função genérica para fazer requisições HTTP à API.
+             * @param {string} method - O método HTTP (GET, POST, PUT, DELETE).
+             * @param {string} path - O caminho do endpoint da API (ex: "/animals/").
+             * @param {Object|null} data - O corpo da requisição para POST/PUT.
+             * @param {Object} queryParams - Um objeto de parâmetros de consulta (ex: {skip: 0, limit: 10}).
+             * @param {number|null} currentUserId - O ID do usuário logado (para autorização, passado como query param 'userId').
+             * @returns {Promise<Object>} A resposta JSON da API.
+             * @throws {Error} Se a requisição não for bem-sucedida.
+             */
+            async request(method, path, data = null, queryParams = {}, currentUserId = null) {
+                let url = new URL(`${API_BASE_URL}${path}`);
+
+                // Adiciona currentUserId aos queryParams se fornecido
+                if (currentUserId !== null && currentUserId !== undefined) {
+                    queryParams.userId = currentUserId;
+                }
+
+                // Adiciona outros parâmetros de consulta
+                Object.keys(queryParams).forEach(key => {
+                    if (queryParams[key] !== null && queryParams[key] !== undefined) {
+                        url.searchParams.append(key, queryParams[key]);
+                    }
+                });
+
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                };
+
+                // Adiciona o corpo da requisição para métodos POST e PUT
+                if (data && (method === 'POST' || method === 'PUT')) {
+                    options.body = JSON.stringify(data);
+                }
+
+                try {
+                    const response = await fetch(url.toString(), options);
+                    const responseData = await response.json(); // Tenta ler a resposta como JSON
+
+                    if (!response.ok) {
+                        // FastAPI HTTPException detalhes são geralmente em .detail
+                        const errorMessage = responseData.detail || response.statusText || 'Erro desconhecido da API';
+                        throw new Error(`Erro HTTP ${response.status}: ${errorMessage}`);
+                    }
+                    return responseData;
+                } catch (error) {
+                    console.error(`Erro na requisição ${method} ${path}:`, error);
+                    // Retorna um objeto de erro para ser tratado pela UI
+                    return { error: error.message };
+                }
+            },
+
+            // Métodos CRUD específicos que utilizam a função request genérica
+            get(path, queryParams = {}, currentUserId = null) {
+                return this.request('GET', path, null, queryParams, currentUserId);
+            },
+
+            post(path, data, currentUserId = null) {
+                // Para POST e PUT, o userId é passado como query param na URL devido à forma como o backend espera
+                return this.request('POST', path, data, {}, currentUserId);
+            },
+
+            put(path, id, data, currentUserId = null) {
+                // Para PUT, o id é parte do path, e o userId é query param
+                return this.request('PUT', `${path}${id}`, data, {}, currentUserId);
+            },
+
+            delete(path, id, currentUserId = null) {
+                // Para DELETE, o id é parte do path, e o userId é query param
+                return this.request('DELETE', `${path}${id}`, null, {}, currentUserId);
+            }
+        };
+
+        /**
+         * Função auxiliar para exibir resultados na tela.
+         * @param {Object} data - Os dados a serem exibidos.
+         * @param {boolean} isError - Se true, formata como mensagem de erro.
+         */
+        function displayResult(data, isError = false) {
+            if (isError) {
+                apiResultDisplay.textContent = `Erro: ${data.error || 'Ocorreu um erro inesperado.'}`;
+                apiResultDisplay.classList.add('text-red-600');
+            } else {
+                apiResultDisplay.textContent = JSON.stringify(data, null, 2);
+                apiResultDisplay.classList.remove('text-red-600');
+            }
+        }
+
+        // --- Event Listeners para Usuários ---
+        document.getElementById('getUsersBtn').addEventListener('click', async () => {
+            const userId = document.getElementById('userIdInput').value;
+            const skip = parseInt(document.getElementById('userSkip').value) || 0;
+            const limit = parseInt(document.getElementById('userLimit').value) || 10;
+            
+            displayResult('Carregando usuários...');
+            const result = await apiClient.get('/usuarios/', { skip, limit }, userId ? parseInt(userId) : null);
+            displayResult(result, !!result.error);
+        });
+
+        document.getElementById('getSpecificUserBtn').addEventListener('click', async () => {
+            const userId = document.getElementById('userIdInput').value; // Seu ID de usuário para autorização
+            const getUserId = document.getElementById('getUserId').value; // O ID do usuário que você quer buscar
+            
+            if (!getUserId) {
+                displayResult({ error: "Por favor, insira um ID para buscar." }, true);
+                return;
+            }
+            
+            displayResult(`Carregando usuário ${getUserId}...`);
+            const result = await apiClient.get(`/usuarios/${getUserId}`, {}, userId ? parseInt(userId) : null);
+            displayResult(result, !!result.error);
+        });
+
+        document.getElementById('putUserBtn').addEventListener('click', async () => {
+            const userId = document.getElementById('userIdInput').value; // Seu ID de usuário (admin ou o próprio usuário)
+            const putUserId = document.getElementById('putUserId').value;
+            const putUserData = document.getElementById('putUserData').value;
+            
+            if (!putUserId || !putUserData) {
+                displayResult({ error: "Por favor, insira o ID e os dados para atualização." }, true);
+                return;
+            }
+
+            try {
+                const data = JSON.parse(putUserData);
+                displayResult(`Atualizando usuário ${putUserId}...`);
+                const result = await apiClient.put('/usuarios/', putUserId, data, userId ? parseInt(userId) : null);
+                displayResult(result, !!result.error);
+            } catch (e) {
+                displayResult({ error: "Dados JSON inválidos para atualização." }, true);
+            }
+        });
+
+        document.getElementById('deleteUserBtn').addEventListener('click', async () => {
+            const userId = document.getElementById('userIdInput').value; // Seu ID de usuário (deve ser admin)
+            const deleteUserId = document.getElementById('deleteUserId').value;
+            
+            if (!deleteUserId) {
+                displayResult({ error: "Por favor, insira o ID do usuário para deletar." }, true);
+                return;
+            }
+
+            displayResult(`Deletando usuário ${deleteUserId}...`);
+            const result = await apiClient.delete('/usuarios/', deleteUserId, userId ? parseInt(userId) : null);
+            displayResult(result, !!result.error);
+        });
+
+        // --- Event Listeners para Animais ---
+        document.getElementById('getAnimalsBtn').addEventListener('click', async () => {
+            const userId = document.getElementById('userIdInput').value; // Para consistência, mesmo que este GET não exija admin
+            const skip = parseInt(document.getElementById('animalSkip').value) || 0;
+            const limit = parseInt(document.getElementById('animalLimit').value) || 10;
+
+            displayResult('Carregando animais...');
+            const result = await apiClient.get('/animals/', { skip, limit }, userId ? parseInt(userId) : null);
+            displayResult(result, !!result.error);
+        });
+
+        document.getElementById('getSpecificAnimalBtn').addEventListener('click', async () => {
+            const userId = document.getElementById('userIdInput').value; // Para consistência
+            const getAnimalId = document.getElementById('getAnimalId').value;
+            
+            if (!getAnimalId) {
+                displayResult({ error: "Por favor, insira um ID para buscar." }, true);
+                return;
+            }
+
+            displayResult(`Carregando animal ${getAnimalId}...`);
+            const result = await apiClient.get(`/animals/${getAnimalId}`, {}, userId ? parseInt(userId) : null);
+            displayResult(result, !!result.error);
+        });
+
+        document.getElementById('postAnimalBtn').addEventListener('click', async () => {
+            const userId = document.getElementById('userIdInput').value; // O ID do usuário que está criando o animal
+            const postAnimalData = document.getElementById('postAnimalData').value;
+            
+            if (!postAnimalData) {
+                displayResult({ error: "Por favor, insira os dados do animal para criar." }, true);
+                return;
+            }
+
+            try {
+                const data = JSON.parse(postAnimalData);
+                displayResult('Criando animal...');
+                // O `userId` é passado como query parameter para o POST também, conforme o backend espera
+                const result = await apiClient.post('/animals/', data, userId ? parseInt(userId) : null);
+                displayResult(result, !!result.error);
+            } catch (e) {
+                displayResult({ error: "Dados JSON inválidos para criação do animal." }, true);
+            }
+        });
+
+        document.getElementById('putAnimalBtn').addEventListener('click', async () => {
+            const userId = document.getElementById('userIdInput').value; // Seu ID de usuário (deve ser admin para este PUT)
+            const putAnimalId = document.getElementById('putAnimalId').value;
+            const putAnimalData = document.getElementById('putAnimalData').value;
+            
+            if (!putAnimalId || !putAnimalData) {
+                displayResult({ error: "Por favor, insira o ID e os dados para atualização do animal." }, true);
+                return;
+            }
+
+            try {
+                const data = JSON.parse(putAnimalData);
+                displayResult(`Atualizando animal ${putAnimalId}...`);
+                const result = await apiClient.put('/animals/', putAnimalId, data, userId ? parseInt(userId) : null);
+                displayResult(result, !!result.error);
+            } catch (e) {
+                displayResult({ error: "Dados JSON inválidos para atualização do animal." }, true);
+            }
+        });
+
+        document.getElementById('deleteAnimalBtn').addEventListener('click', async () => {
+            const userId = document.getElementById('userIdInput').value; // Seu ID de usuário (deve ser admin para este DELETE)
+            const deleteAnimalId = document.getElementById('deleteAnimalId').value;
+            
+            if (!deleteAnimalId) {
+                displayResult({ error: "Por favor, insira o ID do animal para deletar." }, true);
+                return;
+            }
+
+            displayResult(`Deletando animal ${deleteAnimalId}...`);
+            const result = await apiClient.delete('/animals/', deleteAnimalId, userId ? parseInt(userId) : null);
+            displayResult(result, !!result.error);
+        });
+
+    </script>
+</body>
+</html>
