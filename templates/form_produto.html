@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PataCerta - Gerenciar Produto</title>
+    <title>Gerir Produto - PataCerta</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         :root { --primary: #6C63FF; --secondary: #5850D8; --dark: #2E3056; --light: #F4F6FC; --accent: #FF6B6B; }
@@ -12,12 +12,11 @@
         header { background-color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; margin-bottom: 30px; }
         .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; }
         .logo { display: flex; align-items: center; font-size: 24px; font-weight: bold; color: var(--primary); text-decoration: none; }
-        .logo span { color: var(--secondary); }
         .logo-icon { font-size: 28px; margin-right: 8px; }
-        .nav-links { display: flex; list-style: none; }
-        .nav-links li { margin-left: 30px; }
-        .nav-links a { text-decoration: none; color: var(--dark); font-weight: 500; transition: color 0.3s; }
-        .nav-links a:hover { color: var(--primary); }
+        .nav-links { display: flex; list-style: none; gap: 10px; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--dark); font-weight: 500; padding: 8px 12px; }
+        .btn { padding: 10px 20px; background-color: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; text-decoration: none; }
+        .btn-outline { background-color: transparent; border: 2px solid #ccc; color: var(--dark); }
         .page-title { text-align: center; margin: 30px 0; color: var(--dark); font-size: 36px; }
         .admin-section { background-color: white; border-radius: 10px; box-shadow: 0 3px 15px rgba(0,0,0,0.1); padding: 30px; margin-bottom: 30px; }
         .form-container { max-width: 800px; margin: 0 auto; }
@@ -27,30 +26,29 @@
         .form-control { width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; transition: border-color 0.3s; }
         .form-control:focus { outline: none; border-color: var(--primary); }
         textarea.form-control { min-height: 120px; resize: vertical; }
-        .form-actions { display: flex; gap: 15px; margin-top: 30px; justify-content: center; }
-        .btn { padding: 12px 24px; border-radius: 5px; text-decoration: none; font-weight: 500; font-size: 16px; cursor: pointer; transition: all 0.3s; border: none; }
-        .btn-primary { background-color: var(--primary); color: white; }
-        .btn-outline { background-color: transparent; border: 2px solid #ccc; color: var(--dark); }
+        .form-actions { display: flex; gap: 15px; margin-top: 30px; justify-content: flex-end; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
     <header>
         <div class="container">
             <nav class="navbar">
-                <a href="/" class="logo"><i class="logo-icon">🐾</i> Pata<span>Certa</span> <small>Admin</small></a>
+                <a href="index.html" class="logo"><i class="logo-icon">🐾</i> Pata<span>Certa</span></a>
                 <ul class="nav-links">
-                    <li><a href="/lista_produtos.html">Gerenciar Produtos</a></li>
+                    <li><a href="admin.html">Painel</a></li>
+                    <li><a href="lista_produtos.html" class="btn btn-outline">Voltar à Lista</a></li>
                 </ul>
             </nav>
         </div>
     </header>
 
     <main class="container">
-        <h1 id="page-title" class="page-title">Carregando...</h1>
+        <h1 id="page-title" class="page-title">Gerir Produto</h1>
         
         <section class="admin-section">
             <div class="form-container">
-                <h2 id="form-title" class="form-title">Formulário</h2>
+                <h2 id="form-title" class="form-title">Formulário de Produto</h2>
                 
                 <form id="product-form">
                     <div class="form-group">
@@ -61,29 +59,34 @@
                         <label for="categoria" class="form-label">Categoria</label>
                         <select id="categoria" name="categoria" class="form-control" required>
                             <option value="">Selecione...</option>
-                            <option value="Ração">Ração</option>
+                            <option value="Alimentação">Alimentação</option>
                             <option value="Brinquedos">Brinquedos</option>
-                            <option value="Camas e Casinhas">Camas e Casinhas</option>
-                            <option value="Higiene">Higiene</option>
-                            <option value="Saúde">Saúde</option>
+                            <option value="Higiene e Beleza">Higiene e Beleza</option>
+                            <option value="Camas e Conforto">Camas e Conforto</option>
+                            <option value="Acessórios">Acessórios</option>
+                            <option value="Saúde e Farmácia">Saúde e Farmácia</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="descricao" class="form-label">Descrição</label>
-                        <textarea id="descricao" name="descricao" class="form-control"></textarea>
+                        <textarea id="descricao" name="descricao" class="form-control" rows="4"></textarea>
                     </div>
                     <div class="form-group">
                         <label for="preco" class="form-label">Preço (R$)</label>
                         <input type="number" id="preco" name="preco" class="form-control" step="0.01" min="0" required>
                     </div>
                     <div class="form-group">
-                        <label for="estoque" class="form-label">Estoque</label>
+                        <label for="estoque" class="form-label">Quantidade em Estoque</label>
                         <input type="number" id="estoque" name="estoque" class="form-control" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="imagem">URL da Imagem (opcional):</label>
+                        <input type="url" id="imagem" name="imagem" class="form-control" placeholder="https://exemplo.com/imagem.jpg">
                     </div>
                     
                     <div class="form-actions">
-                        <button type="submit" id="submit-button" class="btn btn-primary">Salvar</button>
-                        <a href="/lista_produtos.html" class="btn btn-outline">Cancelar</a>
+                        <a href="lista_produtos.html" class="btn btn-outline">Cancelar</a>
+                        <button type="submit" id="submit-button" class="btn">Salvar</button>
                     </div>
                 </form>
             </div>
@@ -92,74 +95,72 @@
 
     <script>
         const API_BASE_URL = 'http://127.0.0.1:8000';
-        const currentUserId = 1; // ID do usuário admin para testes
         const form = document.getElementById('product-form');
+        let currentUser = null;
         let editMode = false;
         let productId = null;
 
-        const apiClient = {
-            async request(method, path, data = null) {
-                const url = new URL(`${API_BASE_URL}${path}`);
-                url.searchParams.append('userId', currentUserId);
-                
-                const options = {
-                    method: method,
-                    headers: { 'Content-Type': 'application/json' },
-                };
-                if (data) options.body = JSON.stringify(data);
+        /**
+         * Verifica se o utilizador é admin. Se não, redireciona para o login.
+         */
+        function checkAuth() {
+            const userData = JSON.parse(localStorage.getItem('patacerta_user'));
+            currentUser = userData;
 
-                try {
-                    const response = await fetch(url.toString(), options);
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.detail || 'Erro na API');
-                    }
-                    return response.json();
-                } catch (error) {
-                    alert(`Erro: ${error.message}`);
-                    throw error;
-                }
-            },
-            get(path) { return this.request('GET', path); },
-            post(path, data) { return this.request('POST', path, data); },
-            put(path, data) { return this.request('PUT', path, data); },
-        };
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            const params = new URLSearchParams(window.location.search);
-            productId = params.get('id');
-
-            const pageTitle = document.getElementById('page-title');
-            const formTitle = document.getElementById('form-title');
-            const submitButton = document.getElementById('submit-button');
-
-            if (productId) {
-                editMode = true;
-                pageTitle.textContent = 'Editar Produto';
-                formTitle.textContent = 'Formulário de Edição';
-                submitButton.textContent = 'Salvar Alterações';
-                
-                try {
-                    const product = await apiClient.get(`/produtos/${productId}`);
-                    // Preenche o formulário com os dados do produto
-                    document.getElementById('nome').value = product.nome;
-                    document.getElementById('categoria').value = product.categoria;
-                    document.getElementById('descricao').value = product.descricao;
-                    document.getElementById('preco').value = parseFloat(product.preco).toFixed(2);
-                    document.getElementById('estoque').value = product.estoque;
-                } catch (error) {
-                    form.innerHTML = '<p style="color:red; text-align:center;">Não foi possível carregar os dados do produto.</p>';
-                }
-            } else {
-                pageTitle.textContent = 'Adicionar Produto';
-                formTitle.textContent = 'Formulário de Cadastro';
-                submitButton.textContent = 'Adicionar Produto';
+            if (!currentUser || !currentUser.is_admin) {
+                alert("Acesso negado. Apenas administradores podem aceder a esta página.");
+                window.location.href = 'login.html';
+                return false;
             }
-        });
+            return true;
+        }
 
-        form.addEventListener('submit', async (event) => {
+        /**
+         * Função para fazer requisições à API.
+         */
+        async function apiRequest(method, path, data = null) {
+            const url = `${API_BASE_URL}${path}?userId=${currentUser.id_usuario}`;
+            const options = {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+            };
+            if (data) options.body = JSON.stringify(data);
+
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Erro na API');
+                }
+                return response.json();
+            } catch (error) {
+                alert(`Erro: ${error.message}`);
+                throw error;
+            }
+        }
+
+        /**
+         * Preenche o formulário com dados de um produto para edição.
+         */
+        async function populateFormForEdit(id) {
+            try {
+                const product = await apiRequest('GET', `/produtos/${id}`);
+                document.getElementById('nome').value = product.nome;
+                document.getElementById('categoria').value = product.categoria || '';
+                document.getElementById('descricao').value = product.descricao || '';
+                document.getElementById('preco').value = parseFloat(product.preco).toFixed(2);
+                document.getElementById('estoque').value = product.estoque || 0;
+                document.getElementById('imagem').value = product.imagem || '';
+            } catch (error) {
+                form.innerHTML = '<p style="color:red; text-align:center;">Não foi possível carregar os dados do produto.</p>';
+            }
+        }
+
+        /**
+         * Lida com a submissão do formulário.
+         */
+        async function handleFormSubmit(event) {
             event.preventDefault();
-            
             const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
 
@@ -169,16 +170,40 @@
 
             try {
                 if (editMode) {
-                    await apiClient.put(`/produtos/${productId}`, data);
+                    await apiRequest('PUT', `/produtos/${productId}`, data);
                     alert('Produto atualizado com sucesso!');
                 } else {
-                    await apiClient.post('/produtos/', data);
+                    await apiRequest('POST', '/produtos/', data);
                     alert('Produto adicionado com sucesso!');
                 }
-                window.location.href = '/lista_produtos.html'; // Redireciona para a lista
+                window.location.href = 'lista_produtos.html';
             } catch (error) {
-                // O erro já é tratado pelo apiClient
+                // O erro já é tratado pelo apiRequest
             }
+        }
+
+        /**
+         * Inicializa a página.
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!checkAuth()) return;
+
+            const params = new URLSearchParams(window.location.search);
+            productId = params.get('id');
+            const pageTitle = document.getElementById('page-title');
+            const submitButton = document.getElementById('submit-button');
+
+            if (productId) {
+                editMode = true;
+                pageTitle.textContent = 'Editar Produto';
+                submitButton.textContent = 'Salvar Alterações';
+                populateFormForEdit(productId);
+            } else {
+                pageTitle.textContent = 'Adicionar Novo Produto';
+                submitButton.textContent = 'Adicionar Produto';
+            }
+            
+            form.addEventListener('submit', handleFormSubmit);
         });
     </script>
 </body>
