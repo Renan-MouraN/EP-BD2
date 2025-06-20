@@ -32,7 +32,7 @@
             padding: 0 20px;
         }
         
-        /* Cabeçalho */
+        /* Header */
         header {
             background-color: white;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -134,7 +134,7 @@
             align-items: center;
         }
 
-        /* Vista de Tabela do Admin */
+        /* Admin Table View */
         .admin-view table {
             width: 100%;
             border-collapse: collapse;
@@ -155,7 +155,7 @@
         .admin-view tr:nth-child(even) { background-color: #f8f9fa; }
         .admin-view .action-buttons { display: flex; gap: 10px; }
 
-        /* Vista de Grelha Pública */
+        /* Public Grid View */
         .public-view {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -179,6 +179,32 @@
         .service-desc { color: #777; flex-grow: 1; margin-bottom: 20px; }
         .service-price { font-size: 24px; font-weight: 700; color: var(--primary); margin-bottom: 20px; }
         
+        /* Filter Form */
+        .filter-section {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+        .filter-form {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            align-items: center;
+        }
+        .filter-form select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            width: 100%;
+        }
+        .filter-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
     </style>
 </head>
 <body>
@@ -194,7 +220,7 @@
                     <li id="nav-admin" class="hidden"><a href="admin.html" class="btn">Painel Admin</a></li>
                     <li id="nav-logged-out"><a href="login.html" class="btn btn-outline">Login</a></li>
                     <li id="nav-logged-out-2"><a href="login.html" class="btn">Cadastre-se</a></li>
-                    <li id="nav-logged-in" class="hidden"><a href="#">O Meu Perfil</a></li>
+                    <li id="nav-logged-in" class="hidden"><a href="meu_perfil.html">Meu Perfil</a></li>
                     <li id="nav-logged-in-2" class="hidden"><a href="#" id="logout-btn" class="btn btn-secondary">Sair</a></li>
                 </ul>
             </nav>
@@ -207,13 +233,27 @@
             <p id="page-subtitle">Cuidado profissional e carinho para o seu melhor amigo.</p>
         </div>
 
-        <!-- Controlos do Admin -->
+        <!-- Filter Section -->
+        <section class="filter-section">
+             <form class="filter-form" id="filter-form">
+                <select name="categoria" id="categoria-select">
+                    <option value="">Todas as Categorias</option>
+                    <!-- Opções serão preenchidas por JS -->
+                </select>
+                <div class="filter-buttons">
+                    <button type="submit" class="btn">Buscar</button>
+                    <button type="button" id="clear-filters-btn" class="btn btn-outline">Limpar</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Admin Controls -->
         <div id="admin-controls" class="admin-controls hidden">
             <h2>Gestão de Serviços</h2>
             <a href="form_servico.html" class="btn btn-primary">+ Adicionar Novo Serviço</a>
         </div>
 
-        <!-- Vista de Tabela do Admin -->
+        <!-- Admin View -->
         <div id="admin-view" class="admin-view hidden">
             <table>
                 <thead>
@@ -229,7 +269,7 @@
             </table>
         </div>
 
-        <!-- Vista de Grelha Pública -->
+        <!-- Public View -->
         <div id="public-view" class="public-view">
             <!-- Cards de serviços serão inseridos aqui -->
         </div>
@@ -238,6 +278,7 @@
     <script>
         const API_BASE_URL = 'http://127.0.0.1:8000';
         let currentUser = null;
+        let allServices = [];
 
         const serviceIcons = {
             'Banho': '🛁', 'Tosa': '✂️', 'Consulta': '🩺', 'Vacinação': '💉',
@@ -289,6 +330,10 @@
         function renderPublicView(services) {
             const grid = document.getElementById('public-view');
             grid.innerHTML = '';
+            if (services.length === 0) {
+                grid.innerHTML = '<p>Nenhum serviço encontrado com os filtros selecionados.</p>';
+                return;
+            }
             services.forEach(service => {
                 const card = document.createElement('div');
                 card.className = 'service-card';
@@ -323,6 +368,15 @@
                 tableBody.appendChild(row);
             });
         }
+        
+        function displayResults(services) {
+            const isAdmin = currentUser && currentUser.is_admin;
+            if (isAdmin) {
+                renderAdminView(services);
+            } else {
+                renderPublicView(services);
+            }
+        }
 
         async function deleteService(serviceId) {
             if (!currentUser || !currentUser.is_admin) return alert("Apenas administradores podem excluir serviços.");
@@ -337,6 +391,36 @@
             } catch (error) {
                 alert(`Erro ao excluir: ${error.message}`);
             }
+        }
+        
+        function populateCategoryFilter(services) {
+            const categories = [...new Set(services.map(s => s.categoria).filter(Boolean))];
+            const select = document.getElementById('categoria-select');
+            categories.sort().forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+                select.appendChild(option);
+            });
+        }
+
+        function handleFilterSubmit(event) {
+            event.preventDefault();
+            const selectedCategory = document.getElementById('categoria-select').value;
+            let filteredServices = allServices;
+
+            if (selectedCategory) {
+                filteredServices = allServices.filter(s => s.categoria === selectedCategory);
+            }
+            
+            document.getElementById('page-title').textContent = selectedCategory ? `Mostrando: ${selectedCategory}` : 'Todos os Serviços';
+            displayResults(filteredServices);
+        }
+
+        function clearFilters() {
+            document.getElementById('filter-form').reset();
+            document.getElementById('page-title').textContent = 'Nossos Serviços';
+            displayResults(allServices);
         }
 
         async function initializeApp() {
@@ -353,19 +437,19 @@
             try {
                 const response = await fetch(`${API_BASE_URL}/servicos/?limit=100`);
                 if (!response.ok) throw new Error("Não foi possível carregar os dados dos serviços.");
-                const services = await response.json();
+                allServices = await response.json();
+                
+                populateCategoryFilter(allServices);
+                displayResults(allServices);
 
-                if (isAdmin) {
-                    renderAdminView(services);
-                } else {
-                    renderPublicView(services);
-                }
             } catch (error) {
                 targetView.innerHTML = `<p style="color:red; text-align:center;">${error.message}</p>`;
             }
         }
 
         document.addEventListener('DOMContentLoaded', initializeApp);
+        document.getElementById('filter-form').addEventListener('submit', handleFilterSubmit);
+        document.getElementById('clear-filters-btn').addEventListener('click', clearFilters);
         
         const logoutBtn = document.getElementById('logout-btn');
         if (logoutBtn) {
