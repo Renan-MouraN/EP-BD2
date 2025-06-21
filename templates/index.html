@@ -685,7 +685,7 @@
             const form = document.getElementById('filter-form');
             form.reset(); 
             document.getElementById('pets-section-title').textContent = 'Pets em Destaque';
-            displayPets(allPets.slice(0, 4)); 
+            displayPets(allPets.slice(0, 6)); 
         }
 
         async function initializePage() {
@@ -698,7 +698,7 @@
                 if (!response.ok) throw new Error(`Erro na API: ${response.statusText}`);
                 allPets = await response.json();
                 
-                displayPets(allPets.slice(0, 4));
+                displayPets(allPets.slice(0, 6));
 
             } catch (error) {
                 console.error("Falha ao buscar pets:", error);
