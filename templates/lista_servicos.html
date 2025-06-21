@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nossos Produtos - PataCerta</title>
+    <title>Nossos Serviços - PataCerta</title>
     <style>
         * {
             margin: 0;
@@ -162,7 +162,7 @@
             gap: 25px;
         }
 
-        .product-card {
+        .service-card {
             background-color: white;
             border-radius: 10px;
             overflow: hidden;
@@ -170,15 +170,14 @@
             transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
+            padding: 25px;
+            text-align: center;
         }
-        .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-        .product-img { height: 220px; background-color: #eee; }
-        .product-img img { width: 100%; height: 100%; object-fit: cover; }
-        .product-info { padding: 20px; text-align: left; display: flex; flex-direction: column; flex-grow: 1; }
-        .product-info h3 { font-size: 20px; color: var(--dark); margin-bottom: 5px; }
-        .product-category { color: #777; font-size: 14px; margin-bottom: 15px; }
-        .product-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 15px; }
-        .product-price { font-size: 22px; font-weight: 700; color: var(--primary); }
+        .service-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .service-icon { font-size: 48px; color: var(--primary); margin-bottom: 15px; }
+        .service-card h3 { font-size: 22px; color: var(--dark); margin-bottom: 10px; }
+        .service-desc { color: #777; flex-grow: 1; margin-bottom: 20px; }
+        .service-price { font-size: 24px; font-weight: 700; color: var(--primary); margin-bottom: 20px; }
         
         /* Filter Form */
         .filter-section {
@@ -190,7 +189,7 @@
         }
         .filter-form {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: 1fr auto;
             gap: 15px;
             align-items: center;
         }
@@ -204,8 +203,8 @@
         .filter-buttons {
             display: flex;
             gap: 15px;
-            margin-top: 10px;
         }
+        
     </style>
 </head>
 <body>
@@ -219,8 +218,8 @@
                     <li><a href="lista_produtos.html">Produtos</a></li>
                     <li><a href="lista_servicos.html">Serviços</a></li>
                     <li id="nav-admin" class="hidden"><a href="admin.html" class="btn">Painel Admin</a></li>
-                    <li id="nav-logged-out" class="hidden"><a href="login.html" class="btn btn-outline">Login</a></li>
-                    <li id="nav-logged-out-2" class="hidden"><a href="login.html" class="btn">Cadastre-se</a></li>
+                    <li id="nav-logged-out"><a href="login.html" class="btn btn-outline">Login</a></li>
+                    <li id="nav-logged-out-2"><a href="login.html" class="btn">Cadastre-se</a></li>
                     <li id="nav-logged-in" class="hidden"><a href="meu_perfil.html">Meu Perfil</a></li>
                     <li id="nav-logged-in-2" class="hidden"><a href="#" id="logout-btn" class="btn btn-secondary">Sair</a></li>
                 </ul>
@@ -230,8 +229,8 @@
 
     <main class="container">
         <div class="page-header">
-            <h1 id="page-title">Nossos Produtos</h1>
-            <p id="page-subtitle">Tudo o que o seu pet precisa para uma vida feliz e saudável.</p>
+            <h1 id="page-title">Nossos Serviços</h1>
+            <p id="page-subtitle">Cuidado profissional e carinho para o seu melhor amigo.</p>
         </div>
 
         <!-- Filter Section -->
@@ -243,15 +242,15 @@
                 </select>
                 <div class="filter-buttons">
                     <button type="submit" class="btn">Buscar</button>
-                    <button type="button" id="clear-filters-btn" class="btn btn-outline">Limpar Filtros</button>
+                    <button type="button" id="clear-filters-btn" class="btn btn-outline">Limpar</button>
                 </div>
             </form>
         </section>
 
         <!-- Admin Controls -->
         <div id="admin-controls" class="admin-controls hidden">
-            <h2>Gerenciamento de Produtos</h2>
-            <a href="form_produto.html" class="btn btn-primary">+ Adicionar Produto</a>
+            <h2>Gestão de Serviços</h2>
+            <a href="form_servico.html" class="btn btn-primary">+ Adicionar Novo Serviço</a>
         </div>
 
         <!-- Admin View -->
@@ -261,9 +260,8 @@
                     <tr>
                         <th>ID</th>
                         <th>Nome</th>
-                        <th>Categoria</th>
-                        <th>Preço</th>
-                        <th>Estoque</th>
+                        <th>Preço Base</th>
+                        <th>Duração (min)</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
@@ -273,14 +271,29 @@
 
         <!-- Public View -->
         <div id="public-view" class="public-view">
-            <!-- Cards de produtos serão inseridos aqui -->
+            <!-- Cards de serviços serão inseridos aqui -->
         </div>
     </main>
 
     <script>
         const API_BASE_URL = 'http://127.0.0.1:8000';
         let currentUser = null;
-        let allProducts = [];
+        let allServices = [];
+
+        const serviceIcons = {
+            'Banho': '🛁', 'Tosa': '✂️', 'Consulta': '🩺', 'Vacinação': '💉',
+            'Passeio': '🐕', 'Adestramento': '🎓', 'Hospedagem': '🏨', 'Creche': '🧸',
+            'Padrão': '⭐'
+        };
+
+        function getIconForService(serviceName) {
+            for (const key in serviceIcons) {
+                if (serviceName.toLowerCase().includes(key.toLowerCase())) {
+                    return serviceIcons[key];
+                }
+            }
+            return serviceIcons['Padrão'];
+        }
 
         function updateUIForLoginState() {
             const navAdmin = document.getElementById('nav-admin');
@@ -314,87 +327,79 @@
             window.location.reload();
         }
 
-        function renderPublicView(products) {
+        function renderPublicView(services) {
             const grid = document.getElementById('public-view');
             grid.innerHTML = '';
-            if (products.length === 0) {
-                grid.innerHTML = '<p>Nenhum produto encontrado com os filtros selecionados.</p>';
+            if (services.length === 0) {
+                grid.innerHTML = '<p>Nenhum serviço encontrado com os filtros selecionados.</p>';
                 return;
             }
-            products.forEach(product => {
+            services.forEach(service => {
                 const card = document.createElement('div');
-                card.className = 'product-card';
-                const fallbackImageUrl = `https://placehold.co/400x300/9e96f2/FFFFFF?text=${encodeURIComponent(product.nome)}`;
-                const primaryImageUrl = product.imagem || fallbackImageUrl;
+                card.className = 'service-card';
+                const icon = getIconForService(service.nome);
 
                 card.innerHTML = `
-                    <div class="product-img">
-                        <img src="${primaryImageUrl}" alt="${product.nome}" onerror="this.onerror=null;this.src='${fallbackImageUrl}';">
-                    </div>
-                    <div class="product-info">
-                        <span class="product-category">${product.categoria || 'Geral'}</span>
-                        <h3>${product.nome}</h3>
-                        <div class="product-bottom">
-                            <span class="product-price">R$ ${parseFloat(product.preco).toFixed(2)}</span>
-                            <button class="btn">Comprar</button>
-                        </div>
-                    </div>
+                    <div class="service-icon">${icon}</div>
+                    <h3>${service.nome}</h3>
+                    <p class="service-desc">${service.descricao || 'Serviço especializado para o bem-estar do seu pet.'}</p>
+                    <div class="service-price">R$ ${parseFloat(service.preco_base || 0).toFixed(2)}</div>
+                    <a href="#" class="btn">Agendar Agora</a>
                 `;
                 grid.appendChild(card);
             });
         }
 
-        function renderAdminView(products) {
+        function renderAdminView(services) {
             const tableBody = document.getElementById('admin-table-body');
             tableBody.innerHTML = '';
-            products.forEach(product => {
+            services.forEach(service => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${product.id_produto}</td>
-                    <td>${product.nome}</td>
-                    <td>${product.categoria}</td>
-                    <td>R$ ${parseFloat(product.preco).toFixed(2)}</td>
-                    <td>${product.estoque}</td>
+                    <td>${service.id_servico}</td>
+                    <td>${service.nome}</td>
+                    <td>R$ ${parseFloat(service.preco_base || 0).toFixed(2)}</td>
+                    <td>${service.duracao_minutos || 'N/A'}</td>
                     <td class="action-buttons">
-                        <a href="form_produto.html?id=${product.id_produto}" class="btn btn-secondary">Editar</a>
-                        <button onclick="deleteProduct(${product.id_produto})" class="btn btn-danger">Excluir</button>
+                        <a href="form_servico.html?id=${service.id_servico}" class="btn btn-secondary">Editar</a>
+                        <button onclick="deleteService(${service.id_servico})" class="btn btn-danger">Excluir</button>
                     </td>
                 `;
                 tableBody.appendChild(row);
             });
         }
         
-        function displayResults(products) {
+        function displayResults(services) {
             const isAdmin = currentUser && currentUser.is_admin;
             if (isAdmin) {
-                renderAdminView(products);
+                renderAdminView(services);
             } else {
-                renderPublicView(products);
+                renderPublicView(services);
             }
         }
 
-        async function deleteProduct(productId) {
-            if (!currentUser || !currentUser.is_admin) return alert("Apenas administradores podem excluir produtos.");
-            if (!confirm(`Tem certeza que deseja excluir o produto com ID ${productId}?`)) return;
+        async function deleteService(serviceId) {
+            if (!currentUser || !currentUser.is_admin) return alert("Apenas administradores podem excluir serviços.");
+            if (!confirm(`Tem a certeza que deseja excluir o serviço com ID ${serviceId}?`)) return;
 
             try {
-                const response = await fetch(`${API_BASE_URL}/produtos/${productId}?userId=${currentUser.id_usuario}`, { method: 'DELETE' });
+                const response = await fetch(`${API_BASE_URL}/servicos/${serviceId}?userId=${currentUser.id_usuario}`, { method: 'DELETE' });
                 const result = await response.json();
                 if (!response.ok) throw new Error(result.detail);
-                alert("Produto excluído com sucesso!");
+                alert("Serviço excluído com sucesso!");
                 initializeApp();
             } catch (error) {
                 alert(`Erro ao excluir: ${error.message}`);
             }
         }
-
-        function populateCategoryFilter(products) {
-            const categories = [...new Set(products.map(p => p.categoria).filter(Boolean))];
+        
+        function populateCategoryFilter(services) {
+            const categories = [...new Set(services.map(s => s.categoria).filter(Boolean))];
             const select = document.getElementById('categoria-select');
             categories.sort().forEach(cat => {
                 const option = document.createElement('option');
                 option.value = cat;
-                option.textContent = cat;
+                option.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
                 select.appendChild(option);
             });
         }
@@ -402,20 +407,20 @@
         function handleFilterSubmit(event) {
             event.preventDefault();
             const selectedCategory = document.getElementById('categoria-select').value;
-            let filteredProducts = allProducts;
+            let filteredServices = allServices;
 
             if (selectedCategory) {
-                filteredProducts = allProducts.filter(p => p.categoria === selectedCategory);
+                filteredServices = allServices.filter(s => s.categoria === selectedCategory);
             }
             
-            document.getElementById('page-title').textContent = selectedCategory ? `Mostrando: ${selectedCategory}` : 'Todos os Produtos';
-            displayResults(filteredProducts);
+            document.getElementById('page-title').textContent = selectedCategory ? `Mostrando: ${selectedCategory}` : 'Todos os Serviços';
+            displayResults(filteredServices);
         }
 
         function clearFilters() {
             document.getElementById('filter-form').reset();
-            document.getElementById('page-title').textContent = 'Nossos Produtos';
-            displayResults(allProducts);
+            document.getElementById('page-title').textContent = 'Nossos Serviços';
+            displayResults(allServices);
         }
 
         async function initializeApp() {
@@ -427,15 +432,15 @@
             document.getElementById('public-view').classList.toggle('hidden', isAdmin);
             
             const targetView = isAdmin ? document.getElementById('admin-table-body') : document.getElementById('public-view');
-            targetView.innerHTML = isAdmin ? '<tr><td colspan="6" style="text-align:center;">A carregar...</td></tr>' : '<p>A carregar...</p>';
+            targetView.innerHTML = isAdmin ? '<tr><td colspan="5" style="text-align:center;">A carregar...</td></tr>' : '<p>A carregar...</p>';
 
             try {
-                const response = await fetch(`${API_BASE_URL}/produtos/?limit=200`);
-                if (!response.ok) throw new Error("Não foi possível carregar os dados dos produtos.");
-                allProducts = await response.json();
+                const response = await fetch(`${API_BASE_URL}/servicos/?limit=100`);
+                if (!response.ok) throw new Error("Não foi possível carregar os dados dos serviços.");
+                allServices = await response.json();
                 
-                populateCategoryFilter(allProducts);
-                displayResults(allProducts);
+                populateCategoryFilter(allServices);
+                displayResults(allServices);
 
             } catch (error) {
                 targetView.innerHTML = `<p style="color:red; text-align:center;">${error.message}</p>`;
@@ -445,6 +450,7 @@
         document.addEventListener('DOMContentLoaded', initializeApp);
         document.getElementById('filter-form').addEventListener('submit', handleFilterSubmit);
         document.getElementById('clear-filters-btn').addEventListener('click', clearFilters);
+        
         const logoutBtn = document.getElementById('logout-btn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', handleLogout);

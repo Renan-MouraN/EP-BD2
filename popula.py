@@ -110,13 +110,13 @@ def insert_usuarios(conn, num_usuarios):
     usuarios_ids = []
     for _ in range(num_usuarios):
         nome = fake.name()
-        email = fake.email()
+        email = fake.unique.email() # Usar fake.unique para evitar duplicatas
         senha = fake.password(length=12) # Senha não está hasheada (apenas para dados de teste, não usar em produção)
         telefone = fake.phone_number()
         endereco = fake.address()
         cidade = fake.city()
         estado = fake.state_abbr()
-        is_admin = fake.boolean(chance_of_getting_true=2) # 10% de chance de ser admin
+        is_admin = fake.boolean(chance_of_getting_true=2) # 2% de chance de ser admin
         data_cadastro = fake.date_time_between(start_date="-2y", end_date="now")
 
         cur.execute(
@@ -265,16 +265,9 @@ def insert_produtos(conn): # 'num_produtos' parameter removed
 
     produtos_data = [] # Data for batch insertion
 
-    # Itera sobre cada categoria e seus sufixos de produto para criar um produto para cada combinação
-    # Não usa 'num_produtos' nem 'random.choice' para selecionar a categoria/sufixo
     for categoria, sufixos_produtos in category_product_suffixes.items():
         for complemento_nome in sufixos_produtos:
-            # Gera um nome combinando uma palavra única com o complemento específico da categoria.
-            # fake.unique.word() garante que a primeira parte do nome seja distinta.
             nome = fake.unique.word().capitalize() + " " + complemento_nome
-            
-            # Os atributos do produto (preço, descrição, estoque, etc.) ainda são aleatórios.
-            # Se você deseja remover toda a aleatoriedade, esses também precisariam ser predefinidos.
             preco = Decimal(random.uniform(10.00, 500.00)).quantize(Decimal('0.01'))
             descricao = fake.text(max_nb_chars=150)
             estoque = random.randint(0, 700)
@@ -285,7 +278,6 @@ def insert_produtos(conn): # 'num_produtos' parameter removed
 
     if produtos_data:
         placeholders = ', '.join(['%s'] * len(produtos_data[0]))
-        # A query de inserção em lote permanece a mesma, otimizando o número de operações no banco.
         insert_query = f"""
             INSERT INTO produtos (nome, preco, descricao, categoria, estoque, imagem, destaque)
             VALUES {', '.join([f'({placeholders})' for _ in produtos_data])}
@@ -298,9 +290,6 @@ def insert_produtos(conn): # 'num_produtos' parameter removed
         except psycopg2.IntegrityError as e:
             conn.rollback()
             print(f"Erro de integridade no banco de dados ao inserir produtos em lote: {e}")
-            # Em caso de erro de lote, tentar inserir individualmente para identificar o problema,
-            # embora com essa lógica, o IntegrityError seja menos provável a menos que 'nome' seja UNIQUE
-            # e 'fake.unique.word()' não consiga gerar algo verdadeiramente único após muitas chamadas.
             produto_ids = []
             for p_data in produtos_data:
                 try:
@@ -313,10 +302,8 @@ def insert_produtos(conn): # 'num_produtos' parameter removed
                     )
                     produto_ids.append(cur.fetchone()[0])
                 except psycopg2.IntegrityError as individual_e:
-                    conn.rollback() # Rollback da transação individual
+                    conn.rollback() 
                     print(f"Pulando produto com erro: {p_data[0]} - {individual_e}")
-                    # Ocorre um rollback para cada erro individual, que pode ser ineficiente.
-                    # Idealmente, o lote inteiro seria bem-sucedido ou a causa do erro seria resolvida.
                     continue
     else:
         produto_ids = []
@@ -353,7 +340,6 @@ def insert_itens_pedido(conn, pedido_ids, produto_ids, num_itens_por_pedido=3):
         produtos_do_pedido = random.sample(produto_ids, min(num_itens_por_pedido, len(produto_ids)))
         for produto_id in produtos_do_pedido:
             quantidade = random.randint(1, 5)
-            # Buscar o preço unitário do produto para garantir consistência
             cur.execute("SELECT preco FROM produtos WHERE id_produto = %s;", (produto_id,))
             preco_unitario = cur.fetchone()[0]
 
@@ -386,11 +372,10 @@ def insert_depoimentos(conn, usuarios_ids, animal_ids, num_depoimentos):
     conn.commit()
     print(f"Inseridos {num_depoimentos} depoimentos.")
 
-def insert_servicos(conn): # 'num_servicos' parameter removed
+def insert_servicos(conn): 
     cur = conn.cursor()
     servico_ids = []
 
-    # Dicionário com categorias de serviços e os serviços específicos dentro delas
     servicos_definidos = {
         'Estética e Higiene': [
             {"nome": "Banho Completo", "preco_base": 80.00, "duracao_minutos": 90},
@@ -435,23 +420,20 @@ def insert_servicos(conn): # 'num_servicos' parameter removed
         ]
     }
 
-    servicos_data = [] # Data for batch insertion
+    servicos_data = []
 
-    # Itera sobre cada categoria de serviço e os serviços específicos dentro dela
     for categoria_servico, lista_servicos in servicos_definidos.items():
         for servico_info in lista_servicos:
-            nome = servico_info["nome"] # Nome fixo para o serviço
-            # Descrição pode ser fixa ou ainda aleatória para variar um pouco
+            nome = servico_info["nome"]
             descricao = fake.sentence(nb_words=10, variable_nb_words=True)
             preco_base = Decimal(servico_info["preco_base"]).quantize(Decimal('0.01'))
             duracao_minutos = servico_info["duracao_minutos"]
-            ativo = fake.boolean(chance_of_getting_true=90) # Ainda pode ser aleatório
-            criado_em = fake.date_time_between(start_date="-1y", end_date="now") # Ainda pode ser aleatório
-            categoria = categoria_servico.lower() # Normaliza a categoria para o formato da tabela
+            ativo = fake.boolean(chance_of_getting_true=90)
+            criado_em = fake.date_time_between(start_date="-1y", end_date="now")
+            categoria = categoria_servico.lower()
             servicos_data.append((nome, descricao, preco_base, duracao_minutos, ativo, criado_em, categoria))
 
     if servicos_data:
-        # AQUI: Adiciona 'categoria' à lista de colunas no INSERT
         placeholders = ', '.join(['%s'] * len(servicos_data[0]))
         insert_query = f"""
             INSERT INTO servicos (nome, descricao, preco_base, duracao_minutos, ativo, criado_em, categoria)
@@ -471,7 +453,6 @@ def insert_servicos(conn): # 'num_servicos' parameter removed
                 try:
                     cur.execute(
                         """
-                        -- AQUI: Adiciona 'categoria' à lista de colunas no INSERT de fallback
                         INSERT INTO servicos (nome, descricao, preco_base, duracao_minutos, ativo, criado_em, categoria)
                         VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id_servico;
                         """,
@@ -493,7 +474,7 @@ def insert_prestadores(conn, usuarios_ids, num_prestadores):
     cur = conn.cursor()
     prestador_ids = []
     for _ in range(num_prestadores):
-        id_usuario = random.choice(usuarios_ids) # Assume que um prestador é um usuário
+        id_usuario = random.choice(usuarios_ids)
         nome_completo = fake.name()
         bio = fake.paragraph(nb_sentences=2)
         telefone = fake.phone_number()
@@ -518,7 +499,6 @@ def insert_prestadores(conn, usuarios_ids, num_prestadores):
 def insert_prestador_servicos(conn, prestador_ids, servico_ids, num_associacoes):
     cur = conn.cursor()
     prestador_servico_ids = []
-    # Usar um conjunto para garantir UNIQUE (id_prestador, id_servico)
     added_associations = set()
 
     while len(prestador_servico_ids) < num_associacoes:
@@ -527,7 +507,7 @@ def insert_prestador_servicos(conn, prestador_ids, servico_ids, num_associacoes)
             id_servico = random.choice(servico_ids)
 
             if (id_prestador, id_servico) in added_associations:
-                continue # Já adicionado, tente novamente
+                continue
 
             preco = Decimal(random.uniform(50.00, 500.00)).quantize(Decimal('0.01'))
             raio_atendimento_km = random.randint(5, 50)
@@ -544,8 +524,7 @@ def insert_prestador_servicos(conn, prestador_ids, servico_ids, num_associacoes)
             prestador_servico_ids.append(cur.fetchone()[0])
             added_associations.add((id_prestador, id_servico))
         except IntegrityError as e:
-            # Captura erro de UNIQUE constraint violada se o set não for suficiente
-            conn.rollback() # Desfaz a transação para continuar
+            conn.rollback() 
             print(f"Tentativa de inserir duplicata em prestador_servicos, ignorando: {e}")
             continue
     conn.commit()
@@ -561,7 +540,7 @@ def insert_pedidos_servico(conn, animal_ids, prestador_servico_ids, usuarios_ids
     for _ in range(num_pedidos_servico):
         id_animal = random.choice(animal_ids)
         id_prestador_serv = random.choice(prestador_servico_ids)
-        id_tutor = random.choice(usuarios_ids) # Tutor é um usuário
+        id_tutor = random.choice(usuarios_ids)
         inicio = fake.date_time_between(start_date="now", end_date="+3m")
         fim = inicio + random.choice([timedelta(hours=1), timedelta(hours=2), timedelta(hours=3)])
         status = random.choice(status_pedido_servico)
@@ -583,20 +562,19 @@ def insert_pedidos_servico(conn, animal_ids, prestador_servico_ids, usuarios_ids
 def populate_all_tables(truncate=False):
     conn = connect_db()
     if truncate:
-        print("Truncando tabelas...")
-        truncate_tables(conn)  # Trunca as tabelas antes de inserir novos dados
-        usuarios_ids = list(range(1, 750001))
-        animal_ids = list(range(1, 1000001))
+        print("Limpando tabelas antes da população...")
+        truncate_tables(conn)
+        
     if conn:
         try:
             print("Iniciando a população do banco de dados...")
 
             # Número de registros a serem gerados
-            num_usuarios = 750000
-            num_animais = 1000000
-            num_produtos = 500000
-            num_servicos = 400000
-            num_prestadores = 200000
+            num_usuarios = 750
+            num_animais = 1000
+            num_produtos = 500
+            num_servicos = 400
+            num_prestadores = 200
 
             # 1. Popula usuários
             usuarios_ids = insert_usuarios(conn, num_usuarios)
@@ -605,7 +583,7 @@ def populate_all_tables(truncate=False):
             animal_ids = insert_animal(conn, num_animais)
 
             # 3. Popula adoções (depende de usuários e animais)
-            num_adocoes = random.randint(int(num_animais * 0.3), int(num_animais * 0.7)) # 30-70% dos animais podem ser adotados
+            num_adocoes = random.randint(int(num_animais * 0.3), int(num_animais * 0.7))
             insert_adocao(conn, usuarios_ids, animal_ids, num_adocoes)
 
             # 4. Popula produtos
@@ -632,7 +610,7 @@ def populate_all_tables(truncate=False):
             prestador_ids = insert_prestadores(conn, usuarios_ids, num_prestadores)
 
             # 10. Popula prestador_servicos (N:N entre prestadores e serviços)
-            num_associacoes = random.randint(num_prestadores * 1, num_prestadores * 4) # Cada prestador oferece 1 a 4 serviços
+            num_associacoes = random.randint(num_prestadores * 1, num_prestadores * 4)
             if prestador_ids and servico_ids:
                 prestador_servico_ids = insert_prestador_servicos(conn, prestador_ids, servico_ids, num_associacoes)
             else:
@@ -660,4 +638,4 @@ def populate_all_tables(truncate=False):
 
 # --- Execução ---
 if __name__ == "__main__":
-    populate_all_tables()
+    populate_all_tables(truncate=True)

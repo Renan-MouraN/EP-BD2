@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Cadastro - PataCerta</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #6C63FF;
+            --secondary: #5850D8;
+            --dark: #2E3056;
+            --light: #F4F6FC;
+            --white: #FFFFFF;
+            --gray: #eef2f7;
+        }
+
+        body {
+            background-color: var(--light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-container {
+            background-color: var(--white);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 900px;
+            min-height: 600px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .form-container {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-container h1 {
+            color: var(--dark);
+            font-size: 28px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: var(--gray);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--primary);
+            color: var(--white);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary);
+        }
+        
+        .toggle-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #777;
+        }
+        
+        .toggle-link a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .overlay-container {
+            position: relative;
+            overflow: hidden;
+            color: var(--white);
+            background: linear-gradient(to right, var(--secondary), var(--primary));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .overlay-content {
+            padding: 40px;
+        }
+
+        .overlay-content h2 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .overlay-content p {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        #register-form {
+            display: none;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .login-container {
+                grid-template-columns: 1fr;
+                max-width: 450px;
+                min-height: auto;
+            }
+            .overlay-container {
+                display: none;
+            }
+            .form-container {
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- Coluna do Formulário -->
+        <div class="form-container">
+            <!-- Formulário de Login -->
+            <form id="login-form">
+                <h1>Bem-vindo de Volta!</h1>
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" name="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Senha</label>
+                    <input type="password" id="login-password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn">Entrar</button>
+                <p class="toggle-link">Não tem uma conta? <a id="show-register">Cadastre-se</a></p>
+            </form>
+
+            <!-- Formulário de Cadastro Atualizado -->
+            <form id="register-form">
+                <h1>Crie sua Conta</h1>
+                <div class="form-group">
+                    <label for="register-name">Nome Completo</label>
+                    <input type="text" id="register-name" name="nome" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" name="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-phone">Telefone</label>
+                    <input type="tel" id="register-phone" name="telefone" class="form-control">
+                </div>
+                 <div class="form-group">
+                    <label for="register-address">Endereço</label>
+                    <input type="text" id="register-address" name="endereco" class="form-control">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="register-city">Cidade</label>
+                        <input type="text" id="register-city" name="cidade" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-state">Estado</label>
+                        <input type="text" id="register-state" name="estado" class="form-control" maxlength="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Senha</label>
+                    <input type="password" id="register-password" name="senha" class="form-control" required>
+                </div>
+                <button type="submit" class="btn">Cadastrar</button>
+                <p class="toggle-link">Já tem uma conta? <a id="show-login">Faça Login</a></p>
+            </form>
+        </div>
+
+        <!-- Coluna de Overlay (decorativa) -->
+        <div class="overlay-container">
+            <div class="overlay-content">
+                <h2>Junte-se à PataCerta</h2>
+                <p>Crie sua conta para começar a adotar, comprar produtos e agendar serviços para o seu melhor amigo.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const showRegisterBtn = document.getElementById('show-register');
+        const showLoginBtn = document.getElementById('show-login');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+
+        showRegisterBtn.addEventListener('click', () => {
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'block';
+        });
+
+        showLoginBtn.addEventListener('click', () => {
+            registerForm.style.display = 'none';
+            loginForm.style.display = 'block';
+        });
+
+    </script>
+</body>
+</html>
