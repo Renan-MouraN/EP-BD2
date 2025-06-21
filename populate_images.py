@@ -87,7 +87,6 @@ def update_animal_images(conn):
                     image_url = get_image_url(CAT_API_URL)
                 else: 
                     # Usa a API de raposas para todos os animais da categoria 'outro'
-                    print("  -> Tipo 'outro', a procurar imagem de raposa...")
                     image_url = get_image_url(FOX_API_URL)
 
                 if not image_url:
@@ -95,7 +94,7 @@ def update_animal_images(conn):
                     image_url = f"https://placehold.co/400x300/6C63FF/FFFFFF?text={quote_plus(item_name)}"
                 
                 cur.execute("UPDATE animal SET imagem = %s WHERE id_animal = %s;", (image_url, item_id))
-                time.sleep(0.3)
+                #time.sleep(0.3)
             
             conn.commit()
             print("--- Atualização das imagens de ANIMAIS concluída. ---")

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login / Cadastro - PataCerta</title>
+    <title>Cadastro - PataCerta</title>
     <style>
         * {
             margin: 0;
@@ -143,7 +143,8 @@
             line-height: 1.5;
         }
 
-        #register-form {
+        /* MODIFICAÇÃO: Esconde o formulário de login por padrão nesta página */
+        #login-form {
             display: none;
         }
 
@@ -167,7 +168,7 @@
     <div class="login-container">
         <!-- Coluna do Formulário -->
         <div class="form-container">
-            <!-- Formulário de Login -->
+            <!-- Formulário de Login (escondido por padrão) -->
             <form id="login-form">
                 <h1>Bem-vindo de Volta!</h1>
                 <div class="form-group">
@@ -182,7 +183,7 @@
                 <p class="toggle-link">Não tem uma conta? <a id="show-register">Cadastre-se</a></p>
             </form>
 
-            <!-- Formulário de Cadastro Atualizado -->
+            <!-- Formulário de Cadastro (visível por padrão) -->
             <form id="register-form">
                 <h1>Crie sua Conta</h1>
                 <div class="form-group">

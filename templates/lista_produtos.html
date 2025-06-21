@@ -206,6 +206,86 @@
             gap: 15px;
             margin-top: 10px;
         }
+
+        /* Pagination Styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 40px;
+            padding-bottom: 20px;
+            gap: 8px;
+        }
+        .pagination button {
+            background-color: white;
+            border: 1px solid #ddd;
+            color: var(--dark);
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .pagination button:hover:not(:disabled) {
+            background-color: var(--light);
+            border-color: #ccc;
+        }
+        .pagination button.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            font-weight: bold;
+        }
+        .pagination button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 60px 0 20px;
+            margin-top: 60px;
+        }
+        
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-section h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-section a {
+            text-decoration: none;
+            color: #ddd;
+            transition: color 0.3s;
+        }
+        
+        .footer-section a:hover {
+            color: var(--primary);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #555;
+            color: #bbb;
+        }
     </style>
 </head>
 <body>
@@ -275,12 +355,30 @@
         <div id="public-view" class="public-view">
             <!-- Cards de produtos serão inseridos aqui -->
         </div>
+
+        <!-- Pagination Controls -->
+        <div id="pagination-container" class="pagination">
+            <!-- Botões de paginação serão inseridos aqui -->
+        </div>
     </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-section"><h3>PataCerta</h3><p>Conectando pets a novos lares amorosos.</p></div>
+                <div class="footer-section"><h3>Links Úteis</h3><ul><li><a href="index.html">Início</a></li><li><a href="#">Sobre Nós</a></li></ul></div>
+                <div class="footer-section"><h3>Contato</h3><ul><li>📧 contato@patacerta.com</li><li>📞 (11) 99999-9999</li></ul></div>
+            </div>
+            <div class="footer-bottom"><p>&copy; 2025 PataCerta - Todos os direitos reservados</p></div>
+        </footer>
 
     <script>
         const API_BASE_URL = 'http://127.0.0.1:8000';
         let currentUser = null;
         let allProducts = [];
+        let currentFilteredProducts = [];
+        let currentPage = 1;
+        const productsPerPage = 12;
 
         function updateUIForLoginState() {
             const navAdmin = document.getElementById('nav-admin');
@@ -364,13 +462,70 @@
             });
         }
         
-        function displayResults(products) {
+        function renderCurrentPage() {
             const isAdmin = currentUser && currentUser.is_admin;
+            const startIndex = (currentPage - 1) * productsPerPage;
+            const endIndex = startIndex + productsPerPage;
+            const productsForPage = currentFilteredProducts.slice(startIndex, endIndex);
+
             if (isAdmin) {
-                renderAdminView(products);
+                renderAdminView(currentFilteredProducts);
             } else {
-                renderPublicView(products);
+                renderPublicView(productsForPage);
             }
+        }
+
+        function setupPagination() {
+            const paginationContainer = document.getElementById('pagination-container');
+            paginationContainer.innerHTML = '';
+            const isAdmin = currentUser && currentUser.is_admin;
+            if (isAdmin) return;
+
+            const pageCount = Math.ceil(currentFilteredProducts.length / productsPerPage);
+            if (pageCount <= 1) return;
+
+            const prevButton = document.createElement('button');
+            prevButton.textContent = 'Anterior';
+            prevButton.disabled = currentPage === 1;
+            prevButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderCurrentPage();
+                    setupPagination();
+                }
+            });
+            paginationContainer.appendChild(prevButton);
+
+            for (let i = 1; i <= pageCount; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                if (i === currentPage) pageButton.classList.add('active');
+                pageButton.addEventListener('click', () => {
+                    currentPage = i;
+                    renderCurrentPage();
+                    setupPagination();
+                });
+                paginationContainer.appendChild(pageButton);
+            }
+
+            const nextButton = document.createElement('button');
+            nextButton.textContent = 'Próximo';
+            nextButton.disabled = currentPage === pageCount;
+            nextButton.addEventListener('click', () => {
+                if (currentPage < pageCount) {
+                    currentPage++;
+                    renderCurrentPage();
+                    setupPagination();
+                }
+            });
+            paginationContainer.appendChild(nextButton);
+        }
+
+        function displayResults(products) {
+            currentFilteredProducts = products;
+            currentPage = 1;
+            renderCurrentPage();
+            setupPagination();
         }
 
         async function deleteProduct(productId) {
