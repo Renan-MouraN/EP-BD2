@@ -22,7 +22,6 @@ CREATE TABLE usuarios (
 CREATE INDEX idx_usuarios_cidade_estado ON usuarios (cidade, estado);
 CREATE INDEX idx_usuarios_is_admin ON usuarios (is_admin);
 
-
 -- Tabela de animais
 CREATE TABLE animal (
     id_animal SERIAL PRIMARY KEY,
