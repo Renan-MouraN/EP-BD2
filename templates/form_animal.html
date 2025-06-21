@@ -3,373 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PataCerta - {{ 'Editar' if animal else 'Adicionar' }} Animal</title>
+    <!-- O título será definido dinamicamente -->
+    <title>PataCerta - Gerir Animal</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        :root {
-            /* Paleta harmônica */
-            --primary: #6C63FF;       /* roxo‑azulado (principal) */
-            --secondary: #5850D8;     /* roxo escuro (botões secundários, fundo testimonials…) */
-            --dark: #2E3056;          /* texto principal / footer */
-            --light: #F4F6FC;         /* fundo geral */
-            --accent: #FF6B6B;        /* acento coral (badges, botões de destaque) */
-            --accent-light: #FCEEEE;  /* coral clarinho (seções suaves) */
-            --warning: #E7CA4A;       /* continua para “Urgente” */
-}
-        
-        body {
-            background-color: var(--light);
-            color: var(--dark);
-            line-height: 1.6;
-            padding-bottom: 40px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        /* Header */
-        header {
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            margin-bottom: 30px;
-        }
-        
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--primary);
-            text-decoration: none;
-        }
-        
-        .logo span {
-            color: var(--secondary);
-        }
-        
-        .logo-icon {
-            font-size: 28px;
-            margin-right: 8px;
-        }
-        
-        .nav-links {
-            display: flex;
-            list-style: none;
-        }
-        
-        .nav-links li {
-            margin-left: 30px;
-        }
-        
-        .nav-links a {
-            text-decoration: none;
-            color: var(--dark);
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-        
-        .nav-links a:hover {
-            color: var(--primary);
-        }
-        
-        .mobile-menu {
-            display: none;
-            font-size: 24px;
-            cursor: pointer;
-        }
-        
-        /* Content */
-        .page-title {
-            text-align: center;
-            margin: 30px 0;
-            color: var(--dark);
-            font-size: 36px;
-        }
-        
-        .admin-section {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            margin-bottom: 30px;
-        }
-        
-        /* Form Styles */
-        .form-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .form-title {
-            color: var(--primary);
-            font-size: 24px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        
-        .form-group {
-            margin-bottom: 24px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--dark);
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.2);
-        }
-        
-        select.form-control {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23333' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 16px;
-            padding-right: 40px;
-        }
-        
-        textarea.form-control {
-            min-height: 120px;
-            resize: vertical;
-        }
-        
-        .file-input-container {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-            width: 100%;
-        }
-        
-        .file-input {
-            font-size: 16px;
-        }
-        
-        .current-image {
-            margin-top: 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .current-image img {
-            border-radius: 5px;
-            border: 1px solid var(--border);
-            object-fit: cover;
-        }
-        
-        .current-image-label {
-            font-weight: 500;
-            color: var(--dark);
-        }
-        
-        .form-actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 30px;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .btn {
-            padding: 12px 24px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: inline-block;
-            text-align: center;
-        }
-        
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-        }
-        
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-        }
-        
-        .btn-secondary {
-            background-color: var(--secondary);
-            color: white;
-            border: none;
-        }
-        
-        .btn-secondary:hover {
-            background-color: var(--secondary-hover);
-        }
-        
-        .btn-outline {
-            background-color: transparent;
-            border: 2px solid var(--border);
-            color: var(--dark);
-        }
-        
-        .btn-outline:hover {
-            background-color: var(--light);
-        }
-        
-        /* Media Queries */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-            
-            .mobile-menu {
-                display: block;
-            }
-            
-            .form-actions {
-                flex-direction: column;
-                width: 100%;
-            }
-            
-            .form-actions .btn {
-                width: 100%;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        :root { --primary: #6C63FF; --secondary: #5850D8; --dark: #2E3056; --light: #F4F6FC; --accent: #FF6B6B; }
+        body { background-color: var(--light); color: var(--dark); line-height: 1.6; padding-bottom: 40px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        header { background-color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; margin-bottom: 30px; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; }
+        .logo { display: flex; align-items: center; font-size: 24px; font-weight: bold; color: var(--primary); text-decoration: none; }
+        .logo-icon { font-size: 28px; margin-right: 8px; }
+        .nav-links { display: flex; list-style: none; gap: 10px; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--dark); font-weight: 500; padding: 8px 12px; }
+        .btn { padding: 10px 20px; background-color: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; text-decoration: none; }
+        .btn-outline { background-color: transparent; border: 2px solid #ccc; color: var(--dark); }
+        .page-title { text-align: center; margin: 30px 0; color: var(--dark); font-size: 36px; }
+        .admin-section { background-color: white; border-radius: 10px; box-shadow: 0 3px 15px rgba(0,0,0,0.1); padding: 30px; margin-bottom: 30px; }
+        .form-container { max-width: 800px; margin: 0 auto; }
+        .form-title { color: var(--primary); font-size: 24px; margin-bottom: 30px; text-align: center; }
+        .form-group { margin-bottom: 24px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-control { width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; transition: border-color 0.3s; }
+        .form-control:focus { outline: none; border-color: var(--primary); }
+        textarea.form-control { min-height: 120px; resize: vertical; }
+        .form-actions { display: flex; gap: 15px; margin-top: 30px; justify-content: flex-end; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header>
         <div class="container">
             <nav class="navbar">
-                <a href="/" class="logo">
-                    <i class="logo-icon">🐾</i> Pata<span>Certa</span> <small>Admin</small>
-                </a>
+                <a href="index.html" class="logo"><i class="logo-icon">🐾</i> Pata<span>Certa</span></a>
                 <ul class="nav-links">
-                    <li><a href="/">Início</a></li>
-                    <li><a href="#animais">Adotar</a></li>
-                    <li><a href="#sobre">Sobre Nós</a></li>
-                    <li><a href="#processo">Processo</a></li>
-                    <li><a href="/produtos">Produtos</a></li>
-                    <li><a href="#blog">Blog</a></li>
-                    <li><a href="#contato">Contato</a></li>
+                    <li><a href="admin.html">Painel</a></li>
+                    <li><a href="lista_animais.html" class="btn btn-outline">Voltar à Lista</a></li>
                 </ul>
-                <div class="mobile-menu">☰</div>
             </nav>
         </div>
     </header>
 
-    <main>
-        <div class="container">
-            <h1 class="page-title">{{ 'Editar' if animal else 'Adicionar' }} Animal</h1>
-            
-            <section class="admin-section">
-                <div class="form-container">
-                    <h2 class="form-title">Formulário de {{ 'Edição' if animal else 'Cadastro' }}</h2>
+    <main class="container">
+        <h1 id="page-title" class="page-title">Gerir Animal</h1>
+        
+        <section class="admin-section">
+            <div class="form-container">
+                <h2 id="form-title" class="form-title">Formulário de Animal</h2>
+                
+                <form id="animal-form">
+                    <div class="form-group">
+                        <label class="form-label" for="nome">Nome:</label>
+                        <input type="text" id="nome" name="nome" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="idade">Idade:</label>
+                        <input type="number" id="idade" name="idade" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="porte">Porte:</label>
+                        <select id="porte" name="porte" class="form-control">
+                            <option value="pequeno">Pequeno</option>
+                            <option value="medio">Médio</option>
+                            <option value="grande">Grande</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="tipo">Tipo:</label>
+                        <select id="tipo" name="tipo" class="form-control">
+                            <option value="cachorro">Cachorro</option>
+                            <option value="gato">Gato</option>
+                            <option value="outro">Outro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="sexo">Sexo:</label>
+                        <select id="sexo" name="sexo" class="form-control">
+                            <option value="macho">Macho</option>
+                            <option value="femea">Fêmea</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="descricao">Descrição:</label>
+                        <textarea id="descricao" name="descricao" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="status">Status:</label>
+                        <select id="status" name="status" class="form-control">
+                            <option value="disponivel">Disponível</option>
+                            <option value="adotado">Adotado</option>
+                            <option value="em_tratamento">Em Tratamento</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="imagem">URL da Imagem (opcional):</label>
+                        <input type="url" id="imagem" name="imagem" class="form-control" placeholder="https://exemplo.com/imagem.jpg">
+                    </div>
                     
-                    <form method="post" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <label class="form-label" for="nome">Nome:</label>
-                            <input type="text" id="nome" name="nome" class="form-control" required value="{{ animal[1] if animal else '' }}">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="idade">Idade:</label>
-                            <input type="number" id="idade" name="idade" class="form-control" value="{{ animal[2] if animal else '' }}">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="porte">Porte:</label>
-                            <select id="porte" name="porte" class="form-control">
-                                {% for p in ['pequeno','medio','grande'] %}
-                                <option value="{{ p }}" {% if animal and animal[3]==p %}selected{% endif %}>{{ p|capitalize }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="tipo">Tipo:</label>
-                            <select id="tipo" name="tipo" class="form-control">
-                                {% for t in ['cachorro','gato','outro'] %}
-                                <option value="{{ t }}" {% if animal and animal[4]==t %}selected{% endif %}>{{ t|capitalize }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="sexo">Sexo:</label>
-                            <select id="sexo" name="sexo" class="form-control">
-                                {% for s in ['macho','femea'] %}
-                                <option value="{{ s }}" {% if animal and animal[5]==s %}selected{% endif %}>{{ s|capitalize }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="descricao">Descrição:</label>
-                            <textarea id="descricao" name="descricao" class="form-control">{{ animal[6] if animal else '' }}</textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="status">Status:</label>
-                            <select id="status" name="status" class="form-control">
-                                {% for st in ['disponivel','adotado','em_tratamento','urgente'] %}
-                                <option value="{{ st }}" {% if animal and animal[7]==st %}selected{% endif %}>{{ st.replace('_',' ').capitalize() }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label" for="imagem">Imagem:</label>
-                            <div class="file-input-container">
-                                <input type="file" id="imagem" name="imagem" class="file-input form-control">
-                            </div>
-                            
-                            {% if animal and animal[8] %}
-                            <div class="current-image">
-                                <span class="current-image-label">Imagem atual:</span>
-                                <img src="{{ url_for('static', filename=animal[8]) }}" height="100" alt="{{ animal[1] }}">
-                            </div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">Salvar</button>
-                            <a href="/admin" class="btn btn-outline">Cancelar</a>
-                        </div>
-                    </form>
-                </div>
-            </section>
-        </div>
+                    <div class="form-actions">
+                        <a href="lista_animais.html" class="btn btn-outline">Cancelar</a>
+                        <button type="submit" id="submit-button" class="btn">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </section>
     </main>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+        const form = document.getElementById('animal-form');
+        let currentUser = null;
+        let editMode = false;
+        let animalId = null;
+
+        /**
+         * Verifica se o utilizador é admin. Se não, redireciona para o login.
+         */
+        function checkAuth() {
+            const userData = JSON.parse(localStorage.getItem('patacerta_user'));
+            currentUser = userData;
+
+            if (!currentUser || !currentUser.is_admin) {
+                alert("Acesso negado. Apenas administradores podem aceder a esta página.");
+                window.location.href = 'login.html';
+                return false;
+            }
+            return true;
+        }
+
+        /**
+         * Função para fazer requisições à API.
+         */
+        async function apiRequest(method, path, data = null) {
+            const url = `${API_BASE_URL}${path}?userId=${currentUser.id_usuario}`;
+            const options = {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+            };
+            if (data) options.body = JSON.stringify(data);
+
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Erro na API');
+                }
+                // POST e PUT retornam o objeto criado/atualizado, DELETE retorna uma mensagem
+                return response.status !== 204 ? await response.json() : { message: "Sucesso" };
+            } catch (error) {
+                alert(`Erro: ${error.message}`);
+                throw error;
+            }
+        }
+
+        /**
+         * Preenche o formulário com dados de um animal para edição.
+         */
+        async function populateFormForEdit(id) {
+            try {
+                const animal = await apiRequest('GET', `/animals/${id}`);
+                document.getElementById('nome').value = animal.nome;
+                document.getElementById('idade').value = animal.idade || '';
+                document.getElementById('porte').value = animal.porte || 'pequeno';
+                document.getElementById('tipo').value = animal.tipo || 'cachorro';
+                document.getElementById('sexo').value = animal.sexo || 'macho';
+                document.getElementById('descricao').value = animal.descricao || '';
+                document.getElementById('status').value = animal.status || 'disponivel';
+                document.getElementById('imagem').value = animal.imagem || '';
+            } catch (error) {
+                form.innerHTML = '<p style="color:red; text-align:center;">Não foi possível carregar os dados do animal.</p>';
+            }
+        }
+
+        /**
+         * Lida com a submissão do formulário.
+         */
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            // Converte campos numéricos
+            if (data.idade) data.idade = parseInt(data.idade, 10);
+            else delete data.idade; // Remove se estiver vazio
+
+            try {
+                if (editMode) {
+                    await apiRequest('PUT', `/animals/${animalId}`, data);
+                    alert('Animal atualizado com sucesso!');
+                } else {
+                    await apiRequest('POST', '/animals/', data);
+                    alert('Animal adicionado com sucesso!');
+                }
+                window.location.href = 'lista_animais.html';
+            } catch (error) {
+                // O erro já é tratado pelo apiRequest
+            }
+        }
+
+        /**
+         * Inicializa a página.
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!checkAuth()) return;
+
+            const params = new URLSearchParams(window.location.search);
+            animalId = params.get('id');
+            const pageTitle = document.getElementById('page-title');
+            const submitButton = document.getElementById('submit-button');
+
+            if (animalId) {
+                editMode = true;
+                pageTitle.textContent = 'Editar Animal';
+                submitButton.textContent = 'Salvar Alterações';
+                populateFormForEdit(animalId);
+            } else {
+                pageTitle.textContent = 'Adicionar Novo Animal';
+                submitButton.textContent = 'Adicionar Animal';
+            }
+            
+            form.addEventListener('submit', handleFormSubmit);
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - PataCerta</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        :root { --primary: #6C63FF; --secondary: #5850D8; --dark: #2E3056; --light: #F4F6FC; --white: #FFFFFF; }
+        body { background-color: var(--light); color: var(--dark); line-height: 1.6; padding-bottom: 40px; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+        
+        /* Cabeçalho Consistente */
+        header { background-color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; max-width: 1200px; margin: 0 auto;}
+        .logo { display: flex; align-items: center; font-size: 24px; font-weight: bold; color: var(--primary); text-decoration: none; }
+        .logo-icon { font-size: 28px; margin-right: 8px; }
+        .nav-links { display: flex; list-style: none; gap: 10px; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--dark); font-weight: 500; padding: 8px 12px; display: flex; align-items: center; transition: color 0.3s; }
+        .nav-links a:hover:not(.btn) { color: var(--primary); }
+        .hidden { display: none !important; }
+        .btn { padding: 10px 20px; background-color: var(--primary); color: white; border-radius: 5px; cursor: pointer; border: none; font-weight: 600; text-decoration: none; transition: background-color 0.3s; }
+        .btn:hover { background-color: var(--secondary); }
+        .btn-secondary { background-color: var(--secondary); }
+        .btn-outline { background-color: transparent; border: 2px solid #ccc; color: var(--dark); }
+        
+        .page-header { text-align: center; padding: 40px 0 30px; }
+        .page-header h1 { font-size: 42px; }
+
+        /* Layout Principal do Perfil */
+        .profile-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        /* Sidebar do Perfil */
+        .profile-sidebar {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        .profile-picture {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: var(--light);
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            color: var(--primary);
+            overflow: hidden;
+        }
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .profile-sidebar h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+        .profile-sidebar p {
+            color: #777;
+            font-size: 14px;
+        }
+
+        /* Conteúdo Principal do Perfil */
+        .profile-content {
+            background-color: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        .profile-content h3 {
+            font-size: 24px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        .info-item { margin-bottom: 25px; }
+        .info-label { font-weight: 600; color: #777; display: block; font-size: 14px; }
+        .info-value { font-size: 18px; color: var(--dark); }
+
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
+        .form-row { display: flex; gap: 15px; }
+        .form-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
+
+        @media (max-width: 768px) {
+            .profile-layout { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="index.html" class="logo"><i class="logo-icon">🐾</i> PataCerta</a>
+                <ul class="nav-links">
+                    <li><a href="index.html">Início</a></li>
+                    <li><a href="lista_animais.html">Animais</a></li>
+                    <li><a href="lista_produtos.html">Produtos</a></li>
+                    <li><a href="lista_servicos.html">Serviços</a></li>
+                    <li id="nav-admin" class="hidden"><a href="admin.html" class="btn">Painel Admin</a></li>
+                    <li id="nav-logged-out" class="hidden"><a href="login.html" class="btn btn-outline">Login</a></li>
+                    <li id="nav-logged-out-2" class="hidden"><a href="login.html" class="btn">Cadastre-se</a></li>
+                    <li id="nav-logged-in" class="hidden"><a href="meu_perfil.html">Meu Perfil</a></li>
+                    <li id="nav-logged-in-2" class="hidden"><a href="#" id="logout-btn" class="btn btn-secondary">Sair</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="page-header">
+            <h1>Meu Perfil</h1>
+        </div>
+
+        <div class="profile-layout">
+            <aside class="profile-sidebar">
+                <div class="profile-picture">
+                    <span id="user-initials">?</span>
+                </div>
+                <h2 id="sidebar-name">A carregar...</h2>
+                <p id="sidebar-email">...</p>
+            </aside>
+
+            <section class="profile-content">
+                <!-- Vista de Exibição -->
+                <div id="display-view">
+                    <h3>Os Meus Dados</h3>
+                    <div class="info-item"><span class="info-label">Nome Completo</span><p id="display-name" class="info-value"></p></div>
+                    <div class="info-item"><span class="info-label">Email</span><p id="display-email" class="info-value"></p></div>
+                    <div class="info-item"><span class="info-label">Telefone</span><p id="display-phone" class="info-value"></p></div>
+                    <div class="info-item"><span class="info-label">Endereço</span><p id="display-address" class="info-value"></p></div>
+                    <div class="form-actions">
+                        <button id="edit-profile-btn" class="btn">Editar Perfil</button>
+                    </div>
+                </div>
+
+                <!-- Vista de Edição -->
+                <form id="edit-view" class="hidden">
+                    <h3>Editar Dados</h3>
+                    <div class="form-group">
+                        <label for="edit-name" class="form-label">Nome Completo</label>
+                        <input type="text" id="edit-name" name="nome" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-email" class="form-label">Email</label>
+                        <input type="email" id="edit-email" name="email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-phone" class="form-label">Telefone</label>
+                        <input type="tel" id="edit-phone" name="telefone" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-address" class="form-label">Endereço</label>
+                        <input type="text" id="edit-address" name="endereco" class="form-control">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-city" class="form-label">Cidade</label>
+                            <input type="text" id="edit-city" name="cidade" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-state" class="form-label">Estado</label>
+                            <input type="text" id="edit-state" name="estado" class="form-control" maxlength="2">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" id="cancel-edit-btn" class="btn btn-outline">Cancelar</button>
+                        <button type="submit" class="btn">Salvar Alterações</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+        let currentUser = null;
+
+        function checkAuth() {
+            const userData = JSON.parse(localStorage.getItem('patacerta_user'));
+            if (!userData) {
+                alert("Você precisa de iniciar sessão para ver o seu perfil.");
+                window.location.href = 'login.html';
+                return false;
+            }
+            currentUser = userData;
+            return true;
+        }
+        
+        function updateUIForLoginState() {
+            const navAdmin = document.getElementById('nav-admin');
+            const navProfile = document.getElementById('nav-logged-in');
+            const navLogout = document.getElementById('nav-logged-in-2');
+            const navLoggedOut = document.querySelectorAll('#nav-logged-out, #nav-logged-out-2');
+            navAdmin.classList.add('hidden');
+            navProfile.classList.add('hidden');
+            navLogout.classList.add('hidden');
+            navLoggedOut.forEach(el => el.classList.add('hidden'));
+
+            if (currentUser && currentUser.nome) {
+                navLogout.classList.remove('hidden');
+                if (currentUser.is_admin) navAdmin.classList.remove('hidden');
+                else navProfile.classList.remove('hidden');
+            } else {
+                navLoggedOut.forEach(el => el.classList.remove('hidden'));
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('patacerta_user');
+            alert("Você saiu da sua conta.");
+            window.location.href = 'index.html';
+        }
+
+        function populateDisplayView(user) {
+            document.getElementById('sidebar-name').textContent = user.nome;
+            document.getElementById('sidebar-email').textContent = user.email;
+            document.getElementById('user-initials').textContent = user.nome.charAt(0).toUpperCase();
+
+            document.getElementById('display-name').textContent = user.nome;
+            document.getElementById('display-email').textContent = user.email;
+            document.getElementById('display-phone').textContent = user.telefone || 'Não informado';
+            
+            const addressParts = [user.endereco, user.cidade, user.estado].filter(Boolean);
+            document.getElementById('display-address').textContent = addressParts.join(', ') || 'Não informado';
+        }
+
+        function populateEditView(user) {
+            document.getElementById('edit-name').value = user.nome || '';
+            document.getElementById('edit-email').value = user.email || '';
+            document.getElementById('edit-phone').value = user.telefone || '';
+            document.getElementById('edit-address').value = user.endereco || '';
+            document.getElementById('edit-city').value = user.cidade || '';
+            document.getElementById('edit-state').value = user.estado || '';
+        }
+
+        function toggleViews() {
+            document.getElementById('display-view').classList.toggle('hidden');
+            document.getElementById('edit-view').classList.toggle('hidden');
+        }
+
+        async function handleProfileUpdate(event) {
+            event.preventDefault();
+            const form = document.getElementById('edit-view');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/usuarios/${currentUser.id_usuario}?userId=${currentUser.id_usuario}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const updatedUser = await response.json();
+                if (!response.ok) throw new Error(updatedUser.detail || "Erro ao atualizar perfil.");
+
+                alert("Perfil atualizado com sucesso!");
+                localStorage.setItem('patacerta_user', JSON.stringify(updatedUser)); // Atualiza os dados locais
+                currentUser = updatedUser;
+                populateDisplayView(currentUser);
+                toggleViews();
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!checkAuth()) return;
+            
+            updateUIForLoginState();
+            populateDisplayView(currentUser);
+
+            document.getElementById('edit-profile-btn').addEventListener('click', () => {
+                populateEditView(currentUser);
+                toggleViews();
+            });
+
+            document.getElementById('cancel-edit-btn').addEventListener('click', toggleViews);
+            document.getElementById('edit-view').addEventListener('submit', handleProfileUpdate);
+            document.getElementById('logout-btn').addEventListener('click', handleLogout);
+        });
+    </script>
+</body>
+</html>

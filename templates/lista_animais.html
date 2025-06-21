@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nossos Produtos - PataCerta</title>
+    <title>Nossos Animais - PataCerta</title>
     <style>
         * {
             margin: 0;
@@ -162,24 +162,21 @@
             gap: 25px;
         }
 
-        .product-card {
+        .animal-card {
             background-color: white;
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 3px 15px rgba(0,0,0,0.08);
             transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
         }
-        .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-        .product-img { height: 220px; background-color: #eee; }
-        .product-img img { width: 100%; height: 100%; object-fit: cover; }
-        .product-info { padding: 20px; text-align: left; display: flex; flex-direction: column; flex-grow: 1; }
-        .product-info h3 { font-size: 20px; color: var(--dark); margin-bottom: 5px; }
-        .product-category { color: #777; font-size: 14px; margin-bottom: 15px; }
-        .product-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 15px; }
-        .product-price { font-size: 22px; font-weight: 700; color: var(--primary); }
-        
+        .animal-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .animal-img { height: 220px; background-color: #eee; }
+        .animal-img img { width: 100%; height: 100%; object-fit: cover; }
+        .animal-info { padding: 20px; text-align: center; }
+        .animal-info h3 { font-size: 24px; color: var(--primary); margin-bottom: 10px; }
+        .animal-meta { color: #777; margin-bottom: 15px; }
+        .animal-meta span { margin: 0 10px; }
+
         /* Filter Form */
         .filter-section {
             background-color: white;
@@ -190,7 +187,7 @@
         }
         .filter-form {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 15px;
             align-items: center;
         }
@@ -199,13 +196,15 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             background-color: white;
-            width: 100%;
         }
         .filter-buttons {
+            grid-column: 1 / -1;
             display: flex;
+            justify-content: center;
             gap: 15px;
             margin-top: 10px;
         }
+        
     </style>
 </head>
 <body>
@@ -219,8 +218,8 @@
                     <li><a href="lista_produtos.html">Produtos</a></li>
                     <li><a href="lista_servicos.html">Serviços</a></li>
                     <li id="nav-admin" class="hidden"><a href="admin.html" class="btn">Painel Admin</a></li>
-                    <li id="nav-logged-out" class="hidden"><a href="login.html" class="btn btn-outline">Login</a></li>
-                    <li id="nav-logged-out-2" class="hidden"><a href="login.html" class="btn">Cadastre-se</a></li>
+                    <li id="nav-logged-out"><a href="login.html" class="btn btn-outline">Login</a></li>
+                    <li id="nav-logged-out-2"><a href="cadastro.html" class="btn">Cadastre-se</a></li>
                     <li id="nav-logged-in" class="hidden"><a href="meu_perfil.html">Meu Perfil</a></li>
                     <li id="nav-logged-in-2" class="hidden"><a href="#" id="logout-btn" class="btn btn-secondary">Sair</a></li>
                 </ul>
@@ -230,17 +229,17 @@
 
     <main class="container">
         <div class="page-header">
-            <h1 id="page-title">Nossos Produtos</h1>
-            <p id="page-subtitle">Tudo o que o seu pet precisa para uma vida feliz e saudável.</p>
+            <h1 id="page-title">Conheça Nossos Amigos</h1>
+            <p id="page-subtitle">Cada um desses pets tem uma história e está à procura de um lar para chamar de seu.</p>
         </div>
 
         <!-- Filter Section -->
         <section class="filter-section">
              <form class="filter-form" id="filter-form">
-                <select name="categoria" id="categoria-select">
-                    <option value="">Todas as Categorias</option>
-                    <!-- Opções serão preenchidas por JS -->
-                </select>
+                <select name="tipo"><option value="">Todos os Tipos</option><option value="cachorro">Cachorro</option><option value="gato">Gato</option><option value="outro">Outro</option></select>
+                <select name="porte"><option value="">Todos os Portes</option><option value="pequeno">Pequeno</option><option value="medio">Médio</option><option value="grande">Grande</option></select>
+                <select name="idade"><option value="">Todas as Idades</option><option value="filhote">Filhote (até 1 ano)</option><option value="adulto">Adulto (1 a 7)</option><option value="idoso">Idoso (8+)</option></select>
+                <select name="sexo"><option value="">Todos os Sexos</option><option value="macho">Macho</option><option value="femea">Fêmea</option></select>
                 <div class="filter-buttons">
                     <button type="submit" class="btn">Buscar</button>
                     <button type="button" id="clear-filters-btn" class="btn btn-outline">Limpar Filtros</button>
@@ -248,22 +247,22 @@
             </form>
         </section>
 
-        <!-- Admin Controls -->
+        <!-- Admin Controls: Visível apenas para administradores -->
         <div id="admin-controls" class="admin-controls hidden">
-            <h2>Gerenciamento de Produtos</h2>
-            <a href="form_produto.html" class="btn btn-primary">+ Adicionar Produto</a>
+            <h2>Visão do Administrador</h2>
+            <a href="form_animal.html" class="btn btn-primary">+ Adicionar Novo Animal</a>
         </div>
 
-        <!-- Admin View -->
+        <!-- Admin View: Tabela para administradores -->
         <div id="admin-view" class="admin-view hidden">
             <table>
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Nome</th>
-                        <th>Categoria</th>
-                        <th>Preço</th>
-                        <th>Estoque</th>
+                        <th>Tipo</th>
+                        <th>Porte</th>
+                        <th>Status</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
@@ -271,16 +270,16 @@
             </table>
         </div>
 
-        <!-- Public View -->
+        <!-- Public View: Grid para visitantes e usuários logados -->
         <div id="public-view" class="public-view">
-            <!-- Cards de produtos serão inseridos aqui -->
+            <!-- Cards de animais serão inseridos aqui -->
         </div>
     </main>
 
     <script>
         const API_BASE_URL = 'http://127.0.0.1:8000';
         let currentUser = null;
-        let allProducts = [];
+        let allPets = [];
 
         function updateUIForLoginState() {
             const navAdmin = document.getElementById('nav-admin');
@@ -314,108 +313,103 @@
             window.location.reload();
         }
 
-        function renderPublicView(products) {
+        function renderPublicView(animals) {
             const grid = document.getElementById('public-view');
             grid.innerHTML = '';
-            if (products.length === 0) {
-                grid.innerHTML = '<p>Nenhum produto encontrado com os filtros selecionados.</p>';
-                return;
-            }
-            products.forEach(product => {
+            animals.forEach(animal => {
                 const card = document.createElement('div');
-                card.className = 'product-card';
-                const fallbackImageUrl = `https://placehold.co/400x300/9e96f2/FFFFFF?text=${encodeURIComponent(product.nome)}`;
-                const primaryImageUrl = product.imagem || fallbackImageUrl;
+                card.className = 'animal-card';
+                const fallbackImageUrl = `https://placehold.co/400x250/9e96f2/FFFFFF?text=${encodeURIComponent(animal.nome)}`;
+                const primaryImageUrl = animal.imagem || fallbackImageUrl;
 
                 card.innerHTML = `
-                    <div class="product-img">
-                        <img src="${primaryImageUrl}" alt="${product.nome}" onerror="this.onerror=null;this.src='${fallbackImageUrl}';">
+                    <div class="animal-img">
+                        <img src="${primaryImageUrl}" alt="${animal.nome}" onerror="this.onerror=null;this.src='${fallbackImageUrl}';">
                     </div>
-                    <div class="product-info">
-                        <span class="product-category">${product.categoria || 'Geral'}</span>
-                        <h3>${product.nome}</h3>
-                        <div class="product-bottom">
-                            <span class="product-price">R$ ${parseFloat(product.preco).toFixed(2)}</span>
-                            <button class="btn">Comprar</button>
+                    <div class="animal-info">
+                        <h3>${animal.nome}</h3>
+                        <div class="animal-meta">
+                            <span>${animal.idade || '?'} anos</span>
+                            <span>${animal.porte || 'Indefinido'}</span>
                         </div>
+                        <a href="confirmacao.html" class="btn">Quero Adotar</a>
                     </div>
                 `;
                 grid.appendChild(card);
             });
         }
 
-        function renderAdminView(products) {
+        function renderAdminView(animals) {
             const tableBody = document.getElementById('admin-table-body');
             tableBody.innerHTML = '';
-            products.forEach(product => {
+            animals.forEach(animal => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${product.id_produto}</td>
-                    <td>${product.nome}</td>
-                    <td>${product.categoria}</td>
-                    <td>R$ ${parseFloat(product.preco).toFixed(2)}</td>
-                    <td>${product.estoque}</td>
+                    <td>${animal.id_animal}</td>
+                    <td>${animal.nome}</td>
+                    <td>${animal.tipo}</td>
+                    <td>${animal.porte}</td>
+                    <td>${animal.status}</td>
                     <td class="action-buttons">
-                        <a href="form_produto.html?id=${product.id_produto}" class="btn btn-secondary">Editar</a>
-                        <button onclick="deleteProduct(${product.id_produto})" class="btn btn-danger">Excluir</button>
+                        <a href="form_animal.html?id=${animal.id_animal}" class="btn btn-secondary">Editar</a>
+                        <button onclick="deleteAnimal(${animal.id_animal})" class="btn btn-danger">Excluir</button>
                     </td>
                 `;
                 tableBody.appendChild(row);
             });
         }
         
-        function displayResults(products) {
+        function displayResults(animals) {
             const isAdmin = currentUser && currentUser.is_admin;
             if (isAdmin) {
-                renderAdminView(products);
+                renderAdminView(animals);
             } else {
-                renderPublicView(products);
+                renderPublicView(animals);
             }
         }
 
-        async function deleteProduct(productId) {
-            if (!currentUser || !currentUser.is_admin) return alert("Apenas administradores podem excluir produtos.");
-            if (!confirm(`Tem certeza que deseja excluir o produto com ID ${productId}?`)) return;
+        async function deleteAnimal(animalId) {
+            if (!currentUser || !currentUser.is_admin) return alert("Apenas administradores podem excluir animais.");
+            if (!confirm(`Tem certeza que deseja excluir o animal com ID ${animalId}?`)) return;
 
             try {
-                const response = await fetch(`${API_BASE_URL}/produtos/${productId}?userId=${currentUser.id_usuario}`, { method: 'DELETE' });
+                const response = await fetch(`${API_BASE_URL}/animals/${animalId}?userId=${currentUser.id_usuario}`, { method: 'DELETE' });
                 const result = await response.json();
                 if (!response.ok) throw new Error(result.detail);
-                alert("Produto excluído com sucesso!");
+                alert("Animal excluído com sucesso!");
                 initializeApp();
             } catch (error) {
                 alert(`Erro ao excluir: ${error.message}`);
             }
         }
 
-        function populateCategoryFilter(products) {
-            const categories = [...new Set(products.map(p => p.categoria).filter(Boolean))];
-            const select = document.getElementById('categoria-select');
-            categories.sort().forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat;
-                option.textContent = cat;
-                select.appendChild(option);
-            });
-        }
-
         function handleFilterSubmit(event) {
             event.preventDefault();
-            const selectedCategory = document.getElementById('categoria-select').value;
-            let filteredProducts = allProducts;
+            const formData = new FormData(event.target);
+            const filters = Object.fromEntries(formData.entries());
 
-            if (selectedCategory) {
-                filteredProducts = allProducts.filter(p => p.categoria === selectedCategory);
-            }
+            let filteredPets = allPets.filter(pet => {
+                const typeMatch = !filters.tipo || pet.tipo === filters.tipo;
+                const porteMatch = !filters.porte || pet.porte === filters.porte;
+                const sexoMatch = !filters.sexo || pet.sexo === filters.sexo;
+                let ageMatch = true;
+                if (filters.idade) {
+                    const age = pet.idade || 0;
+                    if (filters.idade === 'filhote' && age > 1) ageMatch = false;
+                    if (filters.idade === 'adulto' && (age <= 1 || age > 7)) ageMatch = false;
+                    if (filters.idade === 'idoso' && age <= 7) ageMatch = false;
+                }
+                return typeMatch && porteMatch && sexoMatch && ageMatch;
+            });
             
-            document.getElementById('page-title').textContent = selectedCategory ? `Mostrando: ${selectedCategory}` : 'Todos os Produtos';
-            displayResults(filteredProducts);
+            document.getElementById('page-title').textContent = 'Resultados da Busca';
+            displayResults(filteredPets);
         }
 
         function clearFilters() {
             document.getElementById('filter-form').reset();
-            document.getElementById('page-title').textContent = 'Nossos Produtos';
-            displayResults(allProducts);
+            document.getElementById('page-title').textContent = 'Conheça Nossos Amigos';
+            displayResults(allPets);
         }
 
         async function initializeApp() {
@@ -427,16 +421,13 @@
             document.getElementById('public-view').classList.toggle('hidden', isAdmin);
             
             const targetView = isAdmin ? document.getElementById('admin-table-body') : document.getElementById('public-view');
-            targetView.innerHTML = isAdmin ? '<tr><td colspan="6" style="text-align:center;">A carregar...</td></tr>' : '<p>A carregar...</p>';
+            targetView.innerHTML = isAdmin ? '<tr><td colspan="6" style="text-align:center;">Carregando...</td></tr>' : '<p>Carregando...</p>';
 
             try {
-                const response = await fetch(`${API_BASE_URL}/produtos/?limit=200`);
-                if (!response.ok) throw new Error("Não foi possível carregar os dados dos produtos.");
-                allProducts = await response.json();
-                
-                populateCategoryFilter(allProducts);
-                displayResults(allProducts);
-
+                const response = await fetch(`${API_BASE_URL}/animals/?limit=200`);
+                if (!response.ok) throw new Error("Não foi possível carregar os dados dos animais.");
+                allPets = await response.json();
+                displayResults(allPets);
             } catch (error) {
                 targetView.innerHTML = `<p style="color:red; text-align:center;">${error.message}</p>`;
             }
