@@ -19,7 +19,7 @@ python-dotenv>=1.0.0
 
 # --- Optional/Legacy Server (Flask) ---
 # Descomente a linha abaixo se precisar executar o arquivo app.py
-# Flask>=3.0.0
+Flask>=3.0.0
 
 # --- Utility & Data Population Scripts ---
 # Gera dados falsos para popular o banco
@@ -34,3 +34,6 @@ matplotlib>=3.8.4
 
 # Para baixar as dependências do projeto (python), execute o seguinte comando: 
 #pip install -r requirements.txt
+
+# Lembre-se de atualizar o pip sempre que possível:
+#pip install --upgrade pip
