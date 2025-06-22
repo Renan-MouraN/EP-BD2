@@ -93,7 +93,60 @@
         .form-row { display: flex; gap: 15px; }
         .form-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
 
-        @media (max-width: 768px) {
+        /* Seção de Pedidos */
+        #orders-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+        }
+
+        .order-card {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .order-id { font-weight: bold; font-size: 18px; }
+        .order-status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            text-transform: capitalize;
+        }
+        
+        .status-pago { background-color: #28a745; }
+        .status-enviado { background-color: #17a2b8; }
+        .status-entregue { background-color: var(--secondary); }
+        .status-pendente { background-color: #ffc107; color: var(--dark); }
+        .status-cancelado { background-color: #dc3545; }
+        
+        .order-details, .order-items {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .order-details p, .order-items p { margin: 0; }
+        .order-items ul { list-style: none; padding-left: 0; margin-top: 10px; }
+        .order-items li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        .order-items li:last-child { border-bottom: none; }
+
+
+        @media (max-width: 992px) {
             .profile-layout { grid-template-columns: 1fr; }
         }
     </style>
@@ -165,11 +218,11 @@
                         <input type="text" id="edit-address" name="endereco" class="form-control">
                     </div>
                     <div class="form-row">
-                        <div class="form-group">
+                        <div class="form-group" style="flex: 2;">
                             <label for="edit-city" class="form-label">Cidade</label>
                             <input type="text" id="edit-city" name="cidade" class="form-control">
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" style="flex: 1;">
                             <label for="edit-state" class="form-label">Estado</label>
                             <input type="text" id="edit-state" name="estado" class="form-control" maxlength="2">
                         </div>
@@ -179,6 +232,14 @@
                         <button type="submit" class="btn">Salvar Alterações</button>
                     </div>
                 </form>
+
+                <!-- Seção de Pedidos -->
+                <section id="orders-section">
+                    <h3>Meus Pedidos</h3>
+                    <div id="orders-list">
+                        <!-- Pedidos serão inseridos aqui via JS -->
+                    </div>
+                </section>
             </section>
         </div>
     </main>
@@ -275,11 +336,94 @@
             }
         }
         
+        function renderOrders(orders) {
+            const ordersListDiv = document.getElementById('orders-list');
+            ordersListDiv.innerHTML = ''; 
+
+            if (orders.length === 0) {
+                ordersListDiv.innerHTML = '<p>Você ainda não fez nenhum pedido.</p>';
+                return;
+            }
+
+            orders.forEach(order => {
+                const orderCard = document.createElement('div');
+                orderCard.className = 'order-card';
+
+                const itemsHtml = order.items.map(item => 
+                    `<li>${item.quantidade}x ${item.product_name} - R$ ${parseFloat(item.preco_unitario).toFixed(2)} cada</li>`
+                ).join('');
+
+                orderCard.innerHTML = `
+                    <div class="order-header">
+                        <span class="order-id">Pedido #${order.id_pedido}</span>
+                        <span class="order-status status-${order.status}">${order.status}</span>
+                    </div>
+                    <div class="order-details">
+                        <p><strong>Data:</strong> ${new Date(order.data_pedido).toLocaleDateString('pt-BR')}</p>
+                        <p><strong>Valor Total:</strong> R$ ${parseFloat(order.valor_total).toFixed(2)}</p>
+                    </div>
+                    <div class="order-items">
+                        <p><strong>Itens:</strong></p>
+                        <ul>${itemsHtml}</ul>
+                    </div>
+                `;
+                ordersListDiv.appendChild(orderCard);
+            });
+        }
+
+        async function loadUserOrders(userId) {
+            const ordersListDiv = document.getElementById('orders-list');
+            ordersListDiv.innerHTML = '<p>Carregando seus pedidos...</p>';
+            console.log(`Buscando pedidos para o usuário ID: ${userId}`);
+
+            try {
+                // *** CORREÇÃO: Aumentar o limite para buscar todos os registros ***
+                const highLimit = 10000;
+                const [pedidosRes, itensRes, produtosRes] = await Promise.all([
+                    fetch(`${API_BASE_URL}/pedidos/?limit=${highLimit}`),
+                    fetch(`${API_BASE_URL}/itens_pedido/?limit=${highLimit}`),
+                    fetch(`${API_BASE_URL}/produtos/?limit=${highLimit}`)
+                ]);
+                
+                if (!pedidosRes.ok || !itensRes.ok || !produtosRes.ok) {
+                    throw new Error('Não foi possível carregar os dados completos dos pedidos.');
+                }
+
+                const allPedidos = await pedidosRes.json();
+                const allItens = await itensRes.json();
+                const allProdutos = await produtosRes.json();
+                
+                // *** CORREÇÃO: Usar '==' para a comparação para evitar problemas de tipo (string vs. number) ***
+                const userOrders = allPedidos.filter(p => p.id_usuario == userId);
+                console.log(`Encontrados ${userOrders.length} pedidos para o usuário ${userId} de um total de ${allPedidos.length} pedidos.`);
+
+                const productsMap = new Map(allProdutos.map(p => [p.id_produto, p.nome]));
+
+                const structuredOrders = userOrders.map(order => {
+                    const itemsForOrder = allItens
+                        .filter(item => item.id_pedido === order.id_pedido)
+                        .map(item => ({
+                            ...item,
+                            product_name: productsMap.get(item.id_produto) || 'Produto desconhecido'
+                        }));
+                    return { ...order, items: itemsForOrder };
+                }).sort((a, b) => new Date(b.data_pedido) - new Date(a.data_pedido)); // Ordena do mais recente para o mais antigo
+
+                console.log('Pedidos estruturados prontos para renderizar:', structuredOrders);
+                renderOrders(structuredOrders);
+
+            } catch (error) {
+                console.error("Erro detalhado ao carregar pedidos:", error);
+                ordersListDiv.innerHTML = `<p style="color:red;">Ocorreu um erro ao carregar seus pedidos. Verifique o console para mais detalhes.</p>`;
+            }
+        }
+        
         document.addEventListener('DOMContentLoaded', () => {
             if (!checkAuth()) return;
             
             updateUIForLoginState();
             populateDisplayView(currentUser);
+            loadUserOrders(currentUser.id_usuario); 
 
             document.getElementById('edit-profile-btn').addEventListener('click', () => {
                 populateEditView(currentUser);
