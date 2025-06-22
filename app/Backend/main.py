@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Depends, Query, Form
 from fastapi.middleware.cors import CORSMiddleware 
 from Classes.classes import *
 from Database.connect import connect_db
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session, joinedload, selectinload
 from pydantic import EmailStr
 from typing import Optional, List
 
@@ -20,7 +20,13 @@ def get_db():
 
 app = FastAPI()
 
-origins = ["*"]
+origins = [
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+    "http://127.0.0.1:5000",
+    "http://localhost:5000",
+    "*"
+]
 
 app.add_middleware(
     CORSMiddleware,
@@ -41,6 +47,42 @@ def is_user_admin(user_id: int, db: Session) -> bool:
 async def read_root():
     return {"message": "Bem-vindo à API PataCerta!"}
 
+# --- NOVO ENDPOINT: SERVIÇOS AGENDADOS PELO UTILIZADOR ---
+@app.get("/usuarios/{user_id}/servicos-agendados/", response_model=List[PedidoServicoDetalhado])
+def read_user_scheduled_services(user_id: int, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
+    if user_id != current_user_id and not is_user_admin(current_user_id, db):
+        raise HTTPException(status_code=403, detail="Não autorizado")
+
+    pedidos = (
+        db.query(PedidoServico)
+        .filter(PedidoServico.id_tutor == user_id)
+        .options(
+            selectinload(PedidoServico.animal),
+            selectinload(PedidoServico.prestador_serv).selectinload(PrestadorServico.servico),
+            selectinload(PedidoServico.prestador_serv).selectinload(PrestadorServico.prestador)
+        )
+        .order_by(PedidoServico.inicio.desc())
+        .all()
+    )
+    return pedidos
+
+@app.get("/servicos-disponiveis/", response_model=List[ServicoDisponivelInDB])
+def read_servicos_disponiveis(skip: int = 0, limit: int = 500, db: Session = Depends(get_db)):
+    resultados = (
+        db.query(PrestadorServico)
+        .options(
+            joinedload(PrestadorServico.servico),
+            joinedload(PrestadorServico.prestador)
+        )
+        .join(Servico, PrestadorServico.id_servico == Servico.id_servico)
+        .filter(Servico.ativo == True, PrestadorServico.ativo == True)
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+    return resultados
+
+# ... (restante do código de main.py permanece o mesmo)
 # --- CRUD Endpoints for Usuarios ---
 @app.get("/usuarios/", response_model=List[UsuarioInDB])
 def read_usuarios(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
@@ -142,22 +184,38 @@ def delete_animal(animal_id: int, db: Session = Depends(get_db), current_user_id
 def create_adocao(adocao: AdocaoCreate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
     if not is_user_admin(current_user_id, db): 
         if adocao.id_usuario != current_user_id:
-            raise HTTPException(status_code=403, detail="Not authorized to create adocao for another user")
+            raise HTTPException(status_code=403, detail="Não autorizado a criar adoção para outro usuário")
         adocao.status = 'pendente'
     
-    user_in_body_exists = db.query(Usuario).filter(Usuario.id_usuario == adocao.id_usuario).first()
-    if not user_in_body_exists:
-        raise HTTPException(status_code=400, detail=f"User with id {adocao.id_usuario} not found.")
+    user_in_db = db.query(Usuario).filter(Usuario.id_usuario == adocao.id_usuario).first()
+    if not user_in_db:
+        raise HTTPException(status_code=404, detail=f"Usuário com id {adocao.id_usuario} não encontrado.")
 
-    animal_in_body_exists = db.query(Animal).filter(Animal.id_animal == adocao.id_animal).first()
-    if not animal_in_body_exists:
-        raise HTTPException(status_code=400, detail=f"Animal with id {adocao.id_animal} not found.")
+    try:
+        db_animal = db.query(Animal).filter(Animal.id_animal == adocao.id_animal).with_for_update().first()
 
-    db_adocao = Adocao(**adocao.model_dump())
-    db.add(db_adocao)
-    db.commit()
-    db.refresh(db_adocao)
-    return db_adocao
+        if not db_animal:
+            raise HTTPException(status_code=404, detail=f"Animal com id {adocao.id_animal} não encontrado.")
+
+        if db_animal.status != 'disponivel':
+            raise HTTPException(status_code=400, detail=f"O animal '{db_animal.nome}' não está mais disponível para adoção.")
+
+        db_adocao = Adocao(**adocao.model_dump())
+        db.add(db_adocao)
+
+        db_animal.status = 'em_tratamento'
+
+        db.commit()
+        db.refresh(db_adocao)
+        return db_adocao
+
+    except HTTPException as http_exc:
+        db.rollback()
+        raise http_exc
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Ocorreu um erro interno ao processar a adoção.")
+
 
 @app.get("/adocoes/", response_model=List[AdocaoInDB])
 def read_adocoes(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -174,29 +232,51 @@ def read_adocao(adocao_id: int, db: Session = Depends(get_db)):
 @app.put("/adocoes/{adocao_id}", response_model=AdocaoInDB)
 def update_adocao(adocao_id: int, adocao: AdocaoUpdate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
     if not is_user_admin(current_user_id, db):
-        raise HTTPException(status_code=403, detail="Not authorized to update adocoes")
+        raise HTTPException(status_code=403, detail="Não autorizado a atualizar adoções")
 
     db_adocao = db.query(Adocao).filter(Adocao.id_adocao == adocao_id).first()
     if db_adocao is None:
-        raise HTTPException(status_code=404, detail="Adocao not found")
+        raise HTTPException(status_code=404, detail="Adoção não encontrada")
+
+    if adocao.status == 'aprovada' and db_adocao.status != 'aprovada':
+        animal = db.query(Animal).filter(Animal.id_animal == db_adocao.id_animal).first()
+        if animal:
+            animal.status = 'adotado'
+    
+    elif adocao.status == 'rejeitada' and db_adocao.status != 'rejeitada':
+         animal = db.query(Animal).filter(Animal.id_animal == db_adocao.id_animal).first()
+         if animal and animal.status == 'em_tratamento':
+             animal.status = 'disponivel'
+
     for key, value in adocao.model_dump(exclude_unset=True).items():
         setattr(db_adocao, key, value)
+    
     db.commit()
     db.refresh(db_adocao)
     return db_adocao
 
+
 @app.delete("/adocoes/{adocao_id}")
 def delete_adocao(adocao_id: int, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
     if not is_user_admin(current_user_id, db):
-        raise HTTPException(status_code=403, detail="Not authorized to delete adocoes")
+        raise HTTPException(status_code=403, detail="Não autorizado a deletar adoções")
 
     db_adocao = db.query(Adocao).filter(Adocao.id_adocao == adocao_id).first()
     if db_adocao is None:
-        raise HTTPException(status_code=404, detail="Adocao not found")
+        raise HTTPException(status_code=404, detail="Adoção não encontrada")
+    
+    if db_adocao.status == 'pendente' or db_adocao.status == 'em_tratamento':
+        animal = db.query(Animal).filter(Animal.id_animal == db_adocao.id_animal).first()
+        if animal:
+            animal.status = 'disponivel'
+    
     db.delete(db_adocao)
     db.commit()
-    return {"message": "Adocao deleted successfully"}
+    return {"message": "Adoção deletada com sucesso"}
 
+# --- Endpoints for Products, Orders, etc. remain the same ---
+
+# ... (omitting the rest of the endpoints for brevity, they remain unchanged)
 # --- CRUD Endpoints for Produtos ---
 @app.post("/produtos/", response_model=ProdutoInDB)
 def create_produto(produto: ProdutoCreate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
@@ -249,14 +329,11 @@ def delete_produto(produto_id: int, db: Session = Depends(get_db), current_user_
 # --- CRUD Endpoints for Pedidos ---
 @app.post("/pedidos/", response_model=PedidoInDB)
 def create_pedido(pedido: PedidoCreate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Verifica se o id_usuario fornecido no corpo da requisição corresponde ao usuário logado OU se é admin
-    # E se o current_user_id realmente existe.
-    if not is_user_admin(current_user_id, db): # Se não for admin...
-        if pedido.id_usuario != current_user_id: # ... e está tentando criar pedido para outro usuário
+    if not is_user_admin(current_user_id, db): 
+        if pedido.id_usuario != current_user_id:
             raise HTTPException(status_code=403, detail="Not authorized to create pedido for another user")
-        pedido.status = 'pago' # Force o status para 'pago' para não-admin
+        pedido.status = 'pago' 
     
-    # Verifica se o id_usuario no corpo da requisição é válido
     user_in_body_exists = db.query(Usuario).filter(Usuario.id_usuario == pedido.id_usuario).first()
     if not user_in_body_exists:
         raise HTTPException(status_code=400, detail=f"User with id {pedido.id_usuario} not found.")
@@ -282,7 +359,6 @@ def read_pedido(pedido_id: int, db: Session = Depends(get_db)):
 
 @app.put("/pedidos/{pedido_id}", response_model=PedidoInDB)
 def update_pedido(pedido_id: int, pedido: PedidoUpdate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem atualizar pedidos
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to update orders")
 
@@ -297,7 +373,6 @@ def update_pedido(pedido_id: int, pedido: PedidoUpdate, db: Session = Depends(ge
 
 @app.delete("/pedidos/{pedido_id}")
 def delete_pedido(pedido_id: int, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem deletar pedidos
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to delete orders")
 
@@ -311,13 +386,10 @@ def delete_pedido(pedido_id: int, db: Session = Depends(get_db), current_user_id
 # --- CRUD Endpoints for Itens Pedido ---
 @app.post("/itens_pedido/", response_model=ItemPedidoInDB)
 def create_item_pedido(item_pedido: ItemPedidoCreate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Para simplicidade, permitir que qualquer usuário AUTENTICADO crie um item de pedido.
-    # A validação principal seria no Pedido em si.
     user_exists = db.query(Usuario).filter(Usuario.id_usuario == current_user_id).first()
     if not user_exists:
         raise HTTPException(status_code=404, detail="User not found with the provided userId")
     
-    # Opcional: Você pode verificar se o pedido existe e se o current_user_id tem permissão sobre ele
     db_pedido = db.query(Pedido).filter(Pedido.id_pedido == item_pedido.id_pedido).first()
     if not db_pedido:
         raise HTTPException(status_code=404, detail=f"Pedido with id {item_pedido.id_pedido} not found.")
@@ -346,7 +418,6 @@ def read_item_pedido(item_id: int, db: Session = Depends(get_db)):
 
 @app.put("/itens_pedido/{item_id}", response_model=ItemPedidoInDB)
 def update_item_pedido(item_id: int, item_pedido: ItemPedidoUpdate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem atualizar itens de pedido
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to update order items")
         
@@ -361,7 +432,6 @@ def update_item_pedido(item_id: int, item_pedido: ItemPedidoUpdate, db: Session 
 
 @app.delete("/itens_pedido/{item_id}")
 def delete_item_pedido(item_id: int, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem deletar itens de pedido
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to delete order items")
 
@@ -375,19 +445,15 @@ def delete_item_pedido(item_id: int, db: Session = Depends(get_db), current_user
 # --- CRUD Endpoints for Depoimentos ---
 @app.post("/depoimentos/", response_model=DepoimentoInDB)
 def create_depoimento(depoimento: DepoimentoCreate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Verifica se o id_usuario fornecido no corpo da requisição corresponde ao usuário logado OU se é admin
-    # E se o current_user_id realmente existe.
-    if not is_user_admin(current_user_id, db): # Se não for admin...
-        if depoimento.id_usuario != current_user_id: # ... e está tentando criar depoimento para outro usuário
+    if not is_user_admin(current_user_id, db): 
+        if depoimento.id_usuario != current_user_id:
             raise HTTPException(status_code=403, detail="Not authorized to create depoimento for another user")
-        depoimento.aprovado = False # Force 'aprovado' para 'False'
+        depoimento.aprovado = False 
     
-    # Verifica se o id_usuario no corpo da requisição é válido
     user_in_body_exists = db.query(Usuario).filter(Usuario.id_usuario == depoimento.id_usuario).first()
     if not user_in_body_exists:
         raise HTTPException(status_code=400, detail=f"User with id {depoimento.id_usuario} not found.")
 
-    # Verifica se o id_animal no corpo da requisição é válido
     animal_in_body_exists = db.query(Animal).filter(Animal.id_animal == depoimento.id_animal).first()
     if not animal_in_body_exists:
         raise HTTPException(status_code=400, detail=f"Animal with id {depoimento.id_animal} not found.")
@@ -413,7 +479,6 @@ def read_depoimento(depoimento_id: int, db: Session = Depends(get_db)):
 
 @app.put("/depoimentos/{depoimento_id}", response_model=DepoimentoInDB)
 def update_depoimento(depoimento_id: int, depoimento: DepoimentoUpdate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem atualizar depoimentos
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to update testimonials")
 
@@ -428,7 +493,6 @@ def update_depoimento(depoimento_id: int, depoimento: DepoimentoUpdate, db: Sess
 
 @app.delete("/depoimentos/{depoimento_id}")
 def delete_depoimento(depoimento_id: int, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem deletar depoimentos
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to delete testimonials")
 
@@ -439,7 +503,7 @@ def delete_depoimento(depoimento_id: int, db: Session = Depends(get_db), current
     db.commit()
     return {"message": "Depoimento deleted successfully"}
 
-# --- CRUD Endpoints for Servicos ---
+# --- CRUD Endpoints for Servicos (Base para Admin) ---
 @app.post("/servicos/", response_model=ServicoInDB)
 def create_servico(servico: ServicoCreate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
     if not is_user_admin(current_user_id, db):
@@ -452,7 +516,6 @@ def create_servico(servico: ServicoCreate, db: Session = Depends(get_db), curren
 
 @app.get("/servicos/", response_model=List[ServicoInDB])
 def read_servicos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    # Corrigido: Este endpoint agora lê os serviços, e não os cria.
     servicos = db.query(Servico).offset(skip).limit(limit).all()
     return servicos
 
@@ -465,7 +528,6 @@ def read_servico(servico_id: int, db: Session = Depends(get_db)):
 
 @app.put("/servicos/{servico_id}", response_model=ServicoInDB)
 def update_servico(servico_id: int, servico: ServicoUpdate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem atualizar serviços
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to update services")
 
@@ -480,7 +542,6 @@ def update_servico(servico_id: int, servico: ServicoUpdate, db: Session = Depend
 
 @app.delete("/servicos/{servico_id}")
 def delete_servico(servico_id: int, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem deletar serviços
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to delete services")
 
@@ -497,7 +558,6 @@ def create_prestador(prestador: PrestadorCreate, db: Session = Depends(get_db), 
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to create prestadores")
     
-    # Opcional: verificar se o id_usuario no corpo do prestador é válido, se for fornecido
     if prestador.id_usuario:
         user_in_body_exists = db.query(Usuario).filter(Usuario.id_usuario == prestador.id_usuario).first()
         if not user_in_body_exists:
@@ -523,7 +583,6 @@ def read_prestador(prestador_id: int, db: Session = Depends(get_db)):
 
 @app.put("/prestadores/{prestador_id}", response_model=PrestadorInDB)
 def update_prestador(prestador_id: int, prestador: PrestadorUpdate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem atualizar prestadores
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to update providers")
 
@@ -538,7 +597,6 @@ def update_prestador(prestador_id: int, prestador: PrestadorUpdate, db: Session 
 
 @app.delete("/prestadores/{prestador_id}")
 def delete_prestador(prestador_id: int, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem deletar prestadores
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to delete providers")
 
@@ -555,7 +613,6 @@ def create_prestador_servico(prestador_servico: PrestadorServicoCreate, db: Sess
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to create prestador services associations")
     
-    # Validações para garantir que prestador e serviço existem
     prestador_exists = db.query(Prestador).filter(Prestador.id_prestador == prestador_servico.id_prestador).first()
     if not prestador_exists:
         raise HTTPException(status_code=400, detail=f"Prestador with id {prestador_servico.id_prestador} not found.")
@@ -584,7 +641,6 @@ def read_prestador_servico(prestador_serv_id: int, db: Session = Depends(get_db)
 
 @app.put("/prestador_servicos/{prestador_serv_id}", response_model=PrestadorServicoInDB)
 def update_prestador_servico(prestador_serv_id: int, prestador_servico: PrestadorServicoUpdate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem atualizar associações de serviços de prestadores
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to update provider service associations")
 
@@ -599,7 +655,6 @@ def update_prestador_servico(prestador_serv_id: int, prestador_servico: Prestado
 
 @app.delete("/prestador_servicos/{prestador_serv_id}")
 def delete_prestador_servico(prestador_serv_id: int, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem deletar associações de serviços de prestadores
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to delete provider service associations")
 
@@ -613,14 +668,11 @@ def delete_prestador_servico(prestador_serv_id: int, db: Session = Depends(get_d
 # --- CRUD Endpoints for PedidosServico ---
 @app.post("/pedidos_servico/", response_model=PedidoServicoInDB)
 def create_pedido_servico(pedido_servico: PedidoServicoCreate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Verifica se o id_tutor fornecido no corpo da requisição corresponde ao usuário logado OU se é admin
-    # E se o current_user_id realmente existe.
-    if not is_user_admin(current_user_id, db): # Se não for admin...
-        if pedido_servico.id_tutor != current_user_id: # ... e está tentando criar pedido para outro tutor
+    if not is_user_admin(current_user_id, db): 
+        if pedido_servico.id_tutor != current_user_id: 
             raise HTTPException(status_code=403, detail="Not authorized to create service order for another tutor")
-        pedido_servico.status = 'pendente' # Force o status para 'pendente'
+        pedido_servico.status = 'pendente' 
     
-    # Validações para garantir que animal, prestador_servico e tutor existam
     animal_exists = db.query(Animal).filter(Animal.id_animal == pedido_servico.id_animal).first()
     if not animal_exists:
         raise HTTPException(status_code=400, detail=f"Animal with id {pedido_servico.id_animal} not found.")
@@ -653,7 +705,6 @@ def read_pedido_servico(pedido_servico_id: int, db: Session = Depends(get_db)):
 
 @app.put("/pedidos_servico/{pedido_servico_id}", response_model=PedidoServicoInDB)
 def update_pedido_servico(pedido_servico_id: int, pedido_servico: PedidoServicoUpdate, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem atualizar pedidos de serviço
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to update service orders")
 
@@ -668,7 +719,6 @@ def update_pedido_servico(pedido_servico_id: int, pedido_servico: PedidoServicoU
 
 @app.delete("/pedidos_servico/{pedido_servico_id}")
 def delete_pedido_servico(pedido_servico_id: int, db: Session = Depends(get_db), current_user_id: int = Query(..., alias="userId")):
-    # Apenas administradores podem deletar pedidos de serviço
     if not is_user_admin(current_user_id, db):
         raise HTTPException(status_code=403, detail="Not authorized to delete service orders")
 
@@ -683,14 +733,10 @@ def delete_pedido_servico(pedido_servico_id: int, db: Session = Depends(get_db),
 
 @app.post("/register", response_model=UsuarioInDB)
 def register_user(usuario: UsuarioCreate, db: Session = Depends(get_db)):
-    """
-    Registra um novo usuário no banco de dados.
-    """
     db_user = db.query(Usuario).filter(Usuario.email == usuario.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Este e-mail já está cadastrado")
     
-    # ATENÇÃO: Em um projeto real, a senha deveria ser "hasheada" aqui.
     db_usuario = Usuario(**usuario.model_dump())
     db.add(db_usuario)
     db.commit()
@@ -699,14 +745,10 @@ def register_user(usuario: UsuarioCreate, db: Session = Depends(get_db)):
 
 @app.post("/login", response_model=UsuarioInDB)
 def login_for_access(db: Session = Depends(get_db), email: EmailStr = Form(...), password: str = Form(...)):
-    """
-    Verifica o email e a senha do usuário.
-    """
     user = db.query(Usuario).filter(Usuario.email == email).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
     
-    # ATENÇÃO: Verificação de senha em texto plano. Em um projeto real, use hashing.
     if user.senha != password:
         raise HTTPException(status_code=401, detail="Senha incorreta")
     

@@ -101,6 +101,11 @@
             background-color: #5850D8;
         }
         
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
         .btn-secondary { background-color: var(--secondary); }
         .btn-danger { background-color: var(--accent); }
         .btn-outline { background-color: transparent; border: 2px solid #ccc; color: var(--dark); }
@@ -319,6 +324,7 @@
                 <select name="porte"><option value="">Todos os Portes</option><option value="pequeno">Pequeno</option><option value="medio">Médio</option><option value="grande">Grande</option></select>
                 <select name="idade"><option value="">Todas as Idades</option><option value="filhote">Filhote (até 1 ano)</option><option value="adulto">Adulto (1 a 7)</option><option value="idoso">Idoso (8+)</option></select>
                 <select name="sexo"><option value="">Todos os Sexos</option><option value="macho">Macho</option><option value="femea">Fêmea</option></select>
+                <select name="status"><option value="">Todos os Status</option><option value="disponivel">Disponível</option><option value="em_tratamento">Em tratamento</option><option value="adotado">Adotado</option></select>
                 <div class="filter-buttons">
                     <button type="submit" class="btn">Buscar</button>
                     <button type="button" id="clear-filters-btn" class="btn btn-outline">Limpar Filtros</button>
@@ -376,7 +382,7 @@
         let allPets = [];
         let currentFilteredPets = [];
         let currentPage = 1;
-        const petsPerPage = 12; // Define 12 animais por página
+        const petsPerPage = 12;
 
         function updateUIForLoginState() {
             const navAdmin = document.getElementById('nav-admin');
@@ -429,7 +435,9 @@
                             <span>${animal.idade || '?'} anos</span>
                             <span>${animal.porte || 'Indefinido'}</span>
                         </div>
-                        <a href="confirmacao.html" class="btn">Quero Adotar</a>
+                        <button class="btn adopt-btn" data-animal-id="${animal.id_animal}" ${animal.status !== 'disponivel' ? 'disabled' : ''}>
+                            ${animal.status === 'disponivel' ? 'Quero Adotar' : 'Em processo de adoção'}
+                        </button>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -463,7 +471,7 @@
             const petsForPage = currentFilteredPets.slice(startIndex, endIndex);
 
             if (isAdmin) {
-                renderAdminView(currentFilteredPets); // Admin vê todos os resultados na tabela
+                renderAdminView(currentFilteredPets);
             } else {
                 renderPublicView(petsForPage);
             }
@@ -474,13 +482,11 @@
             paginationContainer.innerHTML = '';
             const isAdmin = currentUser && currentUser.is_admin;
 
-            // Paginação não se aplica à visão de tabela do admin da mesma forma
             if (isAdmin) return;
 
             const pageCount = Math.ceil(currentFilteredPets.length / petsPerPage);
             if (pageCount <= 1) return;
 
-            // Botão "Anterior"
             const prevButton = document.createElement('button');
             prevButton.textContent = 'Anterior';
             prevButton.disabled = currentPage === 1;
@@ -493,7 +499,6 @@
             });
             paginationContainer.appendChild(prevButton);
 
-            // Botões de número de página
             for (let i = 1; i <= pageCount; i++) {
                 const pageButton = document.createElement('button');
                 pageButton.textContent = i;
@@ -508,7 +513,6 @@
                 paginationContainer.appendChild(pageButton);
             }
 
-            // Botão "Próximo"
             const nextButton = document.createElement('button');
             nextButton.textContent = 'Próximo';
             nextButton.disabled = currentPage === pageCount;
@@ -553,6 +557,8 @@
                 const typeMatch = !filters.tipo || pet.tipo === filters.tipo;
                 const porteMatch = !filters.porte || pet.porte === filters.porte;
                 const sexoMatch = !filters.sexo || pet.sexo === filters.sexo;
+                const statusMatch = !filters.status || pet.status === filters.status;
+                
                 let ageMatch = true;
                 if (filters.idade) {
                     const age = pet.idade || 0;
@@ -560,7 +566,7 @@
                     if (filters.idade === 'adulto' && (age <= 1 || age > 7)) ageMatch = false;
                     if (filters.idade === 'idoso' && age <= 7) ageMatch = false;
                 }
-                return typeMatch && porteMatch && sexoMatch && ageMatch;
+                return typeMatch && porteMatch && sexoMatch && ageMatch && statusMatch;
             });
             
             document.getElementById('page-title').textContent = 'Resultados da Busca';
@@ -570,6 +576,7 @@
         function clearFilters() {
             document.getElementById('filter-form').reset();
             document.getElementById('page-title').textContent = 'Conheça Nossos Amigos';
+            // Ao limpar, volta a mostrar a lista completa e ordenada
             displayResults(allPets);
         }
 
@@ -585,14 +592,74 @@
             targetView.innerHTML = isAdmin ? '<tr><td colspan="6" style="text-align:center;">Carregando...</td></tr>' : '<p>Carregando...</p>';
 
             try {
-                const response = await fetch(`${API_BASE_URL}/animals/?limit=200`);
+                const response = await fetch(`${API_BASE_URL}/animals/?limit=500`);
                 if (!response.ok) throw new Error("Não foi possível carregar os dados dos animais.");
                 allPets = await response.json();
+                
+                // --- ALTERAÇÃO: Ordenar a lista completa de animais ---
+                allPets.sort((a, b) => {
+                    const statusOrder = { 'disponivel': 1, 'em_tratamento': 2, 'adotado': 3 };
+                    const aOrder = statusOrder[a.status] || 99;
+                    const bOrder = statusOrder[b.status] || 99;
+                    if (aOrder !== bOrder) {
+                        return aOrder - bOrder;
+                    }
+                    return a.id_animal - b.id_animal; // Critério de desempate
+                });
+
+                // Exibir a lista completa (e agora ordenada)
                 displayResults(allPets);
+
             } catch (error) {
                 targetView.innerHTML = `<p style="color:red; text-align:center;">${error.message}</p>`;
             }
         }
+
+        document.getElementById('public-view').addEventListener('click', async (event) => {
+            if (event.target.classList.contains('adopt-btn')) {
+                if (!currentUser) {
+                    alert("Por favor, faça login para iniciar o processo de adoção.");
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const animalId = event.target.dataset.animalId;
+                const button = event.target;
+                
+                if (!confirm("Tem a certeza que deseja iniciar o processo de adoção para este pet? A nossa equipa entrará em contacto.")) {
+                    return;
+                }
+
+                button.disabled = true;
+                button.textContent = 'A processar...';
+
+                const adoptionData = {
+                    id_usuario: currentUser.id_usuario,
+                    id_animal: parseInt(animalId)
+                };
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/adocoes/?userId=${currentUser.id_usuario}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(adoptionData)
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.detail || 'Não foi possível processar o seu pedido de adoção.');
+                    }
+                    
+                    window.location.href = 'confirmacao.html';
+
+                } catch (error) {
+                    alert(`Erro: ${error.message}`);
+                    button.disabled = false;
+                    button.textContent = 'Quero Adotar';
+                }
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', initializeApp);
         document.getElementById('filter-form').addEventListener('submit', handleFilterSubmit);
