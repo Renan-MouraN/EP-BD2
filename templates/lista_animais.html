@@ -210,7 +210,7 @@
             margin-top: 10px;
         }
 
-        /* Pagination Styles */
+        /* Pagination Styles - ATUALIZADO */
         .pagination {
             display: flex;
             justify-content: center;
@@ -219,7 +219,7 @@
             padding-bottom: 20px;
             gap: 8px;
         }
-        .pagination button {
+        .pagination button, .pagination span {
             background-color: white;
             border: 1px solid #ddd;
             color: var(--dark);
@@ -227,6 +227,15 @@
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+        }
+        .pagination span {
+             cursor: default;
+             border-color: transparent;
+             background-color: transparent;
         }
         .pagination button:hover:not(:disabled) {
             background-color: var(--light);
@@ -477,6 +486,7 @@
             }
         }
         
+        // --- FUNÇÃO DE PAGINAÇÃO ATUALIZADA ---
         function setupPagination() {
             const paginationContainer = document.getElementById('pagination-container');
             paginationContainer.innerHTML = '';
@@ -486,6 +496,20 @@
 
             const pageCount = Math.ceil(currentFilteredPets.length / petsPerPage);
             if (pageCount <= 1) return;
+
+            const createButton = (page, text = page) => {
+                const button = document.createElement('button');
+                button.textContent = text;
+                if (page === currentPage) {
+                    button.classList.add('active');
+                }
+                button.addEventListener('click', () => {
+                    currentPage = page;
+                    renderCurrentPage();
+                    setupPagination();
+                });
+                return button;
+            };
 
             const prevButton = document.createElement('button');
             prevButton.textContent = 'Anterior';
@@ -499,18 +523,47 @@
             });
             paginationContainer.appendChild(prevButton);
 
-            for (let i = 1; i <= pageCount; i++) {
-                const pageButton = document.createElement('button');
-                pageButton.textContent = i;
-                if (i === currentPage) {
-                    pageButton.classList.add('active');
+            const maxPagesToShow = 5;
+            let startPage, endPage;
+
+            if (pageCount <= maxPagesToShow) {
+                startPage = 1;
+                endPage = pageCount;
+            } else {
+                const maxPagesBeforeCurrent = Math.floor(maxPagesToShow / 2);
+                const maxPagesAfterCurrent = Math.ceil(maxPagesToShow / 2) - 1;
+                if (currentPage <= maxPagesBeforeCurrent) {
+                    startPage = 1;
+                    endPage = maxPagesToShow;
+                } else if (currentPage + maxPagesAfterCurrent >= pageCount) {
+                    startPage = pageCount - maxPagesToShow + 1;
+                    endPage = pageCount;
+                } else {
+                    startPage = currentPage - maxPagesBeforeCurrent;
+                    endPage = currentPage + maxPagesAfterCurrent;
                 }
-                pageButton.addEventListener('click', () => {
-                    currentPage = i;
-                    renderCurrentPage();
-                    setupPagination();
-                });
-                paginationContainer.appendChild(pageButton);
+            }
+
+            if (startPage > 1) {
+                paginationContainer.appendChild(createButton(1));
+                if (startPage > 2) {
+                    const dots = document.createElement('span');
+                    dots.textContent = '...';
+                    paginationContainer.appendChild(dots);
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                paginationContainer.appendChild(createButton(i));
+            }
+
+            if (endPage < pageCount) {
+                if (endPage < pageCount - 1) {
+                     const dots = document.createElement('span');
+                    dots.textContent = '...';
+                    paginationContainer.appendChild(dots);
+                }
+                paginationContainer.appendChild(createButton(pageCount));
             }
 
             const nextButton = document.createElement('button');
@@ -576,7 +629,6 @@
         function clearFilters() {
             document.getElementById('filter-form').reset();
             document.getElementById('page-title').textContent = 'Conheça Nossos Amigos';
-            // Ao limpar, volta a mostrar a lista completa e ordenada
             displayResults(allPets);
         }
 
@@ -596,7 +648,6 @@
                 if (!response.ok) throw new Error("Não foi possível carregar os dados dos animais.");
                 allPets = await response.json();
                 
-                // --- ALTERAÇÃO: Ordenar a lista completa de animais ---
                 allPets.sort((a, b) => {
                     const statusOrder = { 'disponivel': 1, 'em_tratamento': 2, 'adotado': 3 };
                     const aOrder = statusOrder[a.status] || 99;
@@ -604,10 +655,9 @@
                     if (aOrder !== bOrder) {
                         return aOrder - bOrder;
                     }
-                    return a.id_animal - b.id_animal; // Critério de desempate
+                    return a.id_animal - b.id_animal;
                 });
 
-                // Exibir a lista completa (e agora ordenada)
                 displayResults(allPets);
 
             } catch (error) {
