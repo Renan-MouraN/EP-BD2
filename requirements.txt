@@ -1,15 +1,36 @@
-fastapi>=0.111.0 
-uvicorn[standard]>=0.29.0 
-SQLAlchemy>=2.0.30 
-psycopg2-binary>=2.9.9 
-pydantic>=2.7.1 
-dotenv>=0.0.5
-Faker>=37.4.0
-typing>=3.7.4.3
-numpy>=2.1.2
-matplotlib>=3.10.3
+# --- Core Backend Dependencies (FastAPI) ---
+# Framework principal da API e servidor
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
 
-# Caso não vá rodar o analyze não precisa baixar as ultimas 2 bibliotecas
+# Necessário para processar dados de formulários (ex: login)
+python-multipart>=0.0.9
+
+# --- Database & Data Validation ---
+# ORM para interagir com o banco e driver do PostgreSQL
+SQLAlchemy>=2.0.30
+psycopg2-binary>=2.9.9
+
+# Validação de dados e e-mails
+pydantic[email]>=2.7.1
+
+# Carrega variáveis de ambiente do arquivo .env
+python-dotenv>=1.0.0
+
+# --- Optional/Legacy Server (Flask) ---
+# Descomente a linha abaixo se precisar executar o arquivo app.py
+# Flask>=3.0.0
+
+# --- Utility & Data Population Scripts ---
+# Gera dados falsos para popular o banco
+Faker>=25.8.0
+# Realiza requisições HTTP para buscar imagens
+requests>=2.31.0
+
+# --- Analysis Script (analize.py) ---
+# Bibliotecas para o script de análise de desempenho
+numpy>=1.26.4
+matplotlib>=3.8.4
 
 # Para baixar as dependências do projeto (python), execute o seguinte comando: 
 #pip install -r requirements.txt
