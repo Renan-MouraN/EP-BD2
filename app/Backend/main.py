@@ -1,10 +1,13 @@
 from fastapi import FastAPI, HTTPException, Depends, Query, Form
-from fastapi.middleware.cors import CORSMiddleware 
+from fastapi.middleware.cors import CORSMiddleware
+# Adicionada importação para servir arquivos estáticos
+from fastapi.staticfiles import StaticFiles
 from Classes.classes import *
 from Database.connect import connect_db
 from sqlalchemy.orm import sessionmaker, Session, joinedload, selectinload
 from pydantic import EmailStr
 from typing import Optional, List
+import os
 
 # Configuração do SQLAlchemy
 Engine = connect_db()
@@ -19,6 +22,9 @@ def get_db():
         db.close()
 
 app = FastAPI()
+
+app.mount("/static_images", StaticFiles(directory="static_images"), name="static_images")
+
 
 # Configuração do CORS para permitir requisições do frontend
 origins = [

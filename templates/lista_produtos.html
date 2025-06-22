@@ -469,7 +469,10 @@
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 const fallbackImageUrl = `https://placehold.co/400x300/9e96f2/FFFFFF?text=${encodeURIComponent(product.nome)}`;
-                const primaryImageUrl = product.imagem || fallbackImageUrl;
+                
+                // --- CORREÇÃO APLICADA ---
+                // A URL agora é construída usando o ponto de montagem /static_images
+                const primaryImageUrl = product.imagem ? `${API_BASE_URL}/static_images/${product.imagem}` : fallbackImageUrl;
 
                 card.innerHTML = `
                     <div class="product-img">

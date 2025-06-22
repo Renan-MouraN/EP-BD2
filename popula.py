@@ -182,9 +182,23 @@ def insert_adocao(conn, usuarios_ids, animal_ids, num_adocoes):
     conn.commit()
     print(f"Inseridas {num_adocoes} adoções.")
 
-def insert_produtos(conn): # 'num_produtos' parameter removed
+def insert_produtos(conn):
     cur = conn.cursor()
     produto_ids = []
+
+    # --- CORREÇÃO APLICADA ---
+    # O dicionário foi atualizado para usar os nomes exatos dos arquivos de imagem que você forneceu.
+    local_images = {
+        'Alimentação': ['racao_premium.jpg', 'racao_premium_gatos.jpg'],
+        'Brinquedos': ['bola_interativa.jpg'],
+        'Higiene e Beleza': ['shampoo_neutro.png'],
+        'Acessórios': ['coleira_ajustavel.jpg'],
+        'Saúde e Farmácia': ['suplemento_vitaminico.jpg'],
+        'Camas e Conforto': ['cama_ortopedica.jpg'],
+        'Comedouros e Bebedouros': ['bebedouro_automatico.jpg']
+    }
+    # Usar uma das suas imagens existentes como padrão
+    default_image = 'racao_premium.jpg'
 
     # Dicionário com categorias e termos complementares de produtos específicos para cada categoria
     category_product_suffixes = {
@@ -215,7 +229,7 @@ def insert_produtos(conn): # 'num_produtos' parameter removed
         'Saúde e Farmácia': [
             'Anti-Pulgas Oral', 'Vermífugo Amplo Espectro', 'Suplemento Vitamínico Imunidade',
             'Remédio para Dor', 'Protetor Solar Pet', 'Cicatrizante Tópico', 'Analgésico Gatos',
-            'Antibiótico Oral', 'Pomada Cicatrizante Feridas', 'Spray Antisséptico',
+            'Antibiótico Oral', 'Pomada Cicrizante Feridas', 'Spray Antisséptico',
             'Colírio para Olhos', 'Solução para Orelhas', 'Probiótico Intestinal',
             'Fita para Glicose', 'Termômetro Digital Pet'
         ],
@@ -271,7 +285,8 @@ def insert_produtos(conn): # 'num_produtos' parameter removed
             preco = Decimal(random.uniform(10.00, 500.00)).quantize(Decimal('0.01'))
             descricao = fake.text(max_nb_chars=150)
             estoque = random.randint(0, 700)
-            imagem = fake.image_url()
+            # Seleciona uma imagem local aleatória da categoria correspondente
+            imagem = random.choice(local_images.get(categoria, [default_image]))
             destaque = fake.boolean(chance_of_getting_true=20)
             
             produtos_data.append((nome, preco, descricao, categoria, estoque, imagem, destaque))
