@@ -95,12 +95,19 @@
             cursor: pointer;
             font-weight: 600;
             text-decoration: none;
+            transition: background-color 0.3s, opacity 0.3s;
         }
         
         .btn:hover {
             background-color: #5850D8;
         }
         
+        .btn:disabled {
+            background-color: #a5a2f5;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
         .btn-secondary { background-color: var(--secondary); }
         .btn-danger { background-color: var(--accent); }
         .btn-outline { background-color: transparent; border: 2px solid #ccc; color: var(--dark); }
@@ -177,8 +184,38 @@
         .product-info { padding: 20px; text-align: left; display: flex; flex-direction: column; flex-grow: 1; }
         .product-info h3 { font-size: 20px; color: var(--dark); margin-bottom: 5px; }
         .product-category { color: #777; font-size: 14px; margin-bottom: 15px; }
-        .product-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 15px; }
-        .product-price { font-size: 22px; font-weight: 700; color: var(--primary); }
+        
+        .product-bottom { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-top: auto; 
+            padding-top: 15px; 
+        }
+        .product-price { 
+            font-size: 22px; 
+            font-weight: 700; 
+            color: var(--primary);
+            flex-shrink: 0;
+            margin-right: 10px;
+        }
+        .buy-controls { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+        }
+        .quantity-input { 
+            width: 60px; 
+            padding: 9px; 
+            text-align: center; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            font-size: 16px;
+        }
+        .quantity-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
         
         /* Filter Form */
         .filter-section {
@@ -319,7 +356,7 @@
              <form class="filter-form" id="filter-form">
                 <select name="categoria" id="categoria-select">
                     <option value="">Todas as Categorias</option>
-                    <!-- Opções serão preenchidas por JS -->
+                    <!-- Options will be filled by JS -->
                 </select>
                 <div class="filter-buttons">
                     <button type="submit" class="btn">Buscar</button>
@@ -353,12 +390,12 @@
 
         <!-- Public View -->
         <div id="public-view" class="public-view">
-            <!-- Cards de produtos serão inseridos aqui -->
+            <!-- Product cards will be inserted here -->
         </div>
 
         <!-- Pagination Controls -->
         <div id="pagination-container" class="pagination">
-            <!-- Botões de paginação serão inseridos aqui -->
+            <!-- Pagination buttons will be inserted here -->
         </div>
     </main>
 
@@ -434,7 +471,10 @@
                         <h3>${product.nome}</h3>
                         <div class="product-bottom">
                             <span class="product-price">R$ ${parseFloat(product.preco).toFixed(2)}</span>
-                            <button class="btn">Comprar</button>
+                            <div class="buy-controls">
+                                <input type="number" class="quantity-input" value="1" min="1" max="99" data-product-id="${product.id_produto}" aria-label="Quantidade">
+                                <button class="btn btn-comprar" data-id="${product.id_produto}" data-price="${product.preco}">Comprar</button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -479,7 +519,7 @@
             const paginationContainer = document.getElementById('pagination-container');
             paginationContainer.innerHTML = '';
             const isAdmin = currentUser && currentUser.is_admin;
-            if (isAdmin) return;
+            if (isAdmin) return; 
 
             const pageCount = Math.ceil(currentFilteredProducts.length / productsPerPage);
             if (pageCount <= 1) return;
@@ -572,6 +612,100 @@
             document.getElementById('page-title').textContent = 'Nossos Produtos';
             displayResults(allProducts);
         }
+        
+        async function handleBuyClick(event) {
+            if (!event.target.classList.contains('btn-comprar')) {
+                return;
+            }
+            
+            event.preventDefault();
+
+            const button = event.target;
+            const productId = button.dataset.id;
+            const productPrice = parseFloat(button.dataset.price);
+            
+            // Get the quantity from the input field associated with the clicked button
+            const quantityInput = button.parentElement.querySelector('.quantity-input');
+            const quantity = parseInt(quantityInput.value, 10);
+
+            if (isNaN(quantity) || quantity < 1) {
+                alert("Por favor, insira uma quantidade válida (maior que zero).");
+                return;
+            }
+
+            if (!currentUser || !currentUser.id_usuario) {
+                alert("Por favor, faça login para realizar uma compra.");
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const userId = currentUser.id_usuario;
+            console.log(`Iniciando compra para o usuário ID: ${userId}, Produto ID: ${productId}, Quantidade: ${quantity}`);
+
+            button.disabled = true;
+            button.textContent = 'Processando...';
+
+            try {
+                const totalValue = productPrice * quantity;
+
+                const pedidoData = {
+                    id_usuario: userId,
+                    valor_total: totalValue,
+                    status: 'pago' 
+                };
+
+                const urlPedido = `${API_BASE_URL}/pedidos/?userId=${userId}`;
+                const pedidoResponse = await fetch(urlPedido, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(pedidoData)
+                });
+
+                const pedidoResultText = await pedidoResponse.text();
+
+                if (!pedidoResponse.ok) {
+                    let errorDetail = 'Não foi possível criar o pedido.';
+                    try { errorDetail = JSON.parse(pedidoResultText).detail || errorDetail; } catch (e) {}
+                    throw new Error(errorDetail);
+                }
+
+                const novoPedido = JSON.parse(pedidoResultText);
+                const pedidoId = novoPedido.id_pedido;
+                console.log('Pedido criado com sucesso. ID:', pedidoId);
+
+                const itemData = {
+                    id_pedido: pedidoId,
+                    id_produto: parseInt(productId),
+                    quantidade: quantity,
+                    preco_unitario: productPrice
+                };
+
+                const urlItem = `${API_BASE_URL}/itens_pedido/?userId=${userId}`;
+                const itemResponse = await fetch(urlItem, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(itemData)
+                });
+
+                const itemResultText = await itemResponse.text();
+
+                if (!itemResponse.ok) {
+                    let errorDetail = 'Não foi possível adicionar o item ao pedido.';
+                     try { errorDetail = JSON.parse(itemResultText).detail || errorDetail; } catch (e) {}
+                    throw new Error(errorDetail);
+                }
+
+                console.log('Item adicionado com sucesso ao pedido.');
+                alert(`Compra de ${quantity} unidade(s) realizada com sucesso! ID do seu pedido: ${pedidoId}`);
+
+            } catch (error) {
+                console.error('Erro detalhado na compra:', error);
+                alert(`Erro na compra: ${error.message}`);
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Comprar';
+            }
+        }
 
         async function initializeApp() {
             updateUIForLoginState();
@@ -597,13 +731,18 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', initializeApp);
-        document.getElementById('filter-form').addEventListener('submit', handleFilterSubmit);
-        document.getElementById('clear-filters-btn').addEventListener('click', clearFilters);
-        const logoutBtn = document.getElementById('logout-btn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', handleLogout);
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+            
+            document.getElementById('filter-form').addEventListener('submit', handleFilterSubmit);
+            document.getElementById('clear-filters-btn').addEventListener('click', clearFilters);
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', handleLogout);
+            }
+
+            document.getElementById('public-view').addEventListener('click', handleBuyClick);
+        });
     </script>
 </body>
 </html>

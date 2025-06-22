@@ -110,6 +110,11 @@
             background-color: #5850D8;
         }
         
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
         .btn-secondary {
             background-color: var(--secondary);
         }
@@ -127,7 +132,7 @@
         
         /* Hero Section */
         .hero {
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://placehold.co/1200x600/6C63FF/6C63FF') center/cover no-repeat;
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1529429617124-95b109e86bb8?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat;
             color: white;
             text-align: center;
             padding: 120px 20px;
@@ -422,6 +427,48 @@
             font-size: 14px;
         }
         
+        /* Pagination Styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 40px;
+            padding-bottom: 20px;
+            gap: 8px;
+        }
+        .pagination button, .pagination span {
+            background-color: white;
+            border: 1px solid #ddd;
+            color: var(--dark);
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+        }
+        .pagination span {
+            cursor: default;
+            border-color: transparent;
+            background-color: transparent;
+        }
+        .pagination button:hover:not(:disabled) {
+            background-color: var(--light);
+            border-color: #ccc;
+        }
+        .pagination button.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            font-weight: bold;
+        }
+        .pagination button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
         /* Footer */
         footer {
             background-color: var(--dark);
@@ -523,6 +570,7 @@
                     <select name="porte"><option value="">Todos os Portes</option><option value="pequeno">Pequeno</option><option value="medio">Médio</option><option value="grande">Grande</option></select>
                     <select name="idade"><option value="">Todas as Idades</option><option value="filhote">Filhote (até 1 ano)</option><option value="adulto">Adulto (1 a 7)</option><option value="idoso">Idoso (8+)</option></select>
                     <select name="sexo"><option value="">Todos os Sexos</option><option value="macho">Macho</option><option value="femea">Fêmea</option></select>
+                    <select name="status"><option value="">Todos os Status</option><option value="disponivel" selected>Disponível</option><option value="em_tratamento">Em tratamento</option><option value="adotado">Adotado</option></select>
                     <div class="filter-buttons">
                         <button type="submit" class="btn">Buscar</button>
                         <button type="button" id="clear-filters-btn" class="btn btn-outline">Limpar Filtros</button>
@@ -549,6 +597,8 @@
                 <div class="animals-grid" id="pets-grid">
                     <!-- Cards de animais serão inseridos aqui -->
                 </div>
+                <!-- NOVO: Container da Paginação -->
+                <div id="pagination-container" class="pagination"></div>
             </div>
         </section>
 
@@ -586,6 +636,10 @@
     <script>
         const API_BASE_URL = 'http://127.0.0.1:8000';
         let allPets = []; 
+        let currentUser = null;
+        let currentFilteredPets = [];
+        let currentPage = 1;
+        const petsPerPage = 6;
 
         function updateUIForLoginState() {
             const navAdmin = document.getElementById('nav-admin');
@@ -594,6 +648,7 @@
             const navLoggedOut = document.querySelectorAll('#nav-logged-out, #nav-logged-out-2');
             
             const userData = JSON.parse(localStorage.getItem('patacerta_user'));
+            currentUser = userData;
 
             navAdmin.classList.add('hidden');
             navProfile.classList.add('hidden');
@@ -618,16 +673,16 @@
             window.location.reload();
         }
         
-        function displayPets(petsToDisplay) {
+        function renderPets(petsToRender) {
             const grid = document.getElementById('pets-grid');
             grid.innerHTML = '';
             
-            if (petsToDisplay.length === 0) {
+            if (petsToRender.length === 0) {
                 grid.innerHTML = '<p>Nenhum pet encontrado com os filtros selecionados.</p>';
                 return;
             }
 
-            petsToDisplay.forEach(animal => {
+            petsToRender.forEach(animal => {
                 const card = document.createElement('div');
                 card.className = 'animal-card';
                 const tipoAnimal = animal.tipo || 'Pet';
@@ -648,11 +703,120 @@
                             <span>Porte ${animal.porte || 'desconhecido'}</span>
                         </div>
                         <p class="animal-desc">${animal.descricao || 'Um amigo em busca de um lar.'}</p>
-                        <a href="confirmacao.html" class="btn">Quero Adotar</a>
+                        <button class="btn adopt-btn" data-animal-id="${animal.id_animal}" ${animal.status !== 'disponivel' ? 'disabled' : ''}>
+                            ${animal.status === 'disponivel' ? 'Quero Adotar' : 'Em processo de adoção'}
+                        </button>
                     </div>
                 `;
                 grid.appendChild(card);
             });
+        }
+        
+        // --- FUNÇÃO DE PAGINAÇÃO MELHORADA ---
+        function setupPagination() {
+            const paginationContainer = document.getElementById('pagination-container');
+            paginationContainer.innerHTML = '';
+            const pageCount = Math.ceil(currentFilteredPets.length / petsPerPage);
+            if (pageCount <= 1) return;
+
+            // Função auxiliar para criar botões
+            const createButton = (page, text = page) => {
+                const button = document.createElement('button');
+                button.textContent = text;
+                if (page === currentPage) {
+                    button.classList.add('active');
+                }
+                button.addEventListener('click', () => {
+                    currentPage = page;
+                    renderCurrentPage();
+                    setupPagination();
+                });
+                return button;
+            };
+
+            // Botão "Anterior"
+            const prevButton = document.createElement('button');
+            prevButton.textContent = 'Anterior';
+            prevButton.disabled = currentPage === 1;
+            prevButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderCurrentPage();
+                    setupPagination();
+                }
+            });
+            paginationContainer.appendChild(prevButton);
+
+            // Lógica para mostrar páginas com reticências
+            const maxPagesToShow = 5;
+            let startPage, endPage;
+
+            if (pageCount <= maxPagesToShow) {
+                startPage = 1;
+                endPage = pageCount;
+            } else {
+                const maxPagesBeforeCurrent = Math.floor(maxPagesToShow / 2);
+                const maxPagesAfterCurrent = Math.ceil(maxPagesToShow / 2) - 1;
+                if (currentPage <= maxPagesBeforeCurrent) {
+                    startPage = 1;
+                    endPage = maxPagesToShow;
+                } else if (currentPage + maxPagesAfterCurrent >= pageCount) {
+                    startPage = pageCount - maxPagesToShow + 1;
+                    endPage = pageCount;
+                } else {
+                    startPage = currentPage - maxPagesBeforeCurrent;
+                    endPage = currentPage + maxPagesAfterCurrent;
+                }
+            }
+
+            if (startPage > 1) {
+                paginationContainer.appendChild(createButton(1));
+                if (startPage > 2) {
+                    const dots = document.createElement('span');
+                    dots.textContent = '...';
+                    paginationContainer.appendChild(dots);
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                paginationContainer.appendChild(createButton(i));
+            }
+
+            if (endPage < pageCount) {
+                if (endPage < pageCount - 1) {
+                     const dots = document.createElement('span');
+                    dots.textContent = '...';
+                    paginationContainer.appendChild(dots);
+                }
+                paginationContainer.appendChild(createButton(pageCount));
+            }
+
+            // Botão "Próximo"
+            const nextButton = document.createElement('button');
+            nextButton.textContent = 'Próximo';
+            nextButton.disabled = currentPage === pageCount;
+            nextButton.addEventListener('click', () => {
+                if (currentPage < pageCount) {
+                    currentPage++;
+                    renderCurrentPage();
+                    setupPagination();
+                }
+            });
+            paginationContainer.appendChild(nextButton);
+        }
+
+        function renderCurrentPage() {
+            const startIndex = (currentPage - 1) * petsPerPage;
+            const endIndex = startIndex + petsPerPage;
+            const petsForPage = currentFilteredPets.slice(startIndex, endIndex);
+            renderPets(petsForPage);
+        }
+
+        function displayPaginatedResults(filteredPets) {
+            currentFilteredPets = filteredPets;
+            currentPage = 1;
+            renderCurrentPage();
+            setupPagination();
         }
 
         function handleFilterSubmit(event) {
@@ -665,6 +829,7 @@
                 const typeMatch = !filters.tipo || pet.tipo === filters.tipo;
                 const porteMatch = !filters.porte || pet.porte === filters.porte;
                 const sexoMatch = !filters.sexo || pet.sexo === filters.sexo;
+                const statusMatch = !filters.status || pet.status === filters.status;
 
                 let ageMatch = true;
                 if (filters.idade) {
@@ -674,18 +839,20 @@
                     if (filters.idade === 'idoso' && age <= 7) ageMatch = false;
                 }
                 
-                return typeMatch && porteMatch && sexoMatch && ageMatch;
+                return typeMatch && porteMatch && sexoMatch && ageMatch && statusMatch;
             });
 
             document.getElementById('pets-section-title').textContent = 'Resultados da Busca';
-            displayPets(filteredPets);
+            document.getElementById('animais').scrollIntoView({ behavior: 'smooth' });
+            displayPaginatedResults(filteredPets);
         }
 
         function clearFilters() {
             const form = document.getElementById('filter-form');
             form.reset(); 
             document.getElementById('pets-section-title').textContent = 'Pets em Destaque';
-            displayPets(allPets.slice(0, 6)); 
+            document.getElementById('pagination-container').innerHTML = '';
+            renderPets(allPets.filter(p => p.status === 'disponivel').slice(0, 6)); 
         }
 
         async function initializePage() {
@@ -694,17 +861,74 @@
             grid.innerHTML = '<p>Carregando pets...</p>';
 
             try {
-                const response = await fetch(`${API_BASE_URL}/animals/?limit=200`);
+                const response = await fetch(`${API_BASE_URL}/animals/?limit=500`);
                 if (!response.ok) throw new Error(`Erro na API: ${response.statusText}`);
                 allPets = await response.json();
                 
-                displayPets(allPets.slice(0, 6));
+                allPets.sort((a, b) => {
+                    const statusOrder = { 'disponivel': 1, 'em_tratamento': 2, 'adotado': 3 };
+                    const aOrder = statusOrder[a.status] || 99;
+                    const bOrder = statusOrder[b.status] || 99;
+                    if (aOrder !== bOrder) {
+                        return aOrder - bOrder;
+                    }
+                    return a.id_animal - b.id_animal;
+                });
+                
+                renderPets(allPets.filter(p => p.status === 'disponivel').slice(0, 6));
 
             } catch (error) {
                 console.error("Falha ao buscar pets:", error);
                 grid.innerHTML = `<p style="color:red;">Não foi possível carregar os pets. Tente novamente mais tarde.</p>`;
             }
         }
+
+        document.getElementById('pets-grid').addEventListener('click', async (event) => {
+            if (event.target.classList.contains('adopt-btn')) {
+                if (!currentUser) {
+                    alert("Por favor, faça login para iniciar o processo de adoção.");
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const animalId = event.target.dataset.animalId;
+                const button = event.target;
+                
+                if (!confirm("Tem a certeza que deseja iniciar o processo de adoção para este pet? A nossa equipa entrará em contacto.")) {
+                    return;
+                }
+
+                button.disabled = true;
+                button.textContent = 'A processar...';
+
+                const adoptionData = {
+                    id_usuario: currentUser.id_usuario,
+                    id_animal: parseInt(animalId)
+                };
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/adocoes/?userId=${currentUser.id_usuario}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(adoptionData)
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.detail || 'Não foi possível processar o seu pedido de adoção.');
+                    }
+
+                    window.location.href = 'confirmacao.html';
+
+                } catch (error) {
+                    alert(`Erro: ${error.message}`);
+                    button.disabled = false;
+                    button.textContent = 'Quero Adotar';
+                }
+            }
+        });
+
 
         document.getElementById('filter-form').addEventListener('submit', handleFilterSubmit);
         document.getElementById('clear-filters-btn').addEventListener('click', clearFilters);

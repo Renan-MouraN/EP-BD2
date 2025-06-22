@@ -237,6 +237,55 @@
             cursor: not-allowed;
             opacity: 0.6;
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: slide-down 0.3s ease-out;
+        }
+        @keyframes slide-down {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .modal-header h2 { font-size: 22px; color: var(--dark); }
+        .close-button { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close-button:hover { color: #333; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
         
         /* Footer */
         footer {
@@ -298,7 +347,7 @@
                     <li><a href="lista_servicos.html">Serviços</a></li>
                     <li id="nav-admin" class="hidden"><a href="admin.html" class="btn">Painel Admin</a></li>
                     <li id="nav-logged-out"><a href="login.html" class="btn btn-outline">Login</a></li>
-                    <li id="nav-logged-out-2"><a href="login.html" class="btn">Cadastre-se</a></li>
+                    <li id="nav-logged-out-2"><a href="cadastro.html" class="btn">Cadastre-se</a></li>
                     <li id="nav-logged-in" class="hidden"><a href="meu_perfil.html">Meu Perfil</a></li>
                     <li id="nav-logged-in-2" class="hidden"><a href="#" id="logout-btn" class="btn btn-secondary">Sair</a></li>
                 </ul>
@@ -358,6 +407,35 @@
             <!-- Botões de paginação serão inseridos aqui -->
         </div>
     </main>
+
+    <!-- Modal de Agendamento -->
+    <div id="schedule-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Agendar Serviço</h2>
+                <span class="close-button">&times;</span>
+            </div>
+            <form id="schedule-form">
+                <input type="hidden" id="modal-prestador-serv-id" name="id_prestador_serv">
+                <div class="form-group">
+                    <label for="modal-pet-select">Para qual pet?</label>
+                    <select id="modal-pet-select" name="id_animal" required>
+                        <option value="">A carregar os seus pets...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="modal-datetime">Data e Hora do Agendamento</label>
+                    <input type="datetime-local" id="modal-datetime" name="inicio" required>
+                </div>
+                <div class="form-group">
+                    <label for="modal-observacoes">Observações (opcional)</label>
+                    <textarea id="modal-observacoes" name="observacoes" rows="3" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;"></textarea>
+                </div>
+                <button type="submit" class="btn" style="width:100%;">Confirmar Agendamento</button>
+            </form>
+        </div>
+    </div>
+
 
     <footer>
         <div class="container">
@@ -432,17 +510,21 @@
                 grid.innerHTML = '<p>Nenhum serviço encontrado com os filtros selecionados.</p>';
                 return;
             }
-            services.forEach(service => {
+            services.forEach(serviceOffering => {
                 const card = document.createElement('div');
                 card.className = 'service-card';
-                const icon = getIconForService(service.nome);
+                const icon = getIconForService(serviceOffering.servico.nome);
+                const price = serviceOffering.preco || serviceOffering.servico.preco_base || 0;
 
                 card.innerHTML = `
                     <div class="service-icon">${icon}</div>
-                    <h3>${service.nome}</h3>
-                    <p class="service-desc">${service.descricao || 'Serviço especializado para o bem-estar do seu pet.'}</p>
-                    <div class="service-price">R$ ${parseFloat(service.preco_base || 0).toFixed(2)}</div>
-                    <a href="#" class="btn">Agendar Agora</a>
+                    <h3>${serviceOffering.servico.nome}</h3>
+                    <p style="color: #555; font-size: 14px; margin-bottom: 10px;">Oferecido por: <strong>${serviceOffering.prestador.nome_completo}</strong></p>
+                    <p class="service-desc">${serviceOffering.servico.descricao || 'Serviço especializado para o bem-estar do seu pet.'}</p>
+                    <div class="service-price">R$ ${parseFloat(price).toFixed(2)}</div>
+                    <button class="btn schedule-btn" 
+                            data-prestador-serv-id="${serviceOffering.id_prestador_serv}" 
+                            data-service-name="${serviceOffering.servico.nome}">Agendar Agora</button>
                 `;
                 grid.appendChild(card);
             });
@@ -466,16 +548,48 @@
                 tableBody.appendChild(row);
             });
         }
+        
+        // --- CORREÇÃO NA LÓGICA DE BUSCA DE PETS ---
+        async function getUserPets(userId) {
+            try {
+                const adocoesResponse = await fetch(`${API_BASE_URL}/adocoes/?limit=10000`);
+                if (!adocoesResponse.ok) throw new Error('Falha ao buscar adoções.');
+                const adocoes = await adocoesResponse.json();
+
+                // Agora aceita adoções com status 'aprovada' OU 'pendente'
+                const userAdoptions = adocoes.filter(ad => 
+                    ad.id_usuario === userId && (ad.status === 'aprovada' || ad.status === 'pendente')
+                );
+
+                if (userAdoptions.length === 0) {
+                    return [];
+                }
+                
+                const userAnimalIds = new Set(userAdoptions.map(ad => ad.id_animal));
+                
+                const animalsResponse = await fetch(`${API_BASE_URL}/animals/?limit=10000`);
+                if (!animalsResponse.ok) throw new Error('Falha ao buscar animais.');
+                const allAnimals = await animalsResponse.json();
+
+                return allAnimals.filter(animal => userAnimalIds.has(animal.id_animal));
+
+            } catch (error) {
+                console.error("Erro ao buscar os pets do usuário:", error);
+                return [];
+            }
+        }
 
         function renderCurrentPage() {
             const isAdmin = currentUser && currentUser.is_admin;
             const startIndex = (currentPage - 1) * servicesPerPage;
             const endIndex = startIndex + servicesPerPage;
-            const servicesForPage = currentFilteredServices.slice(startIndex, endIndex);
-
+            
             if(isAdmin) {
-                renderAdminView(currentFilteredServices);
+                fetch(`${API_BASE_URL}/servicos/?limit=200`).then(res => res.json()).then(baseServices => {
+                    renderAdminView(baseServices);
+                });
             } else {
+                const servicesForPage = currentFilteredServices.slice(startIndex, endIndex);
                 renderPublicView(servicesForPage);
             }
         }
@@ -549,8 +663,9 @@
         }
         
         function populateCategoryFilter(services) {
-            const categories = [...new Set(services.map(s => s.categoria).filter(Boolean))];
+            const categories = [...new Set(services.map(s => s.servico.categoria).filter(Boolean))];
             const select = document.getElementById('categoria-select');
+            select.innerHTML = '<option value="">Todas as Categorias</option>';
             categories.sort().forEach(cat => {
                 const option = document.createElement('option');
                 option.value = cat;
@@ -565,10 +680,10 @@
             let filteredServices = allServices;
 
             if (selectedCategory) {
-                filteredServices = allServices.filter(s => s.categoria === selectedCategory);
+                filteredServices = allServices.filter(s => s.servico.categoria === selectedCategory);
             }
             
-            document.getElementById('page-title').textContent = selectedCategory ? `Mostrando: ${selectedCategory}` : 'Todos os Serviços';
+            document.getElementById('page-title').textContent = selectedCategory ? `Mostrando: ${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}` : 'Todos os Serviços';
             displayResults(filteredServices);
         }
 
@@ -577,6 +692,85 @@
             document.getElementById('page-title').textContent = 'Nossos Serviços';
             displayResults(allServices);
         }
+        
+        const modal = document.getElementById('schedule-modal');
+        const modalCloseBtn = modal.querySelector('.close-button');
+        const scheduleForm = document.getElementById('schedule-form');
+
+        modalCloseBtn.onclick = () => { modal.style.display = "none"; }
+        window.onclick = (event) => {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        document.getElementById('public-view').addEventListener('click', async (event) => {
+            if (event.target.classList.contains('schedule-btn')) {
+                if (!currentUser) {
+                    alert("Por favor, faça login para agendar um serviço.");
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const prestadorServId = event.target.dataset.prestadorServId;
+                const serviceName = event.target.dataset.serviceName;
+                
+                document.getElementById('modal-title').textContent = `Agendar: ${serviceName}`;
+                document.getElementById('modal-prestador-serv-id').value = prestadorServId;
+
+                const petSelect = document.getElementById('modal-pet-select');
+                petSelect.innerHTML = '<option value="">A carregar os seus pets...</option>';
+                modal.style.display = "flex";
+
+                const pets = await getUserPets(currentUser.id_usuario);
+                if (pets.length > 0) {
+                    petSelect.innerHTML = '<option value="">Selecione um pet</option>';
+                    pets.forEach(pet => {
+                        const option = document.createElement('option');
+                        option.value = pet.id_animal;
+                        option.textContent = pet.nome;
+                        petSelect.appendChild(option);
+                    });
+                } else {
+                    petSelect.innerHTML = '<option value="" disabled>Não tem pets para agendar</option>';
+                    alert("Você precisa ter um pet em processo de adoção ou já adotado para agendar serviços.");
+                }
+            }
+        });
+
+        scheduleForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(scheduleForm);
+            const data = {
+                id_animal: parseInt(formData.get('id_animal')),
+                id_prestador_serv: parseInt(formData.get('id_prestador_serv')),
+                id_tutor: currentUser.id_usuario,
+                inicio: formData.get('inicio'),
+                observacoes: formData.get('observacoes')
+            };
+
+            if (!data.id_animal || !data.inicio) {
+                alert("Por favor, selecione um pet e uma data.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/pedidos_servico/?userId=${currentUser.id_usuario}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.detail);
+
+                alert('Serviço agendado com sucesso!');
+                modal.style.display = 'none';
+                scheduleForm.reset();
+            } catch (error) {
+                alert(`Erro ao agendar: ${error.message}`);
+            }
+        });
+
 
         async function initializeApp() {
             updateUIForLoginState();
@@ -590,12 +784,21 @@
             targetView.innerHTML = isAdmin ? '<tr><td colspan="5" style="text-align:center;">A carregar...</td></tr>' : '<p>A carregar...</p>';
 
             try {
-                const response = await fetch(`${API_BASE_URL}/servicos/?limit=100`);
-                if (!response.ok) throw new Error("Não foi possível carregar os dados dos serviços.");
-                allServices = await response.json();
-                
-                populateCategoryFilter(allServices);
-                displayResults(allServices);
+                if (isAdmin) {
+                    const response = await fetch(`${API_BASE_URL}/servicos/?limit=200`);
+                    if (!response.ok) throw new Error("Não foi possível carregar os dados dos serviços.");
+                    renderAdminView(await response.json());
+                } else {
+                    const response = await fetch(`${API_BASE_URL}/servicos-disponiveis/`);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.detail || "Não foi possível carregar as ofertas de serviços.");
+                    }
+                    allServices = await response.json();
+                    
+                    populateCategoryFilter(allServices);
+                    displayResults(allServices);
+                }
 
             } catch (error) {
                 targetView.innerHTML = `<p style="color:red; text-align:center;">${error.message}</p>`;
