@@ -93,7 +93,7 @@
         .form-row { display: flex; gap: 15px; }
         .form-actions { display: flex; justify-content: flex-end; gap: 15px; margin-top: 30px; }
 
-        /* Estilos para a tabela de agendamentos */
+        /* Estilos para a tabela de agendamentos e pedidos */
         .scheduled-services-table {
             width: 100%;
             border-collapse: collapse;
@@ -103,6 +103,7 @@
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
         }
         .scheduled-services-table th {
             font-weight: 600;
@@ -121,6 +122,10 @@
         .status-confirmado { background-color: var(--primary); }
         .status-concluido { background-color: var(--success); }
         .status-cancelado { background-color: var(--accent); }
+        .status-pago { background-color: var(--success); }
+        .status-enviado { background-color: #17a2b8; }
+        .status-entregue { background-color: var(--secondary); }
+
 
         @media (max-width: 900px) {
             .profile-layout { grid-template-columns: 1fr; }
@@ -164,7 +169,6 @@
 
             <div>
                 <section class="profile-content">
-                    <!-- Vista de Exibição -->
                     <div id="display-view">
                         <h3>Os Meus Dados</h3>
                         <div class="info-item"><span class="info-label">Nome Completo</span><p id="display-name" class="info-value"></p></div>
@@ -176,7 +180,6 @@
                         </div>
                     </div>
 
-                    <!-- Vista de Edição -->
                     <form id="edit-view" class="hidden">
                         <h3>Editar Dados</h3>
                         <div class="form-group">
@@ -216,6 +219,13 @@
                      <h3>Meus Serviços Agendados</h3>
                      <div id="scheduled-services-container">
                         <p>A carregar os seus agendamentos...</p>
+                     </div>
+                </section>
+
+                <section class="profile-content">
+                     <h3>Meus Pedidos de Produtos</h3>
+                     <div id="my-orders-container">
+                        <p>A carregar os seus pedidos...</p>
                      </div>
                 </section>
             </div>
@@ -364,12 +374,66 @@
             }
         }
         
+        // FUNÇÕES ADICIONADAS PARA CARREGAR E RENDERIZAR PEDIDOS
+        async function renderUserOrders(orders) {
+            const container = document.getElementById('my-orders-container');
+            if (!orders || orders.length === 0) {
+                container.innerHTML = '<p>Você ainda não fez nenhum pedido.</p>';
+                return;
+            }
+
+            const table = document.createElement('table');
+            table.className = 'scheduled-services-table';
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>ID Pedido</th>
+                        <th>Data</th>
+                        <th>Valor Total</th>
+                        <th>Status</th>
+                        <th>Itens</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${orders.map(order => `
+                        <tr>
+                            <td>#${order.id_pedido}</td>
+                            <td>${new Date(order.data_pedido).toLocaleDateString('pt-BR')}</td>
+                            <td>R$ ${parseFloat(order.valor_total).toFixed(2)}</td>
+                            <td><span class="status-badge status-${order.status.replace(' ', '_')}">${order.status}</span></td>
+                            <td>
+                                <ul style="list-style: none; padding-left: 0; font-size: 14px;">
+                                    ${order.itens.map(item => `<li>${item.quantidade}x ${item.produto.nome}</li>`).join('')}
+                                </ul>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            `;
+            container.innerHTML = '';
+            container.appendChild(table);
+        }
+
+        async function loadUserOrders(userId) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/usuarios/${userId}/pedidos/?userId=${userId}`);
+                if (!response.ok) {
+                    throw new Error('Não foi possível carregar os seus pedidos.');
+                }
+                const orders = await response.json();
+                renderUserOrders(orders);
+            } catch (error) {
+                document.getElementById('my-orders-container').innerHTML = `<p style="color:red;">${error.message}</p>`;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             if (!checkAuth()) return;
             
             updateUIForLoginState();
             populateDisplayView(currentUser);
             loadScheduledServices(currentUser.id_usuario);
+            loadUserOrders(currentUser.id_usuario); // CHAMADA DA NOVA FUNÇÃO
 
             document.getElementById('edit-profile-btn').addEventListener('click', () => {
                 populateEditView(currentUser);
