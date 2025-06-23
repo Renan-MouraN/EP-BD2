@@ -23,7 +23,7 @@ def get_db():
 
 app = FastAPI()
 
-app.mount("/static_images", StaticFiles(directory="static_images"), name="static_images")
+app.mount("/static_images", StaticFiles(directory="../../static_images"), name="static_images")
 
 
 # Configuração do CORS para permitir requisições do frontend
